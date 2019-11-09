@@ -8,5 +8,10 @@ namespace NRedisGraph
         private readonly IDatabase _db;
 
         public RedisGraph(IDatabase db) => _db = db;
+
+        public ResultSet Query(string graphId, string query, params object[] args)
+        {
+            return default;
+        }
     }
 }

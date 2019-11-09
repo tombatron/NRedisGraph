@@ -1,5 +1,8 @@
 // .NET port of https://github.com/RedisGraph/JRedisGraph
 using StackExchange.Redis;
+using System.Linq;
+using Xunit;
+using static NRedisGraph.Statistics;
 
 namespace NRedisGraph.Tests
 {
@@ -8,8 +11,7 @@ namespace NRedisGraph.Tests
         private ConnectionMultiplexer _muxr;
         private RedisGraph _api;
 
-        public RedisGraphAPITest() : base()
-        { }
+        public RedisGraphAPITest() : base() { }
 
         protected override void BeforeTest()
         {
@@ -22,6 +24,22 @@ namespace NRedisGraph.Tests
             _api = null;
             _muxr.Dispose();
             _muxr = null;
+        }
+
+        [Fact]
+        public void TestCreateNode()
+        {
+            // Create a node    	
+            ResultSet resultSet = _api.Query("social", "CREATE ({name:'roi',age:32})");
+
+            Assert.Equal(1, resultSet.Statistics.NodesCreated);
+            Assert.Null(resultSet.Statistics.GetStringValue(Label.NODES_DELETED));
+            Assert.Null(resultSet.Statistics.GetStringValue(Label.RELATIONSHIPS_CREATED));
+            Assert.Null(resultSet.Statistics.GetStringValue(Label.RELATIONSHIPS_DELETED));
+            Assert.Equal(2, resultSet.Statistics.PropertiesSet);
+            Assert.NotNull(resultSet.Statistics.GetStringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
+
+            Assert.Equal(0, resultSet.Count());
         }
     }
 }
