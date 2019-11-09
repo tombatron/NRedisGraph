@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.329
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisGraph", "NRedisGraph\NRedisGraph.csproj", "{08BEBB35-ABE7-4853-8E71-4FF18A3C7746}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{30FBE31B-9624-4CA5-AFFB-E3EA45A5E41F}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisGraph.Tests", "NRedisGraph.Tests\NRedisGraph.Tests.csproj", "{FBF23117-D59F-4C28-AC14-F7F2EDA88512}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{08BEBB35-ABE7-4853-8E71-4FF18A3C7746}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08BEBB35-ABE7-4853-8E71-4FF18A3C7746}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08BEBB35-ABE7-4853-8E71-4FF18A3C7746}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08BEBB35-ABE7-4853-8E71-4FF18A3C7746}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBF23117-D59F-4C28-AC14-F7F2EDA88512}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBF23117-D59F-4C28-AC14-F7F2EDA88512}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBF23117-D59F-4C28-AC14-F7F2EDA88512}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBF23117-D59F-4C28-AC14-F7F2EDA88512}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5AFE32CB-3F6A-42A4-879E-B68187E8C1A4}
+	EndGlobalSection
+EndGlobal
