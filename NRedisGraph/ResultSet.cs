@@ -3,9 +3,11 @@ using System.Collections.Generic;
 
 namespace NRedisGraph
 {
-    public sealed class ResultSet : IEnumerable<Record>
+    public sealed class ResultSet : IReadOnlyCollection<Record>
     {
         public Statistics Statistics { get; }
+
+        public int Count => throw new System.NotImplementedException();
 
         public IEnumerator<Record> GetEnumerator()
         {
