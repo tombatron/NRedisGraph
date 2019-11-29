@@ -30,7 +30,7 @@ namespace NRedisGraph
 
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
 
-            return new ResultSet(_db.Execute(Command.QUERY, graphId, query));
+            return new ResultSet(_db.Execute(Command.QUERY, graphId, query), _graphCaches[graphId]);
         }
 
         public async Task<ResultSet> QueryAsync(string graphId, string query, params object[] args)
@@ -49,7 +49,7 @@ namespace NRedisGraph
 
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
 
-            return new ResultSet(await _db.ExecuteAsync(Command.QUERY, graphId, query));
+            return new ResultSet(await _db.ExecuteAsync(Command.QUERY, graphId, query), _graphCaches[graphId]);
         }
 
         private static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =

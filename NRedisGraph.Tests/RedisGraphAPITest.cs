@@ -34,11 +34,11 @@ namespace NRedisGraph.Tests
             ResultSet resultSet = _api.Query("social", "CREATE ({name:'roi',age:32})");
 
             Assert.Equal(1, resultSet.Statistics.NodesCreated);
-            Assert.Null(resultSet.Statistics.GetStringValue(Label.NODES_DELETED));
-            Assert.Null(resultSet.Statistics.GetStringValue(Label.RELATIONSHIPS_CREATED));
-            Assert.Null(resultSet.Statistics.GetStringValue(Label.RELATIONSHIPS_DELETED));
+            Assert.Null(resultSet.Statistics.GetStringValue(Label.NodesDeleted));
+            Assert.Null(resultSet.Statistics.GetStringValue(Label.RelationshipsCreated));
+            Assert.Null(resultSet.Statistics.GetStringValue(Label.RelationshipsDeleted));
             Assert.Equal(2, resultSet.Statistics.PropertiesSet);
-            Assert.NotNull(resultSet.Statistics.GetStringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
+            Assert.NotNull(resultSet.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
 
             Assert.Equal(0, resultSet.Count());
         }
