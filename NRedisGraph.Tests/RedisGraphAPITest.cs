@@ -42,5 +42,16 @@ namespace NRedisGraph.Tests
 
             Assert.Equal(0, resultSet.Count());
         }
+
+        [Fact]
+        public void TestCreateLabeledNode()
+        {
+            // Create a node with a label
+            ResultSet resultSet = _api.Query("social", "CREATE (:human{name:'danny',age:12})");
+            Assert.Equal(0, resultSet.Count());
+            Assert.Equal("1", resultSet.Statistics.GetStringValue(Label.NodesCreated));
+            Assert.Equal("2", resultSet.Statistics.GetStringValue(Label.PropertiesSet));
+            Assert.NotNull(resultSet.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
+        }
     }
 }
