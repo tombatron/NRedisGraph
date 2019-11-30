@@ -11,5 +11,10 @@ namespace NRedisGraph
                 @this.Add(key, value);
             }
         }
+
+        internal static bool SequenceEqual<TKey, TValue>(this IDictionary<TKey, TValue> @this, IDictionary<TKey, TValue> that)
+        {
+            return false;
+        }
     }
 }

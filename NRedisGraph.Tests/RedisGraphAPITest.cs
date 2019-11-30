@@ -1,8 +1,10 @@
 // .NET port of https://github.com/RedisGraph/JRedisGraph
-using System;
-using System.Linq;
 using StackExchange.Redis;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
+using static NRedisGraph.Header;
 using static NRedisGraph.Statistics;
 
 namespace NRedisGraph.Tests
@@ -55,7 +57,7 @@ namespace NRedisGraph.Tests
         }
 
         [Fact]
-        public void TestConnectNodes() 
+        public void TestConnectNodes()
         {
             // Create both source and destination nodes
             Assert.NotNull(_api.Query("social", "CREATE (:person{name:'roi',age:32})"));
@@ -84,20 +86,12 @@ namespace NRedisGraph.Tests
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.PropertiesSet));
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.RelationshipsCreated));
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.RelationshipsDeleted));
-            Assert.Equal(1, deleteResult.Statistics.NodesDeleted;
+            Assert.Equal(1, deleteResult.Statistics.NodesDeleted); 
             Assert.NotNull(deleteResult.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
 
-            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'roi',age:32})"));
-            Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(a)"));
-            deleteResult = _api.Query("social", "MATCH (a:person) WHERE (a.name = 'roi') DELETE a");
+            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'roi',age:32})")); Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(a)")); deleteResult = _api.Query("social", "MATCH (a:person) WHERE (a.name = 'roi') DELETE a");
 
-            Assert.Equal(0, deleteResult.Count());
-            Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated));
-            Assert.Null(deleteResult.Statistics.GetStringValue(Label.PropertiesSet));
-            Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated));
-            Assert.Null(deleteResult.Statistics.GetStringValue(Label.RelationshipsCreated));
-            Assert.Equal(1, deleteResult.Statistics.RelationshipsDeleted);
-            Assert.Equal(1, deleteResult.Statistics.NodesDeleted);
+            Assert.Equal(0, deleteResult.Count()); Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated)); Assert.Null(deleteResult.Statistics.GetStringValue(Label.PropertiesSet)); Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated)); Assert.Null(deleteResult.Statistics.GetStringValue(Label.RelationshipsCreated)); Assert.Equal(1, deleteResult.Statistics.RelationshipsDeleted); Assert.Equal(1, deleteResult.Statistics.NodesDeleted);
 
             Assert.NotNull(deleteResult.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
         }
@@ -122,7 +116,7 @@ namespace NRedisGraph.Tests
         }
 
         [Fact]
-        public void TestIndex() 
+        public void TestIndex()
         {
             // Create both source and destination nodes
             Assert.NotNull(_api.Query("social", "CREATE (:person{name:'roi',age:32})"));
@@ -140,148 +134,131 @@ namespace NRedisGraph.Tests
         [Fact]
         public void TestHeader()
         {
-            Assert.assertNotNull(api.query("social", "CREATE (:person{name:'roi',age:32})"));
-            Assert.assertNotNull(api.query("social", "CREATE (:person{name:'amit',age:30})"));
-            Assert.assertNotNull(api.query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(a)"));
+            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'roi',age:32})"));
+            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'amit',age:30})"));
+            Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(a)"));
 
-            ResultSet queryResult = api.query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r, a.age");
+            ResultSet queryResult = _api.Query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r, a.age");
 
-            Assert.assertNotNull(queryResult.getHeader());
-            Header header = queryResult.getHeader();
+            Assert.NotNull(queryResult.Header);
+            Header header = queryResult.Header;
 
-            List<String> schemaNames = header.getSchemaNames();
-            List<Header.ResultSetColumnTypes> schemaTypes = header.getSchemaTypes();
+            List<string> schemaNames = header.SchemaNames;
+            List<Header.ResultSetColumnTypes> schemaTypes = header.SchemaTypes;
 
-            Assert.assertNotNull(schemaNames);
-            Assert.assertNotNull(schemaTypes);
+            Assert.NotNull(schemaNames);
+            Assert.NotNull(schemaTypes);
 
-            Assert.assertEquals(3, schemaNames.size());
-            Assert.assertEquals(3, schemaTypes.size());
+            Assert.Equal(3, schemaNames.Count);
+            Assert.Equal(3, schemaTypes.Count);
 
-            Assert.assertEquals("a", schemaNames.get(0));
-            Assert.assertEquals("r", schemaNames.get(1));
-            Assert.assertEquals("a.age", schemaNames.get(2));
+            Assert.Equal("a", schemaNames[0]);
+            Assert.Equal("r", schemaNames[1]);
+            Assert.Equal("a.age", schemaNames[2]);
 
-            Assert.assertEquals(COLUMN_NODE, schemaTypes.get(0));
-            Assert.assertEquals(COLUMN_RELATION, schemaTypes.get(1));
-            Assert.assertEquals(COLUMN_SCALAR, schemaTypes.get(2));
+            Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
+            Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
+            Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[2]);
         }
 
         [Fact]
         public void TestRecord()
         {
-            String name = "roi";
+            string name = "roi";
             int age = 32;
             double doubleValue = 3.14;
-            bool boolValue  = true;
+            bool boolValue = true;
 
-            String place = "TLV";
+            string place = "TLV";
             int since = 2000;
 
+            Property nameProperty = new Property("name", ResultSet.ResultSetScalarType.PROPERTY_STRING, name);
+            Property ageProperty = new Property("age", ResultSet.ResultSetScalarType.PROPERTY_INTEGER, age);
+            Property doubleProperty = new Property("doubleValue", ResultSet.ResultSetScalarType.PROPERTY_DOUBLE, doubleValue);
+            Property trueBooleanProperty = new Property("boolValue", ResultSet.ResultSetScalarType.PROPERTY_BOOLEAN, true);
+            Property falseBooleanProperty = new Property("boolValue", ResultSet.ResultSetScalarType.PROPERTY_BOOLEAN, false);
+            Property nullProperty = new Property("nullValue", ResultSet.ResultSetScalarType.PROPERTY_NULL, null);
 
-
-            Property nameProperty = new Property("name", ResultSet.ResultSetScalarTypes.PROPERTY_STRING, name);
-            Property ageProperty = new Property("age", ResultSet.ResultSetScalarTypes.PROPERTY_INTEGER, age);
-            Property doubleProperty = new Property("doubleValue", ResultSet.ResultSetScalarTypes.PROPERTY_DOUBLE, doubleValue);
-            Property trueBooleanProperty = new Property("boolValue", ResultSet.ResultSetScalarTypes.PROPERTY_BOOLEAN, true);
-            Property falseBooleanProperty = new Property("boolValue", ResultSet.ResultSetScalarTypes.PROPERTY_BOOLEAN, false);
-            Property nullProperty = new Property("nullValue", ResultSet.ResultSetScalarTypes.PROPERTY_NULL, null);
-
-            Property placeProperty = new Property("place", ResultSet.ResultSetScalarTypes.PROPERTY_STRING, place);
-            Property sinceProperty = new Property("since", ResultSet.ResultSetScalarTypes.PROPERTY_INTEGER, since);
+            Property placeProperty = new Property("place", ResultSet.ResultSetScalarType.PROPERTY_STRING, place);
+            Property sinceProperty = new Property("since", ResultSet.ResultSetScalarType.PROPERTY_INTEGER, since);
 
             Node expectedNode = new Node();
-            expectedNode.setId(0);
-            expectedNode.addLabel("person");
-            expectedNode.addProperty(nameProperty);
-            expectedNode.addProperty(ageProperty);
-            expectedNode.addProperty(doubleProperty);
-            expectedNode.addProperty(trueBooleanProperty);
-            expectedNode.addProperty(nullProperty);
+            expectedNode.Id = 0;
+            expectedNode.AddLabel("person");
+            expectedNode.AddProperty(nameProperty);
+            expectedNode.AddProperty(ageProperty);
+            expectedNode.AddProperty(doubleProperty);
+            expectedNode.AddProperty(trueBooleanProperty);
+            expectedNode.AddProperty(nullProperty);
 
             Edge expectedEdge = new Edge();
-            expectedEdge.setId(0);
-            expectedEdge.setSource(0);
-            expectedEdge.setDestination(1);
-            expectedEdge.setRelationshipType("knows");
-            expectedEdge.addProperty(placeProperty);
-            expectedEdge.addProperty(sinceProperty);
-            expectedEdge.addProperty(doubleProperty);
-            expectedEdge.addProperty(falseBooleanProperty);
-            expectedEdge.addProperty(nullProperty);
+            expectedEdge.Id = 0;
+            expectedEdge.Source = 0;
+            expectedEdge.Destination = 1;
+            expectedEdge.RelationshipType = "knows";
+            expectedEdge.AddProperty(placeProperty);
+            expectedEdge.AddProperty(sinceProperty);
+            expectedEdge.AddProperty(doubleProperty);
+            expectedEdge.AddProperty(falseBooleanProperty);
+            expectedEdge.AddProperty(nullProperty);
 
+            Assert.NotNull(_api.Query("social", "CREATE (:person{name:%s',age:%d, doubleValue:%f, boolValue:%b, nullValue:null})", name, age, doubleValue, boolValue));
+            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'amit',age:30})"));
+            Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit') CREATE (a)-[:knows{place:'TLV', since:2000,doubleValue:3.14, boolValue:false, nullValue:null}]->(b)"));
 
+            ResultSet resultSet = _api.Query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r, a.name, a.age, a.doubleValue, a.boolValue, a.nullValue, r.place, r.since, r.doubleValue, r.boolValue, r.nullValue");
 
-            Assert.assertNotNull(api.query("social", "CREATE (:person{name:%s',age:%d, doubleValue:%f, boolValue:%b, nullValue:null})", name, age, doubleValue, boolValue));
-            Assert.assertNotNull(api.query("social", "CREATE (:person{name:'amit',age:30})"));
-            Assert.assertNotNull(api.query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  " +
-                    "CREATE (a)-[:knows{place:'TLV', since:2000,doubleValue:3.14, boolValue:false, nullValue:null}]->(b)"));
+            Assert.NotNull(resultSet);
 
-            ResultSet resultSet = api.query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r, " +
-                    "a.name, a.age, a.doubleValue, a.boolValue, a.nullValue, " +
-                    "r.place, r.since, r.doubleValue, r.boolValue, r.nullValue");
-            Assert.assertNotNull(resultSet);
+            Assert.Equal(0, resultSet.Statistics.NodesCreated);
+            Assert.Equal(0, resultSet.Statistics.NodesDeleted);
+            Assert.Equal(0, resultSet.Statistics.LabelsAdded);
+            Assert.Equal(0, resultSet.Statistics.PropertiesSet);
+            Assert.Equal(0, resultSet.Statistics.RelationshipsCreated);
+            Assert.Equal(0, resultSet.Statistics.RelationshipsDeleted);
+            Assert.NotNull(resultSet.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
 
+            Assert.Equal(1, resultSet.Count());
 
-            Assert.assertEquals(0, resultSet.Statistics.nodesCreated());
-            Assert.assertEquals(0, resultSet.Statistics.nodesDeleted());
-            Assert.assertEquals(0, resultSet.Statistics.labelsAdded());
-            Assert.assertEquals(0, resultSet.Statistics.propertiesSet());
-            Assert.assertEquals(0, resultSet.Statistics.relationshipsCreated());
-            Assert.assertEquals(0, resultSet.Statistics.relationshipsDeleted());
-            Assert.assertNotNull(resultSet.Statistics.getStringValue(Label.QUERY_INTERNAL_EXECUTION_TIME));
+            Record record = resultSet.First();
 
+            Node node = record.GetValue<Node>(0);
+            Assert.NotNull(node);
 
-            Assert.assertEquals(1, resultSet.size());
-            Assert.assertTrue(resultSet.hasNext());
-            Record record = resultSet.next();
-            Assert.assertFalse(resultSet.hasNext());
+            Assert.Equal(expectedNode, node);
 
-            Node node = record.getValue(0);
-            Assert.assertNotNull(node);
+            node = record.GetValue<Node>("a");
+            Assert.Equal(expectedNode, node);
 
-            Assert.assertEquals(expectedNode, node);
+            Edge edge = record.GetValue<Edge>(1);
+            Assert.NotNull(edge);
+            Assert.Equal(expectedEdge, edge);
 
-            node = record.getValue("a");
-            Assert.assertEquals(expectedNode, node);
+            edge = record.GetValue<Edge>("r");
+            Assert.Equal(expectedEdge, edge);
 
-            Edge edge = record.getValue(1);
-            Assert.assertNotNull(edge);
-            Assert.assertEquals(expectedEdge, edge);
+            Assert.Equal(new [] { "a", "r", "a.name", "a.age", "a.doubleValue", "a.boolValue", "a.nullValue", "r.place", "r.since", "r.doubleValue", "r.boolValue", "r.nullValue" }, record.Keys);
 
-            edge = record.getValue("r");
-            Assert.assertEquals(expectedEdge, edge);
+            Assert.Equal(new object[] { expectedNode, expectedEdge, name, age, doubleValue, true, null, place, since, doubleValue, false, null }, record.Values);
 
-            Assert.assertEquals(Arrays.asList("a", "r", "a.name", "a.age", "a.doubleValue", "a.boolValue", "a.nullValue",
-                    "r.place", "r.since", "r.doubleValue", "r.boolValue", "r.nullValue"), record.keys());
-
-            Assert.assertEquals(Arrays.asList(expectedNode, expectedEdge,
-                    name, age, doubleValue, true, null,
-                    place, since, doubleValue, false, null),
-                    record.values());
-
-
-            Assert.assertEquals( "roi", record.getString(2));
-            Assert.assertEquals( "32", record.getString(3));
-            Assert.assertEquals( 32L, ((Integer)(record.getValue(3))).longValue());
-            Assert.assertEquals( 32L, ((Integer)record.getValue("a.age")).longValue());
-            Assert.assertEquals( "roi", record.getString("a.name"));
-            Assert.assertEquals( "32", record.getString("a.age"));
-
+            Assert.Equal("roi", record.GetString(2));
+            Assert.Equal("32", record.GetString(3));
+            Assert.Equal(32L, record.GetValue<long>(3));
+            Assert.Equal(32L, record.GetValue<long>("a.age"));
+            Assert.Equal("roi", record.GetString("a.name"));
+            Assert.Equal("32", record.GetString("a.age"));
         }
-
 
         [Fact]
         public void TinyTestMultiThread()
         {
-            ResultSet resultSet = api.query("social", "CREATE ({name:'roi',age:32})");
-            api.query("social", "MATCH (a:person) RETURN a");
-            for (int i =0; i < 10000; i++){
-                List<ResultSet> resultSets = IntStream.range(0,16).parallel().
-                        mapToObj(
-                                j-> api.query("social", "MATCH (a:person) RETURN a")).
-                        collect(Collectors.toList());
+            ResultSet resultSet = _api.Query("social", "CREATE ({name:'roi',age:32})");
 
+            _api.Query("social", "MATCH (a:person) RETURN a");
+
+            for (int i = 0; i < 10000; i++)
+            {
+                var resultSets = Enumerable.Range(0, 16).AsParallel().Select(x => _api.Query("social", "MATCH (a:person) RETURN a"));
             }
         }
 
@@ -289,190 +266,172 @@ namespace NRedisGraph.Tests
         public void TestMultiThread()
         {
 
-            Assert.assertNotNull(api.query("social", "CREATE (:person {name:'roi', age:32})-[:knows]->(:person {name:'amit',age:30}) "));
+            Assert.NotNull(_api.Query("social", "CREATE (:person {name:'roi', age:32})-[:knows]->(:person {name:'amit',age:30}) "));
 
-            List<ResultSet> resultSets = IntStream.range(0,16).parallel().
-                    mapToObj(i-> api.query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r, a.age")).
-                    collect(Collectors.toList());
+            List<ResultSet> resultSets = Enumerable.Range(0, 16).AsParallel().Select(x => _api.Query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r, a.age")).ToList();
 
-            Property nameProperty = new Property("name", ResultSet.ResultSetScalarTypes.PROPERTY_STRING, "roi");
-            Property ageProperty = new Property("age", ResultSet.ResultSetScalarTypes.PROPERTY_INTEGER, 32);
-            Property lastNameProperty =new Property("lastName", ResultSet.ResultSetScalarTypes.PROPERTY_STRING, "a");
+            Property nameProperty = new Property("name", ResultSet.ResultSetScalarType.PROPERTY_STRING, "roi");
+            Property ageProperty = new Property("age", ResultSet.ResultSetScalarType.PROPERTY_INTEGER, 32);
+            Property lastNameProperty = new Property("lastName", ResultSet.ResultSetScalarType.PROPERTY_STRING, "a");
 
             Node expectedNode = new Node();
-            expectedNode.setId(0);
-            expectedNode.addLabel("person");
-            expectedNode.addProperty(nameProperty);
-            expectedNode.addProperty(ageProperty);
-
+            expectedNode.Id = 0;
+            expectedNode.AddLabel("person");
+            expectedNode.AddProperty(nameProperty);
+            expectedNode.AddProperty(ageProperty);
 
             Edge expectedEdge = new Edge();
-            expectedEdge.setId(0);
-            expectedEdge.setSource(0);
-            expectedEdge.setDestination(1);
-            expectedEdge.setRelationshipType("knows");
+            expectedEdge.Id = 0;
+            expectedEdge.Source = 0;
+            expectedEdge.Destination = 1;
+            expectedEdge.RelationshipType = "knows";
 
-
-            for (ResultSet resultSet : resultSets){
-                Assert.assertNotNull(resultSet.getHeader());
-                Header header = resultSet.getHeader();
-                List<String> schemaNames = header.getSchemaNames();
-                List<Header.ResultSetColumnTypes> schemaTypes = header.getSchemaTypes();
-                Assert.assertNotNull(schemaNames);
-                Assert.assertNotNull(schemaTypes);
-                Assert.assertEquals(3, schemaNames.size());
-                Assert.assertEquals(3, schemaTypes.size());
-                Assert.assertEquals("a", schemaNames.get(0));
-                Assert.assertEquals("r", schemaNames.get(1));
-                Assert.assertEquals("a.age", schemaNames.get(2));
-                Assert.assertEquals(COLUMN_NODE, schemaTypes.get(0));
-                Assert.assertEquals(COLUMN_RELATION, schemaTypes.get(1));
-                Assert.assertEquals(COLUMN_SCALAR, schemaTypes.get(2));
-                Assert.assertEquals(1, resultSet.size());
-                Assert.assertTrue(resultSet.hasNext());
-                Record record = resultSet.next();
-                Assert.assertFalse(resultSet.hasNext());
-                Assert.assertEquals(Arrays.asList("a", "r", "a.age"), record.keys());
-                Assert.assertEquals(Arrays.asList(expectedNode, expectedEdge, 32), record.values());
+            foreach (ResultSet resultSet in resultSets)
+            {
+                Assert.NotNull(resultSet.Header);
+                Header header = resultSet.Header;
+                List<String> schemaNames = header.SchemaNames;
+                List<Header.ResultSetColumnTypes> schemaTypes = header.SchemaTypes;
+                Assert.NotNull(schemaNames);
+                Assert.NotNull(schemaTypes);
+                Assert.Equal(3, schemaNames.Count);
+                Assert.Equal(3, schemaTypes.Count);
+                Assert.Equal("a", schemaNames[0]);
+                Assert.Equal("r", schemaNames[1]);
+                Assert.Equal("a.age", schemaNames[2]);
+                Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
+                Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
+                Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[2]);
+                Assert.Equal(1, resultSet.Count);
+                Record record = resultSet.First();
+                Assert.Equal(new [] { "a", "r", "a.age" }, record.Keys);
+                Assert.Equal(new object[] { expectedNode, expectedEdge, 32 }, record.Values);
             }
 
             //test for update in local cache
-            expectedNode.removeProperty("name");
-            expectedNode.removeProperty("age");
-            expectedNode.addProperty(lastNameProperty);
-            expectedNode.removeLabel("person");
-            expectedNode.addLabel("worker");
-            expectedNode.setId(2);
+            expectedNode.RemoveProperty("name");
+            expectedNode.RemoveProperty("age");
+            expectedNode.AddProperty(lastNameProperty);
+            expectedNode.RemoveLabel("person");
+            expectedNode.AddLabel("worker");
+            expectedNode.Id = 2;
 
+            expectedEdge.RelationshipType = "worksWith";
+            expectedEdge.Source = 2;
+            expectedEdge.Destination = 3;
+            expectedEdge.Id = 1;
 
-            expectedEdge.setRelationshipType("worksWith");
-            expectedEdge.setSource(2);
-            expectedEdge.setDestination(3);
-            expectedEdge.setId(1);
+            Assert.NotNull(_api.Query("social", "CREATE (:worker{lastName:'a'})"));
+            Assert.NotNull(_api.Query("social", "CREATE (:worker{lastName:'b'})"));
+            Assert.NotNull(_api.Query("social", "MATCH (a:worker), (b:worker) WHERE (a.lastName = 'a' AND b.lastName='b')  CREATE (a)-[:worksWith]->(b)"));
 
-            Assert.assertNotNull(api.query("social", "CREATE (:worker{lastName:'a'})"));
-            Assert.assertNotNull(api.query("social", "CREATE (:worker{lastName:'b'})"));
-            Assert.assertNotNull(api.query("social", "MATCH (a:worker), (b:worker) WHERE (a.lastName = 'a' AND b.lastName='b')  CREATE (a)-[:worksWith]->(b)"));
+            resultSets = Enumerable.Range(0, 16).AsParallel().Select(x => _api.Query("social", "MATCH (a:worker)-[r:worksWith]->(b:worker) RETURN a,r")).ToList();
 
-            resultSets = IntStream.range(0,16).parallel().
-                    mapToObj(i-> api.query("social", "MATCH (a:worker)-[r:worksWith]->(b:worker) RETURN a,r")).
-                    collect(Collectors.toList());
-
-            for (ResultSet resultSet : resultSets){
-                Assert.assertNotNull(resultSet.getHeader());
-                Header header = resultSet.getHeader();
-                List<String> schemaNames = header.getSchemaNames();
-                List<Header.ResultSetColumnTypes> schemaTypes = header.getSchemaTypes();
-                Assert.assertNotNull(schemaNames);
-                Assert.assertNotNull(schemaTypes);
-                Assert.assertEquals(2, schemaNames.size());
-                Assert.assertEquals(2, schemaTypes.size());
-                Assert.assertEquals("a", schemaNames.get(0));
-                Assert.assertEquals("r", schemaNames.get(1));
-                Assert.assertEquals(COLUMN_NODE, schemaTypes.get(0));
-                Assert.assertEquals(COLUMN_RELATION, schemaTypes.get(1));
-                Assert.assertEquals(1, resultSet.size());
-                Assert.assertTrue(resultSet.hasNext());
-                Record record = resultSet.next();
-                Assert.assertFalse(resultSet.hasNext());
-                Assert.assertEquals(Arrays.asList("a", "r"), record.keys());
-                Assert.assertEquals(Arrays.asList(expectedNode, expectedEdge), record.values());
+            foreach (ResultSet resultSet in resultSets)
+            {
+                Assert.NotNull(resultSet.Header);
+                Header header = resultSet.Header;
+                List<String> schemaNames = header.SchemaNames;
+                List<Header.ResultSetColumnTypes> schemaTypes = header.SchemaTypes;
+                Assert.NotNull(schemaNames);
+                Assert.NotNull(schemaTypes);
+                Assert.Equal(2, schemaNames.Count);
+                Assert.Equal(2, schemaTypes.Count);
+                Assert.Equal("a", schemaNames[0]);
+                Assert.Equal("r", schemaNames[1]);
+                Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
+                Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
+                Assert.Equal(1, resultSet.Count);
+                Record record = resultSet.First();
+                Assert.Equal(new [] { "a", "r" }, record.Keys);
+                Assert.Equal(new object[] { expectedNode, expectedEdge }, record.Values);
             }
         }
 
         [Fact]
         public void TestAdditionToProcedures()
         {
-            Assert.assertNotNull(api.query("social", "CREATE (:person{name:'roi',age:32})"));
-            Assert.assertNotNull(api.query("social", "CREATE (:person{name:'amit',age:30})"));
-            Assert.assertNotNull(api.query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(b)"));
+            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'roi',age:32})"));
+            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'amit',age:30})"));
+            Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(b)"));
 
-
-            List<ResultSet> resultSets = IntStream.range(0,16).parallel().
-                    mapToObj(i-> api.query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r")).
-                    collect(Collectors.toList());
+            List<ResultSet> resultSets = Enumerable.Range(0, 16).AsParallel().Select(x => _api.Query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r")).ToList();
 
             //expected objects init
-            Property nameProperty = new Property("name", ResultSet.ResultSetScalarTypes.PROPERTY_STRING, "roi");
-            Property ageProperty = new Property("age", ResultSet.ResultSetScalarTypes.PROPERTY_INTEGER, 32);
-            Property lastNameProperty =new Property("lastName", ResultSet.ResultSetScalarTypes.PROPERTY_STRING, "a");
+            Property nameProperty = new Property("name", ResultSet.ResultSetScalarType.PROPERTY_STRING, "roi");
+            Property ageProperty = new Property("age", ResultSet.ResultSetScalarType.PROPERTY_INTEGER, 32);
+            Property lastNameProperty = new Property("lastName", ResultSet.ResultSetScalarType.PROPERTY_STRING, "a");
 
             Node expectedNode = new Node();
-            expectedNode.setId(0);
-            expectedNode.addLabel("person");
-            expectedNode.addProperty(nameProperty);
-            expectedNode.addProperty(ageProperty);
-
+            expectedNode.Id = 0;
+            expectedNode.AddLabel("person");
+            expectedNode.AddProperty(nameProperty);
+            expectedNode.AddProperty(ageProperty);
 
             Edge expectedEdge = new Edge();
-            expectedEdge.setId(0);
-            expectedEdge.setSource(0);
-            expectedEdge.setDestination(1);
-            expectedEdge.setRelationshipType("knows");
+            expectedEdge.Id = 0;
+            expectedEdge.Source = 0;
+            expectedEdge.Destination = 1;
+            expectedEdge.RelationshipType = "knows";
 
-
-            ResultSet resultSet = api.query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r");
-            Assert.assertNotNull(resultSet.getHeader());
-            Header header = resultSet.getHeader();
-            List<String> schemaNames = header.getSchemaNames();
-            List<Header.ResultSetColumnTypes> schemaTypes = header.getSchemaTypes();
-            Assert.assertNotNull(schemaNames);
-            Assert.assertNotNull(schemaTypes);
-            Assert.assertEquals(2, schemaNames.size());
-            Assert.assertEquals(2, schemaTypes.size());
-            Assert.assertEquals("a", schemaNames.get(0));
-            Assert.assertEquals("r", schemaNames.get(1));
-            Assert.assertEquals(COLUMN_NODE, schemaTypes.get(0));
-            Assert.assertEquals(COLUMN_RELATION, schemaTypes.get(1));
-            Assert.assertEquals(1, resultSet.size());
-            Assert.assertTrue(resultSet.hasNext());
-            Record record = resultSet.next();
-            Assert.assertFalse(resultSet.hasNext());
-            Assert.assertEquals(Arrays.asList("a", "r"), record.keys());
-            Assert.assertEquals(Arrays.asList(expectedNode, expectedEdge), record.values());
+            ResultSet resultSet = _api.Query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r");
+            Assert.NotNull(resultSet.Header);
+            Header header = resultSet.Header;
+            List<String> schemaNames = header.SchemaNames;
+            List<Header.ResultSetColumnTypes> schemaTypes = header.SchemaTypes;
+            Assert.NotNull(schemaNames);
+            Assert.NotNull(schemaTypes);
+            Assert.Equal(2, schemaNames.Count);
+            Assert.Equal(2, schemaTypes.Count);
+            Assert.Equal("a", schemaNames[0]);
+            Assert.Equal("r", schemaNames[1]);
+            Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
+            Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
+            Assert.Equal(1, resultSet.Count);
+            Record record = resultSet.First();
+            Assert.Equal(new [] { "a", "r" }, record.Keys);
+            Assert.Equal(new object[] { expectedNode, expectedEdge }, record.Values);
 
             //test for local cache updates
 
-            expectedNode.removeProperty("name");
-            expectedNode.removeProperty("age");
-            expectedNode.addProperty(lastNameProperty);
-            expectedNode.removeLabel("person");
-            expectedNode.addLabel("worker");
-            expectedNode.setId(2);
-            expectedEdge.setRelationshipType("worksWith");
-            expectedEdge.setSource(2);
-            expectedEdge.setDestination(3);
-            expectedEdge.setId(1);
-            Assert.assertNotNull(api.query("social", "CREATE (:worker{lastName:'a'})"));
-            Assert.assertNotNull(api.query("social", "CREATE (:worker{lastName:'b'})"));
-            Assert.assertNotNull(api.query("social", "MATCH (a:worker), (b:worker) WHERE (a.lastName = 'a' AND b.lastName='b')  CREATE (a)-[:worksWith]->(b)"));
-            resultSet = api.query("social", "MATCH (a:worker)-[r:worksWith]->(b:worker) RETURN a,r");
-            Assert.assertNotNull(resultSet.getHeader());
-            header = resultSet.getHeader();
-            schemaNames = header.getSchemaNames();
-            schemaTypes = header.getSchemaTypes();
-            Assert.assertNotNull(schemaNames);
-            Assert.assertNotNull(schemaTypes);
-            Assert.assertEquals(2, schemaNames.size());
-            Assert.assertEquals(2, schemaTypes.size());
-            Assert.assertEquals("a", schemaNames.get(0));
-            Assert.assertEquals("r", schemaNames.get(1));
-            Assert.assertEquals(COLUMN_NODE, schemaTypes.get(0));
-            Assert.assertEquals(COLUMN_RELATION, schemaTypes.get(1));
-            Assert.assertEquals(1, resultSet.size());
-            Assert.assertTrue(resultSet.hasNext());
-            record = resultSet.next();
-            Assert.assertFalse(resultSet.hasNext());
-            Assert.assertEquals(Arrays.asList("a", "r"), record.keys());
-            Assert.assertEquals(Arrays.asList(expectedNode, expectedEdge), record.values());
+            expectedNode.RemoveProperty("name");
+            expectedNode.RemoveProperty("age");
+            expectedNode.AddProperty(lastNameProperty);
+            expectedNode.RemoveLabel("person");
+            expectedNode.AddLabel("worker");
+            expectedNode.Id = 2;
+            expectedEdge.RelationshipType = "worksWith";
+            expectedEdge.Source = 2;
+            expectedEdge.Destination = 3;
+            expectedEdge.Id = 1;
+            Assert.NotNull(_api.Query("social", "CREATE (:worker{lastName:'a'})"));
+            Assert.NotNull(_api.Query("social", "CREATE (:worker{lastName:'b'})"));
+            Assert.NotNull(_api.Query("social", "MATCH (a:worker), (b:worker) WHERE (a.lastName = 'a' AND b.lastName='b')  CREATE (a)-[:worksWith]->(b)"));
+            resultSet = _api.Query("social", "MATCH (a:worker)-[r:worksWith]->(b:worker) RETURN a,r");
+            Assert.NotNull(resultSet.Header);
+            header = resultSet.Header;
+            schemaNames = header.SchemaNames;
+            schemaTypes = header.SchemaTypes;
+            Assert.NotNull(schemaNames);
+            Assert.NotNull(schemaTypes);
+            Assert.Equal(2, schemaNames.Count);
+            Assert.Equal(2, schemaTypes.Count);
+            Assert.Equal("a", schemaNames[0]);
+            Assert.Equal("r", schemaNames[1]);
+            Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
+            Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
+            Assert.Equal(1, resultSet.Count);
+            record = resultSet.First();
+            Assert.Equal(new [] { "a", "r" }, record.Keys);
+            Assert.Equal(new object[] { expectedNode, expectedEdge }, record.Values);
         }
 
         [Fact]
-        public void TestEscapedQuery() 
+        public void TestEscapedQuery()
         {
-            Assert.assertNotNull(api.query("social", "CREATE (:escaped{s1:%s,s2:%s})", "S\"\'", "S\\'\\\""));
-            Assert.assertNotNull(api.query("social", "MATCH (n) where n.s1=%s and n.s2=%s RETURN n", "S\"\'", "S\\'\\\""));
-            Assert.assertNotNull(api.query("social", "MATCH (n) where n.s1='S\"\\'' RETURN n"));
-        }        
+            Assert.NotNull(_api.Query("social", "CREATE (:escaped{s1:%s,s2:%s})", "S\"\'", "S\\'\\\""));
+            Assert.NotNull(_api.Query("social", "MATCH (n) where n.s1=%s and n.s2=%s RETURN n", "S\"\'", "S\\'\\\""));
+            Assert.NotNull(_api.Query("social", "MATCH (n) where n.s1='S\"\\'' RETURN n"));
+        }
     }
 }
