@@ -12,7 +12,7 @@ namespace NRedisGraph
             private const string LABELS_ADDED = "Labels added";
             private const string INDICES_ADDED = "Indices added";
             private const string NODES_CREATED = "Nodes created";
-            private const string NODES_DELETED = "Node deleted";
+            private const string NODES_DELETED = "Nodes deleted";
             private const string RELATIONSHIPS_DELETED = "Relationships deleted";
             private const string PROPERTIES_SET = "Properties set";
             private const string RELATIONSHIPS_CREATED = "Relationships created";
