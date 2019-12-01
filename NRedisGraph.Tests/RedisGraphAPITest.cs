@@ -127,11 +127,6 @@ namespace NRedisGraph.Tests
             ResultSet createIndexResult = _api.Query("social", "CREATE INDEX ON :person(age)");
             Assert.Equal(0, createIndexResult.Count());
             Assert.Equal(1, createIndexResult.Statistics.IndicesAdded);
-
-            ResultSet failCreateIndexResult = _api.Query("social", "CREATE INDEX ON :person(age1)");
-            Assert.Equal(0, failCreateIndexResult.Count());
-            Assert.Null(failCreateIndexResult.Statistics.GetStringValue(Label.IndicesAdded));
-            Assert.Equal(0, failCreateIndexResult.Statistics.IndicesAdded);
         }
 
         [Fact]
