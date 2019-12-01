@@ -125,8 +125,14 @@ namespace NRedisGraph.Tests
             Assert.NotNull(_api.Query("social", "CREATE (:person{name:'roi',age:32})"));
 
             ResultSet createIndexResult = _api.Query("social", "CREATE INDEX ON :person(age)");
-            Assert.Equal(0, createIndexResult.Count());
+            Assert.Empty(createIndexResult);
             Assert.Equal(1, createIndexResult.Statistics.IndicesAdded);
+
+            // since RediSearch as index, those action are allowed
+            ResultSet createNonExistingIndexResult = _api.Query("social", "CREATE INDEX ON :person(age1)");
+            Assert.Empty(createNonExistingIndexResult);
+            Assert.NotNull(createNonExistingIndexResult.Statistics.GetStringValue(Label.IndicesAdded));
+            Assert.Equal(1, createNonExistingIndexResult.Statistics.IndicesAdded);
         }
 
         [Fact]
