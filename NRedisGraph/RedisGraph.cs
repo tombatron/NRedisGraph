@@ -9,6 +9,7 @@ namespace NRedisGraph
 {
     public sealed class RedisGraph
     {
+        private static readonly object CompactQueryFlag = "--COMPACT";
         private readonly IDatabase _db;
         private readonly IDictionary<string, GraphCache> _graphCaches = new Dictionary<string, GraphCache>();
 
@@ -30,7 +31,7 @@ namespace NRedisGraph
 
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
 
-            return new ResultSet(_db.Execute(Command.QUERY, graphId, query), _graphCaches[graphId]);
+            return new ResultSet(_db.Execute(Command.QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
         }
 
         public async Task<ResultSet> QueryAsync(string graphId, string query, params object[] args)
@@ -49,7 +50,7 @@ namespace NRedisGraph
 
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
 
-            return new ResultSet(await _db.ExecuteAsync(Command.QUERY, graphId, query), _graphCaches[graphId]);
+            return new ResultSet(await _db.ExecuteAsync(Command.QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
         }
 
         private static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
