@@ -3,7 +3,7 @@ using StackExchange.Redis;
 
 namespace NRedisGraph
 {
-    public class Header
+    public sealed class Header
     {
         public enum ResultSetColumnTypes
         {
@@ -13,13 +13,20 @@ namespace NRedisGraph
             COLUMN_RELATION
         }
 
-        public List<string> SchemaNames { get; set; }
+        public List<ResultSetColumnTypes> SchemaTypes { get; }
 
-        public List<ResultSetColumnTypes> SchemaTypes { get; set; }
+        public List<string> SchemaNames { get; }
 
-        public static Header Parse(RedisResult[] results)
+        internal Header(RedisResult result)
         {
-            return default;
+            SchemaTypes = new List<ResultSetColumnTypes>();
+            SchemaNames = new List<string>();
+
+            foreach(RedisResult[] tuple in (RedisResult[])result)
+            {
+                SchemaTypes.Add((ResultSetColumnTypes)(int)tuple[0]);
+                SchemaNames.Add((string)tuple[1]);
+            }
         }
     }
 }

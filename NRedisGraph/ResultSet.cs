@@ -24,8 +24,16 @@ namespace NRedisGraph
             _result = (RedisResult[])result;
             _graphCache = graphCache;
 
-            Statistics = new Statistics(_result[0]);
-            Header = Header.Parse(_result);
+            if (_result.Length == 3)
+            {
+                Header = new Header(_result[0]);
+                Statistics = new Statistics(_result[2]);
+            }
+            else
+            {
+                
+                Statistics = new Statistics(_result[_result.Length - 1]);
+            }
         }
 
         public Statistics Statistics { get; }
