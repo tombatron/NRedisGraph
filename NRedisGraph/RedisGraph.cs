@@ -1,4 +1,5 @@
 // .NET port of https://github.com/RedisGraph/JRedisGraph
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,41 +14,41 @@ namespace NRedisGraph
         private readonly IDatabase _db;
         private readonly IDictionary<string, GraphCache> _graphCaches = new Dictionary<string, GraphCache>();
 
-        public RedisGraph(IDatabase db) => _db = db;
-
-        public ResultSet Query(string graphId, string query, params object[] args)
+        public GraphCache GetGraphCache(string graphId)
         {
-            if (args.Length > 0)
+            if (!_graphCaches.ContainsKey(graphId))
             {
-                for (var i = 0; i < args.Length; i++)
-                {
-                    if (args[i] is string argString)
-                    {
-                        args[i] = $"\'{EscapeQuotes(argString)}\'";
-                    }
-                }
-                query = string.Format(query, args);
+                _graphCaches.Add(graphId, new GraphCache(graphId, this));
             }
 
+            return _graphCaches[graphId];
+        }
+
+        public RedisGraph(IDatabase db) => _db = db;
+
+        public ResultSet Query(string graphId, string query, IDictionary<string, object> parameters)
+        {
+            var preparedQuery = PrepareQuery(query, parameters);
+
+            return Query(graphId, preparedQuery);
+        }
+
+        public ResultSet Query(string graphId, string query)
+        {
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
 
             return new ResultSet(_db.Execute(Command.QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
         }
 
-        public async Task<ResultSet> QueryAsync(string graphId, string query, params object[] args)
+        public Task<ResultSet> QueryAsync(string graphId, string query, IDictionary<string, object> parameters)
         {
-            if (args.Length > 0)
-            {
-                for (var i = 0; i < args.Length; i++)
-                {
-                    if (args[i] is string argString)
-                    {
-                        args[i] = $"\'{EscapeQuotes(argString)}\'";
-                    }
-                }
-                query = string.Format(query, args);
-            }
+            var preparedQuery = PrepareQuery(query, parameters);
 
+            return QueryAsync(graphId, preparedQuery);
+        }
+
+        public async Task<ResultSet> QueryAsync(string graphId, string query)
+        {
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
 
             return new ResultSet(await _db.ExecuteAsync(Command.QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
@@ -98,6 +99,58 @@ namespace NRedisGraph
             }
 
             return QueryAsync(graphId, queryBody.ToString());
+        }
+
+        public static string PrepareQuery(string query, IDictionary<string, object> parms)
+        {
+            var preparedQuery = new StringBuilder();
+
+            preparedQuery.Append("CYPHER ");
+
+            foreach(var param in parms)
+            {
+                preparedQuery.Append($"{param.Key}={ValueToString(param.Value)} ");
+            }
+
+            preparedQuery.Append(query);
+
+            return preparedQuery.ToString();
+        }
+
+        private static string ValueToString(object value)
+        {
+            if (value == null)
+            {
+                return "null";
+            }
+
+            if (value is string stringValue)
+            {
+                return EscapeQuotes(stringValue);
+            }
+
+            if (value.GetType().IsArray)
+            {
+                return ArrayToString((object[])value);
+            }
+
+            if ((value is System.Collections.IList valueList) && value.GetType().IsGenericType)
+            {
+                return ArrayToString(((List<object>)valueList).ToArray());
+            }
+
+            return value.ToString();
+        }
+
+        private static string ArrayToString(object[] array)
+        {
+                var arrayToString = new StringBuilder();
+
+                arrayToString.Append('[');
+                arrayToString.Append(string.Join(", ", array.Select(x=>x.ToString())));
+                arrayToString.Append(']');
+
+                return arrayToString.ToString();
         }
 
         private static string EscapeQuotes(string unescapedString)

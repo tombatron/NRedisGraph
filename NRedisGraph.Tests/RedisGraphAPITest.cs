@@ -1,8 +1,8 @@
 // .NET port of https://github.com/RedisGraph/JRedisGraph
-using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using StackExchange.Redis;
 using Xunit;
 using static NRedisGraph.Header;
 using static NRedisGraph.Statistics;
@@ -89,12 +89,20 @@ namespace NRedisGraph.Tests
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.PropertiesSet));
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.RelationshipsCreated));
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.RelationshipsDeleted));
-            Assert.Equal(1, deleteResult.Statistics.NodesDeleted); 
+            Assert.Equal(1, deleteResult.Statistics.NodesDeleted);
             Assert.NotNull(deleteResult.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
 
-            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'roi',age:32})")); Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(a)")); deleteResult = _api.Query("social", "MATCH (a:person) WHERE (a.name = 'roi') DELETE a");
+            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'roi',age:32})"));
+            Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(a)"));
+            deleteResult = _api.Query("social", "MATCH (a:person) WHERE (a.name = 'roi') DELETE a");
 
-            Assert.Equal(0, deleteResult.Count()); Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated)); Assert.Null(deleteResult.Statistics.GetStringValue(Label.PropertiesSet)); Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated)); Assert.Null(deleteResult.Statistics.GetStringValue(Label.RelationshipsCreated)); Assert.Equal(1, deleteResult.Statistics.RelationshipsDeleted); Assert.Equal(1, deleteResult.Statistics.NodesDeleted);
+            Assert.Equal(0, deleteResult.Count());
+            Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated));
+            Assert.Null(deleteResult.Statistics.GetStringValue(Label.PropertiesSet));
+            Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated));
+            Assert.Null(deleteResult.Statistics.GetStringValue(Label.RelationshipsCreated));
+            Assert.Equal(1, deleteResult.Statistics.RelationshipsDeleted);
+            Assert.Equal(1, deleteResult.Statistics.NodesDeleted);
 
             Assert.NotNull(deleteResult.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
         }
@@ -176,15 +184,15 @@ namespace NRedisGraph.Tests
             string place = "TLV";
             int since = 2000;
 
-            Property nameProperty = new Property("name", ResultSet.ResultSetScalarType.PROPERTY_STRING, name);
-            Property ageProperty = new Property("age", ResultSet.ResultSetScalarType.PROPERTY_INTEGER, age);
-            Property doubleProperty = new Property("doubleValue", ResultSet.ResultSetScalarType.PROPERTY_DOUBLE, doubleValue);
-            Property trueBooleanProperty = new Property("boolValue", ResultSet.ResultSetScalarType.PROPERTY_BOOLEAN, true);
-            Property falseBooleanProperty = new Property("boolValue", ResultSet.ResultSetScalarType.PROPERTY_BOOLEAN, false);
-            Property nullProperty = new Property("nullValue", ResultSet.ResultSetScalarType.PROPERTY_NULL, null);
+            Property nameProperty = new Property("name", name);
+            Property ageProperty = new Property("age", age);
+            Property doubleProperty = new Property("doubleValue", doubleValue);
+            Property trueBooleanProperty = new Property("boolValue", true);
+            Property falseBooleanProperty = new Property("boolValue", false);
+            Property nullProperty = new Property("nullValue", null);
 
-            Property placeProperty = new Property("place", ResultSet.ResultSetScalarType.PROPERTY_STRING, place);
-            Property sinceProperty = new Property("since", ResultSet.ResultSetScalarType.PROPERTY_INTEGER, since);
+            Property placeProperty = new Property("place", place);
+            Property sinceProperty = new Property("since", since);
 
             Node expectedNode = new Node();
             expectedNode.Id = 0;
@@ -194,6 +202,8 @@ namespace NRedisGraph.Tests
             expectedNode.AddProperty(doubleProperty);
             expectedNode.AddProperty(trueBooleanProperty);
             expectedNode.AddProperty(nullProperty);
+
+            Assert.Equal("Node{labels=[person], id=0, propertyMap={name=Property{name='name', value=roi}, boolValue=Property{name='boolValue', value=true}, doubleValue=Property{name='doubleValue', value=3.14}, nullValue=Property{name='nullValue', value=null}, age=Property{name='age', value=32}}}", expectedNode.ToString());
 
             Edge expectedEdge = new Edge();
             expectedEdge.Id = 0;
@@ -206,7 +216,17 @@ namespace NRedisGraph.Tests
             expectedEdge.AddProperty(falseBooleanProperty);
             expectedEdge.AddProperty(nullProperty);
 
-            Assert.NotNull(_api.Query("social", "CREATE (:person{name:%s',age:%d, doubleValue:%f, boolValue:%b, nullValue:null})", name, age, doubleValue, boolValue));
+            Assert.Equal("Edge{relationshipType='knows', source=0, destination=1, id=0, propertyMap={boolValue=Property{name='boolValue', value=false}, place=Property{name='place', value=TLV}, doubleValue=Property{name='doubleValue', value=3.14}, nullValue=Property{name='nullValue', value=null}, since=Property{name='since', value=2000}}}", expectedEdge.ToString());
+
+            var parms = new Dictionary<string, object>
+            { 
+                { "name", name },
+                { "age", age },
+                { "boolValue", boolValue },
+                { "doubleValue", doubleValue }
+            };
+
+            Assert.NotNull(_api.Query("social", "CREATE (:person{{name:{0},age:{1}, doubleValue:{2}, boolValue:{3}, nullValue:null}} )", parms));
             Assert.NotNull(_api.Query("social", "CREATE (:person{name:'amit',age:30})"));
             Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit') CREATE (a)-[:knows{place:'TLV', since:2000,doubleValue:3.14, boolValue:false, nullValue:null}]->(b)"));
 
@@ -274,9 +294,9 @@ namespace NRedisGraph.Tests
 
             List<ResultSet> resultSets = Enumerable.Range(0, 16).AsParallel().Select(x => _api.Query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r, a.age")).ToList();
 
-            Property nameProperty = new Property("name", ResultSet.ResultSetScalarType.PROPERTY_STRING, "roi");
-            Property ageProperty = new Property("age", ResultSet.ResultSetScalarType.PROPERTY_INTEGER, 32);
-            Property lastNameProperty = new Property("lastName", ResultSet.ResultSetScalarType.PROPERTY_STRING, "a");
+            Property nameProperty = new Property("name", "roi");
+            Property ageProperty = new Property("age", 32);
+            Property lastNameProperty = new Property("lastName", "a");
 
             Node expectedNode = new Node();
             expectedNode.Id = 0;
@@ -362,9 +382,9 @@ namespace NRedisGraph.Tests
             List<ResultSet> resultSets = Enumerable.Range(0, 16).AsParallel().Select(x => _api.Query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r")).ToList();
 
             //expected objects init
-            Property nameProperty = new Property("name", ResultSet.ResultSetScalarType.PROPERTY_STRING, "roi");
-            Property ageProperty = new Property("age", ResultSet.ResultSetScalarType.PROPERTY_INTEGER, 32);
-            Property lastNameProperty = new Property("lastName", ResultSet.ResultSetScalarType.PROPERTY_STRING, "a");
+            Property nameProperty = new Property("name", "roi");
+            Property ageProperty = new Property("age", 32);
+            Property lastNameProperty = new Property("lastName", "a");
 
             Node expectedNode = new Node();
             expectedNode.Id = 0;

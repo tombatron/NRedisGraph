@@ -11,7 +11,7 @@ namespace NRedisGraph
 
         public List<object> Values { get; }
 
-        public Record(List<string> header, List<object> values)
+        internal Record(List<string> header, List<object> values)
         {
             Keys = header;
             Values = values;
@@ -66,11 +66,6 @@ namespace NRedisGraph
             sb.Append('}');
 
             return sb.ToString();
-        }
-
-        internal static Record Parse(RedisResult result)
-        {
-            return default;
         }
     }
 }

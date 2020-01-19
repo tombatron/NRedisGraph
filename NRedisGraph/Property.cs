@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 
 namespace NRedisGraph
@@ -6,14 +7,15 @@ namespace NRedisGraph
     {
         public string Name { get; set; }
 
-        public ResultSet.ResultSetScalarType Type { get; set; }
-
         public object Value { get; set; }
 
-        public Property(string name, ResultSet.ResultSetScalarType type, object value)
+        internal Property()
+        {
+        }
+
+        public Property(string name, object value)
         {
             Name = name;
-            Type = type;
             Value = value;
         }
 
@@ -28,8 +30,8 @@ namespace NRedisGraph
             {
                 return false;
             }
-
-            return Name == that.Name && Type == that.Type && Value == that.Value;
+            
+            return Name == that.Name && Value == that.Value;
         }
 
         public override int GetHashCode()
@@ -39,7 +41,6 @@ namespace NRedisGraph
                 int hash = 17;
 
                 hash = hash * 31 + Name.GetHashCode();
-                hash = hash * 31 + Type.GetHashCode();
                 hash = hash * 31 + Value.GetHashCode();
 
                 return hash;
@@ -54,8 +55,6 @@ namespace NRedisGraph
             stringResult.Append("name='");
             stringResult.Append(Name);
             stringResult.Append('\'');
-            stringResult.Append(", type=");
-            stringResult.Append(Type);
             stringResult.Append(", value=");
             stringResult.Append(Value);
             stringResult.Append('}');
