@@ -453,8 +453,6 @@ namespace NRedisGraph.Tests
         [Fact]
         public void TestEscapedQuery()
         {
-            Assert.NotNull(_api.Query("social", "CREATE (:escaped{s1:%s,s2:%s})", "S\"\'", "S\\'\\\""));
-            Assert.NotNull(_api.Query("social", "MATCH (n) where n.s1=%s and n.s2=%s RETURN n", "S\"\'", "S\\'\\\""));
             Assert.NotNull(_api.Query("social", "MATCH (n) where n.s1='S\"\\'' RETURN n"));
         }
     }

@@ -49,6 +49,14 @@ namespace NRedisGraph
         {
             var sb = new StringBuilder();
 
+            sb.Append("Edge{");
+            sb.Append($"relationshipType='{RelationshipType}'");
+            sb.Append($", source={Source}");
+            sb.Append($", destination={Destination}");
+            sb.Append($", id={Id}");
+            sb.Append($", propertyMap={PropertyMap}");
+            sb.Append("}");
+
             return sb.ToString();
         }
     }

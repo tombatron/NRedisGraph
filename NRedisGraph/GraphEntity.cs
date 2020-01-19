@@ -10,8 +10,8 @@ namespace NRedisGraph
 
         public IDictionary<string, Property> PropertyMap = new Dictionary<string, Property>();
 
-        public void AddProperty(string name, ResultSetScalarType type, object value) =>
-            AddProperty(new Property(name, type, value));
+        public void AddProperty(string name, object value) =>
+            AddProperty(new Property(name, value));
 
         public void AddProperty(Property property) => PropertyMap.Add(property.Name, property);
 
