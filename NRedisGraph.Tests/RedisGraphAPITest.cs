@@ -203,7 +203,7 @@ namespace NRedisGraph.Tests
             expectedNode.AddProperty(trueBooleanProperty);
             expectedNode.AddProperty(nullProperty);
 
-            Assert.Equal("Node{labels=[person], id=0, propertyMap={name=Property{name='name', value=roi}, boolValue=Property{name='boolValue', value=true}, doubleValue=Property{name='doubleValue', value=3.14}, nullValue=Property{name='nullValue', value=null}, age=Property{name='age', value=32}}}", expectedNode.ToString());
+            Assert.Equal("Node{labels=[person], id=0, propertyMap={name=Property{name='name', value=roi}, age=Property{name='age', value=32}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=True}, nullValue=Property{name='nullValue', value=null}}}", expectedNode.ToString());
 
             Edge expectedEdge = new Edge();
             expectedEdge.Id = 0;

@@ -28,7 +28,7 @@ namespace NRedisGraph
                 return false;
             }
 
-            if(!base.Equals(obj))
+            if (!base.Equals(obj))
             {
                 return false;
             }
@@ -54,12 +54,12 @@ namespace NRedisGraph
             var sb = new StringBuilder();
 
             sb.Append("Node{labels=");
-            sb.Append(_labels);
+            sb.Append($"[{string.Join(", ", _labels)}]");
             sb.Append(", id=");
             sb.Append(Id);
-            sb.Append(", propertyMap=");
-            sb.Append(PropertyMap);
-            sb.Append('}');
+            sb.Append(", propertyMap={");
+            sb.Append(string.Join(", ", PropertyMap.Select(pm => $"{pm.Key}={pm.Value.ToString()}")));
+            sb.Append("}}");
 
             return sb.ToString();
         }

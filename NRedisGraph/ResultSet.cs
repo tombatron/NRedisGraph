@@ -1,7 +1,7 @@
-using StackExchange.Redis;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using StackExchange.Redis;
 
 namespace NRedisGraph
 {
@@ -104,28 +104,38 @@ namespace NRedisGraph
 
             var labelIndices = (int[])rawNodeData[1];
 
-            foreach(var labelIndex in labelIndices)
+            foreach (var labelIndex in labelIndices)
             {
                 var label = _graphCache.GetLabel(labelIndex);
 
                 node.AddLabel(label);
             }
 
-            DeserializeGraphEntityProperties(node, (RedisResult[]) rawNodeData[2]);
+            DeserializeGraphEntityProperties(node, (RedisResult[])rawNodeData[2]);
 
             return node;
         }
 
         private Edge DeserializeEdge(RedisResult[] rawEdgeData)
         {
-            return default;
+            var edge = new Edge();
+
+            DeserializeGraphEntityId(edge, rawEdgeData[4]);
+
+            edge.RelationshipType = _graphCache.GetRelationshipType((int)rawEdgeData[1]);
+            edge.Source = (int)rawEdgeData[2];
+            edge.Destination = (int)rawEdgeData[3];
+
+            DeserializeGraphEntityProperties(edge, (RedisResult[])rawEdgeData[4]);
+
+            return edge;
         }
 
         private object DeserializeScalar(RedisResult[] rawScalarData)
         {
             var type = GetValueTypeFromObject(rawScalarData[0]);
 
-            switch(type)
+            switch (type)
             {
                 case ResultSetScalarType.VALUE_NULL:
                     return null;
@@ -152,11 +162,11 @@ namespace NRedisGraph
         }
 
         private static void DeserializeGraphEntityId(GraphEntity graphEntity, object rawEntityId) =>
-            graphEntity.Id = (int)rawEntityId;
+        graphEntity.Id = (int)rawEntityId;
 
         private void DeserializeGraphEntityProperties(GraphEntity graphEntity, RedisResult[] rawProperties)
         {
-            foreach(RedisResult[] rawProperty in rawProperties)
+            foreach (RedisResult[] rawProperty in rawProperties)
             {
                 var property = new Property
                 {
@@ -172,7 +182,7 @@ namespace NRedisGraph
         {
             var result = new object[serializedArray.Length];
 
-            for(var i = 0; i < serializedArray.Length; i++)
+            for (var i = 0; i < serializedArray.Length; i++)
             {
                 result[0] = DeserializeScalar((RedisResult[])serializedArray[i]);
             }
@@ -184,11 +194,11 @@ namespace NRedisGraph
         {
             var nodes = new List<Node>((Node[])DeserializeScalar((RedisResult[])rawPath[0]));
             var edges = new List<Edge>((Edge[])DeserializeScalar((RedisResult[])rawPath[1]));
-            
+
             return new Path(nodes, edges);
         }
 
         private static ResultSetScalarType GetValueTypeFromObject(RedisResult rawScalarType) =>
-            (ResultSetScalarType)(int)rawScalarType;
+        (ResultSetScalarType)(int)rawScalarType;
     }
 }

@@ -10,8 +10,7 @@ namespace NRedisGraph
         public object Value { get; set; }
 
         internal Property()
-        {
-        }
+        { }
 
         public Property(string name, object value)
         {
@@ -30,7 +29,7 @@ namespace NRedisGraph
             {
                 return false;
             }
-            
+
             return Name == that.Name && Value == that.Value;
         }
 
@@ -56,7 +55,16 @@ namespace NRedisGraph
             stringResult.Append(Name);
             stringResult.Append('\'');
             stringResult.Append(", value=");
-            stringResult.Append(Value);
+
+            if (Value == null)
+            {
+                stringResult.Append("null");
+            }
+            else
+            {
+                stringResult.Append(Value);
+            }
+
             stringResult.Append('}');
 
             return stringResult.ToString();
