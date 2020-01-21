@@ -216,7 +216,7 @@ namespace NRedisGraph.Tests
             expectedEdge.AddProperty(falseBooleanProperty);
             expectedEdge.AddProperty(nullProperty);
 
-            Assert.Equal("Edge{relationshipType='knows', source=0, destination=1, id=0, propertyMap={boolValue=Property{name='boolValue', value=false}, place=Property{name='place', value=TLV}, doubleValue=Property{name='doubleValue', value=3.14}, nullValue=Property{name='nullValue', value=null}, since=Property{name='since', value=2000}}}", expectedEdge.ToString());
+            Assert.Equal("Edge{relationshipType='knows', source=0, destination=1, id=0, propertyMap={place=Property{name='place', value=TLV}, since=Property{name='since', value=2000}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=False}, nullValue=Property{name='nullValue', value=null}}}", expectedEdge.ToString());
 
             var parms = new Dictionary<string, object>
             { 
@@ -226,7 +226,7 @@ namespace NRedisGraph.Tests
                 { "doubleValue", doubleValue }
             };
 
-            Assert.NotNull(_api.Query("social", "CREATE (:person{{name:{0},age:{1}, doubleValue:{2}, boolValue:{3}, nullValue:null}} )", parms));
+            Assert.NotNull(_api.Query("social", "CREATE (:person{name:$name,age:$age, doubleValue:$doubleValue, boolValue:$boolValue, nullValue:null})", parms));
             Assert.NotNull(_api.Query("social", "CREATE (:person{name:'amit',age:30})"));
             Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit') CREATE (a)-[:knows{place:'TLV', since:2000,doubleValue:3.14, boolValue:false, nullValue:null}]->(b)"));
 

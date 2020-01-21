@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text;
 
 namespace NRedisGraph
@@ -54,8 +55,9 @@ namespace NRedisGraph
             sb.Append($", source={Source}");
             sb.Append($", destination={Destination}");
             sb.Append($", id={Id}");
-            sb.Append($", propertyMap={PropertyMap}");
-            sb.Append("}");
+            sb.Append(", propertyMap={");
+            sb.Append(string.Join(", ", PropertyMap.Select(pm => $"{pm.Key}={pm.Value.ToString()}")));
+            sb.Append("}}");
 
             return sb.ToString();
         }
