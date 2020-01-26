@@ -6,11 +6,11 @@ namespace NRedisGraph
 {
     public sealed class GraphCacheList
     {
-        private readonly object mutex = new object();
+        private readonly object _locker = new object();
         private readonly string _graphId;
         private readonly string _procedure;
         private readonly RedisGraph _redisGraph;
-        private readonly ConcurrentBag<string> _data = new ConcurrentBag<string>();
+        private string[] _data;
 
         public GraphCacheList(string graphId, string procedure, RedisGraph redisGraph)
         {
@@ -19,13 +19,14 @@ namespace NRedisGraph
             _redisGraph = redisGraph;
         }
 
+        // TODO: Change this to use Lazy<T>?
         public string GetCachedData(int index)
         {
-            if (index >= _data.Count)
+            if (_data == null || index >= _data.Length)
             {
-                lock(mutex)
+                lock(_locker)
                 {
-                    if (index >= _data.Count)
+                    if (_data == null || index >= _data.Length)
                     {
                         GetProcedureInfo();
                     }
@@ -38,18 +39,15 @@ namespace NRedisGraph
         private void GetProcedureInfo()
         {
             var resultSet = _redisGraph.CallProcedure(_graphId, _procedure);
-            var newData = new List<string>();
+            var newData = new string[resultSet.Count];
             var i = 0;
 
-            foreach(var record in resultSet)
+            foreach (var record in resultSet)
             {
-                if (i >= _data.Count)
-                {
-                    _data.Add(record.GetString(0));
-                }
-
-                i++;
+                newData[i++] = record.GetString(0);
             }
+
+            _data = newData;
         }
     }
 }

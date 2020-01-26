@@ -120,7 +120,7 @@ namespace NRedisGraph
         {
             var edge = new Edge();
 
-            DeserializeGraphEntityId(edge, rawEdgeData[4]);
+            DeserializeGraphEntityId(edge, rawEdgeData[0]);
 
             edge.RelationshipType = _graphCache.GetRelationshipType((int)rawEdgeData[1]);
             edge.Source = (int)rawEdgeData[2];
@@ -140,7 +140,7 @@ namespace NRedisGraph
                 case ResultSetScalarType.VALUE_NULL:
                     return null;
                 case ResultSetScalarType.VALUE_BOOLEAN:
-                    return (bool)rawScalarData[1];
+                    return bool.Parse((string)rawScalarData[1]);
                 case ResultSetScalarType.VALUE_DOUBLE:
                     return (double)rawScalarData[1];
                 case ResultSetScalarType.VALUE_INTEGER:
@@ -161,8 +161,8 @@ namespace NRedisGraph
             }
         }
 
-        private static void DeserializeGraphEntityId(GraphEntity graphEntity, object rawEntityId) =>
-        graphEntity.Id = (int)rawEntityId;
+        private static void DeserializeGraphEntityId(GraphEntity graphEntity, RedisResult rawEntityId) =>
+            graphEntity.Id = (int)rawEntityId;
 
         private void DeserializeGraphEntityProperties(GraphEntity graphEntity, RedisResult[] rawProperties)
         {

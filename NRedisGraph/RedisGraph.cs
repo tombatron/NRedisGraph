@@ -126,7 +126,8 @@ namespace NRedisGraph
 
             if (value is string stringValue)
             {
-                return EscapeQuotes(stringValue);
+                // return EscapeQuotes(stringValue);
+                return QuoteString(stringValue);
             }
 
             if (value.GetType().IsArray)
@@ -137,6 +138,11 @@ namespace NRedisGraph
             if ((value is System.Collections.IList valueList) && value.GetType().IsGenericType)
             {
                 return ArrayToString(((List<object>)valueList).ToArray());
+            }
+
+            if (value is bool boolValue)
+            {
+                return boolValue.ToString().ToLowerInvariant();
             }
 
             return value.ToString();

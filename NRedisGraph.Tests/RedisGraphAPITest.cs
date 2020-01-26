@@ -241,8 +241,7 @@ namespace NRedisGraph.Tests
             Assert.Equal(0, resultSet.Statistics.RelationshipsCreated);
             Assert.Equal(0, resultSet.Statistics.RelationshipsDeleted);
             Assert.NotNull(resultSet.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
-
-            Assert.Equal(1, resultSet.Count());
+            Assert.Equal(1, resultSet.Count);
 
             Record record = resultSet.First();
 
@@ -252,6 +251,7 @@ namespace NRedisGraph.Tests
             Assert.Equal(expectedNode, node);
 
             node = record.GetValue<Node>("a");
+
             Assert.Equal(expectedNode, node);
 
             Edge edge = record.GetValue<Edge>(1);
