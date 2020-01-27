@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("NRedisGraph.Tests")]
 
 namespace NRedisGraph
 {
@@ -14,7 +17,28 @@ namespace NRedisGraph
 
         internal static bool SequenceEqual<TKey, TValue>(this IDictionary<TKey, TValue> @this, IDictionary<TKey, TValue> that)
         {
-            return false;
+            if (@this == default(IDictionary<TKey, TValue>) || that == default(IDictionary<TKey, TValue>))
+            {
+                return false;
+            }
+
+            if (@this.Count != that.Count)
+            {
+                return false;
+            }
+
+            foreach (var key in @this.Keys)
+            {
+                var thisValue = @this[key];
+                var thatValue = that[key];
+
+                if (!thisValue.Equals(thatValue))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
