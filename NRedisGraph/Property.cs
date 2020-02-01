@@ -30,7 +30,7 @@ namespace NRedisGraph
                 return false;
             }
 
-            return Name == that.Name && Objects.Equal(Value, that.Value);
+            return Name == that.Name && Objects.AreEqual(Value, that.Value);
         }
 
         public override int GetHashCode()

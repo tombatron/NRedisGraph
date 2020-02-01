@@ -9,14 +9,14 @@ namespace NRedisGraph.Tests
         [MemberData(nameof(BoxedData))]
         public void CanCompareBoxedTypes(object obj1, object obj2)
         {
-            Assert.True(Objects.Equal(obj1, obj2));
+            Assert.True(Objects.AreEqual(obj1, obj2));
         }
 
         [Theory]
         [MemberData(nameof(BadBoxedData))]
         public void CanCompareNonEqualBoxedTypes(object obj1, object obj2)
         {
-            Assert.False(Objects.Equal(obj1, obj2));
+            Assert.False(Objects.AreEqual(obj1, obj2));
         }
 
         public static IEnumerable<object[]> BoxedData => new object[][]
@@ -34,7 +34,8 @@ namespace NRedisGraph.Tests
             new object[]{ 89_000m, 89_000m },
             new object[]{ 't', 't'},
             new object[]{ true, true },
-            new object[]{ "tom", "tom" }
+            new object[]{ "tom", "tom" },
+            new object[]{ null, null }
         };
 
         public static IEnumerable<object[]> BadBoxedData => new object[][]
@@ -52,7 +53,9 @@ namespace NRedisGraph.Tests
             new object[]{ 89_000m, 89_001m },
             new object[]{ 't', 'u'},
             new object[]{ true, false },
-            new object[]{ "tom", "hanks" }
+            new object[]{ "tom", "hanks" },
+            new object[]{ "tom", null },
+            new object[]{ "1", 1 }
         };        
     }
 }

@@ -267,8 +267,8 @@ namespace NRedisGraph.Tests
 
             Assert.Equal("roi", record.GetString(2));
             Assert.Equal("32", record.GetString(3));
-            Assert.Equal(32L, record.GetValue<long>(3));
-            Assert.Equal(32L, record.GetValue<long>("a.age"));
+            Assert.Equal(32, record.GetValue<int>(3));
+            Assert.Equal(32, record.GetValue<int>("a.age"));
             Assert.Equal("roi", record.GetString("a.name"));
             Assert.Equal("32", record.GetString("a.age"));
         }

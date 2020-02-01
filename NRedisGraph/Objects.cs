@@ -6,8 +6,13 @@ namespace NRedisGraph
 {
     internal static class Objects
     {
-        public static bool Equal(object obj1, object obj2)
+        public static bool AreEqual(object obj1, object obj2)
         {
+            if (obj1 == null && obj2 == null)
+            {
+                return true;
+            }
+
             if (obj1 == null || obj2 == null)
             {
                 return false;
