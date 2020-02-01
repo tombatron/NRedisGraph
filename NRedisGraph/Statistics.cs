@@ -9,8 +9,10 @@ namespace NRedisGraph
     {
         public class Label
         {
+
             private const string LABELS_ADDED = "Labels added";
             private const string INDICES_ADDED = "Indices added";
+            private const string INDICES_CREATED = "Indices created";
             private const string NODES_CREATED = "Nodes created";
             private const string NODES_DELETED = "Nodes deleted";
             private const string RELATIONSHIPS_DELETED = "Relationships deleted";
@@ -22,14 +24,15 @@ namespace NRedisGraph
 
             private Label(string value) => Value = value;
 
-            public static Label LabelsAdded = new Label(LABELS_ADDED);
-            public static Label IndicesAdded = new Label(INDICES_ADDED);
-            public static Label NodesCreated = new Label(NODES_CREATED);
-            public static Label NodesDeleted = new Label(NODES_DELETED);
-            public static Label RelationshipsDeleted = new Label(RELATIONSHIPS_DELETED);
-            public static Label PropertiesSet = new Label(PROPERTIES_SET);
-            public static Label RelationshipsCreated = new Label(RELATIONSHIPS_CREATED);
-            public static Label QueryInternalExecutionTime = new Label(QUERY_INTERNAL_EXECUTION_TIME);
+            public static readonly Label LabelsAdded = new Label(LABELS_ADDED);
+            public static readonly Label IndicesAdded = new Label(INDICES_ADDED);
+            public static readonly Label IndicesCreated = new Label(INDICES_CREATED);
+            public static readonly Label NodesCreated = new Label(NODES_CREATED);
+            public static readonly Label NodesDeleted = new Label(NODES_DELETED);
+            public static readonly Label RelationshipsDeleted = new Label(RELATIONSHIPS_DELETED);
+            public static readonly Label PropertiesSet = new Label(PROPERTIES_SET);
+            public static readonly Label RelationshipsCreated = new Label(RELATIONSHIPS_CREATED);
+            public static readonly Label QueryInternalExecutionTime = new Label(QUERY_INTERNAL_EXECUTION_TIME);
 
             public static Label FromString(string labelValue)
             {
@@ -39,6 +42,8 @@ namespace NRedisGraph
                         return LabelsAdded;
                     case INDICES_ADDED:
                         return IndicesAdded;
+                    case INDICES_CREATED:
+                        return IndicesCreated;
                     case NODES_CREATED:
                         return NodesCreated;
                     case NODES_DELETED:
@@ -76,7 +81,7 @@ namespace NRedisGraph
                         return new
                         {
                             Label = Label.FromString(s[0].Trim()),
-                            Value = s[1].Trim()
+                                Value = s[1].Trim()
                         };
                     }).ToDictionary(k => k.Label, v => v.Value);
             }
@@ -89,6 +94,8 @@ namespace NRedisGraph
         public int NodesDeleted => int.TryParse(GetStringValue(Label.NodesDeleted), out var result) ? result : 0;
 
         public int IndicesAdded => int.TryParse(GetStringValue(Label.IndicesAdded), out var result) ? result : 0;
+
+        public int IndicesCreated => int.TryParse(GetStringValue(Label.IndicesCreated), out var result) ? result : 0;
 
         public int LabelsAdded => int.TryParse(GetStringValue(Label.LabelsAdded), out var result) ? result : 0;
 
