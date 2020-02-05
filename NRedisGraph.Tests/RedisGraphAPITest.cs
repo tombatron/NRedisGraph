@@ -455,5 +455,11 @@ namespace NRedisGraph.Tests
         {
             Assert.NotNull(_api.Query("social", "MATCH (n) where n.s1='S\"\\'' RETURN n"));
         }
+
+        [Fact]
+        public void TestMultiExec()
+        {
+
+        }
     }
 }

@@ -10,7 +10,7 @@ namespace NRedisGraph
 {
     public sealed class RedisGraph
     {
-        private static readonly object CompactQueryFlag = "--COMPACT";
+        internal static readonly object CompactQueryFlag = "--COMPACT";
         private readonly IDatabase _db;
         private readonly IDictionary<string, GraphCache> _graphCaches = new Dictionary<string, GraphCache>();
 
@@ -54,7 +54,7 @@ namespace NRedisGraph
             return new ResultSet(await _db.ExecuteAsync(Command.QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
         }
 
-        private static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
+        internal static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
             new Dictionary<string, List<string>>();
 
         public ResultSet CallProcedure(string graphId, string procedure) =>
@@ -100,6 +100,9 @@ namespace NRedisGraph
 
             return QueryAsync(graphId, queryBody.ToString());
         }
+
+        public RedisGraphTransaction Multi() =>
+            new RedisGraphTransaction(_db.CreateTransaction(), this, _graphCaches);
 
         public static string PrepareQuery(string query, IDictionary<string, object> parms)
         {
@@ -201,7 +204,7 @@ namespace NRedisGraph
             return result.ToString();
         }
 
-        private static string QuoteString(string candidateString)
+        internal static string QuoteString(string candidateString)
         {
             if (candidateString.StartsWith("\"") && candidateString.EndsWith("\""))
             {
