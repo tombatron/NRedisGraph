@@ -20,26 +20,26 @@ namespace NRedisGraph
             _transaction = transaction;
         }
 
-        public Task QueryAsync(string graphId, string query, IDictionary<string, object> parameters)
+        public ValueTask QueryAsync(string graphId, string query, IDictionary<string, object> parameters)
         {
             var preparedQuery = RedisGraph.PrepareQuery(query, parameters);
 
             return QueryAsync(graphId, preparedQuery);
         }
 
-        public Task QueryAsync(string graphId, string query)
+        public ValueTask QueryAsync(string graphId, string query)
         {
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, _redisGraph));
 
             _pendingTasks.Add(_transaction.ExecuteAsync(Command.QUERY, graphId, query, RedisGraph.CompactQueryFlag));
 
-            return Task.CompletedTask;
+            return default(ValueTask);
         }
 
-        public Task CallProcedureAsync(string graphId, string procedure) =>
+        public ValueTask CallProcedureAsync(string graphId, string procedure) =>
             CallProcedureAsync(graphId, procedure, Enumerable.Empty<string>(), RedisGraph.EmptyKwargsDictionary);
 
-        public Task CallProcedureAsync(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
+        public ValueTask CallProcedureAsync(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
         {
             args = args.Select(a => RedisGraph.QuoteString(a));
 
@@ -55,17 +55,30 @@ namespace NRedisGraph
             return QueryAsync(graphId, queryBody.ToString());
         }
 
-        public Task DeleteGraphAsync(string graphId)
+        public ValueTask DeleteGraphAsync(string graphId)
         {
-            return default;
+            _pendingTasks.Add(_transaction.ExecuteAsync(Command.DELETE, graphId));
+
+            _graphCaches.Remove(graphId);
+
+            return default(ValueTask);
         }
 
-        public IEnumerable<ResultSet> Exec()
+        public ResultSet[] Exec()
         {
-            return default;
+            var results = new ResultSet[_pendingTasks.Count];
+
+            var success = _transaction.Execute(); // TODO: Handle false (which means the transaction didn't succeed.)
+
+            for(var i = 0; i < _pendingTasks.Count; i++)
+            {
+                results[i] = new ResultSet(_pendingTasks[i].Result, _graphCaches); // TODO: Store pending task with the name of the graph it was executed against.
+            }
+
+            return results;
         }
 
-        public Task<IEnumerable<ResultSet>> ExecAsync()
+        public Task<ResultSet[]> ExecAsync()
         {
             return default;
         }
