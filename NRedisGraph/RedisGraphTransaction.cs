@@ -8,10 +8,23 @@ namespace NRedisGraph
 {
     public class RedisGraphTransaction
     {
+        private class TransactionResult
+        {
+            public string GraphId { get; }
+
+            public Task<RedisResult> PendingTask { get; }
+
+            public TransactionResult(string graphId, Task<RedisResult> pendingTask)
+            {
+                GraphId = graphId;
+                PendingTask = pendingTask;
+            }
+        }
+
         private readonly ITransaction _transaction;
         private readonly IDictionary<string, GraphCache> _graphCaches;
         private readonly RedisGraph _redisGraph;
-        private readonly List<Task<RedisResult>> _pendingTasks = new List<Task<RedisResult>>();
+        private readonly List<TransactionResult> _pendingTasks = new List<TransactionResult>();
 
         public RedisGraphTransaction(ITransaction transaction, RedisGraph redisGraph, IDictionary<string, GraphCache> graphCaches)
         {
@@ -31,7 +44,7 @@ namespace NRedisGraph
         {
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, _redisGraph));
 
-            _pendingTasks.Add(_transaction.ExecuteAsync(Command.QUERY, graphId, query, RedisGraph.CompactQueryFlag));
+            _pendingTasks.Add(new TransactionResult(graphId, _transaction.ExecuteAsync(Command.QUERY, graphId, query, RedisGraph.CompactQueryFlag)));
 
             return default(ValueTask);
         }
@@ -57,7 +70,7 @@ namespace NRedisGraph
 
         public ValueTask DeleteGraphAsync(string graphId)
         {
-            _pendingTasks.Add(_transaction.ExecuteAsync(Command.DELETE, graphId));
+            _pendingTasks.Add(new TransactionResult(graphId, _transaction.ExecuteAsync(Command.DELETE, graphId)));
 
             _graphCaches.Remove(graphId);
 
@@ -70,17 +83,32 @@ namespace NRedisGraph
 
             var success = _transaction.Execute(); // TODO: Handle false (which means the transaction didn't succeed.)
 
-            for(var i = 0; i < _pendingTasks.Count; i++)
+            for (var i = 0; i < _pendingTasks.Count; i++)
             {
-                results[i] = new ResultSet(_pendingTasks[i].Result, _graphCaches); // TODO: Store pending task with the name of the graph it was executed against.
+                var result = _pendingTasks[i].PendingTask.Result;
+                var graphId = _pendingTasks[i].GraphId;
+
+                results[i] = new ResultSet(result, _graphCaches[graphId]);
             }
 
             return results;
         }
 
-        public Task<ResultSet[]> ExecAsync()
+        public async Task<ResultSet[]> ExecAsync()
         {
-            return default;
+            var results = new ResultSet[_pendingTasks.Count];
+
+            var success = await _transaction.ExecuteAsync();
+
+            for (var i = 0; i < _pendingTasks.Count; i++)
+            {
+                var result = _pendingTasks[i].PendingTask.Result;
+                var graphId = _pendingTasks[i].GraphId;
+
+                results[i] = new ResultSet(result, _graphCaches[graphId]);
+            }
+
+            return results;
         }
     }
 }
