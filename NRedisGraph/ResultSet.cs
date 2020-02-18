@@ -26,6 +26,7 @@ namespace NRedisGraph
 
         public ResultSet(RedisResult result, GraphCache graphCache)
         {
+
             var resultArray = (RedisResult[])result;
             _graphCache = graphCache;
 

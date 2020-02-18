@@ -459,7 +459,18 @@ namespace NRedisGraph.Tests
         [Fact]
         public void TestMultiExec()
         {
+            var transaction = _api.Multi();
 
+            // transaction.SetAsync("x", "1");
+            transaction.QueryAsync("social", "CREATE (:Person {name:'a'})");
+            transaction.QueryAsync("g", "CREATE (:Person {name:'a'})");
+            // transaction.IncrAsync("x");
+            // transaction.GetAsync("x");
+            transaction.QueryAsync("social", "MATCH (n:Person) RETURN n");
+            transaction.DeleteGraphAsync("g");
+            transaction.CallProcedureAsync("social", "db.labels");
+
+            var results = transaction.Exec();
         }
     }
 }

@@ -25,6 +25,7 @@ namespace NRedisGraph
         private readonly IDictionary<string, GraphCache> _graphCaches;
         private readonly RedisGraph _redisGraph;
         private readonly List<TransactionResult> _pendingTasks = new List<TransactionResult>();
+        private readonly List<string> _graphCachesToRemove = new List<string>();
 
         public RedisGraphTransaction(ITransaction transaction, RedisGraph redisGraph, IDictionary<string, GraphCache> graphCaches)
         {
@@ -72,7 +73,7 @@ namespace NRedisGraph
         {
             _pendingTasks.Add(new TransactionResult(graphId, _transaction.ExecuteAsync(Command.DELETE, graphId)));
 
-            _graphCaches.Remove(graphId);
+            _graphCachesToRemove.Add(graphId);
 
             return default(ValueTask);
         }
@@ -91,6 +92,8 @@ namespace NRedisGraph
                 results[i] = new ResultSet(result, _graphCaches[graphId]);
             }
 
+            ProcessPendingGraphCacheRemovals();
+
             return results;
         }
 
@@ -108,7 +111,17 @@ namespace NRedisGraph
                 results[i] = new ResultSet(result, _graphCaches[graphId]);
             }
 
+            ProcessPendingGraphCacheRemovals();
+
             return results;
+        }
+
+        private void ProcessPendingGraphCacheRemovals()
+        {
+            foreach(var graph in _graphCachesToRemove)
+            {
+                _graphCaches.Remove(graph);
+            }
         }
     }
 }
