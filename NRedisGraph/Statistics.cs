@@ -19,6 +19,7 @@ namespace NRedisGraph
             private const string PROPERTIES_SET = "Properties set";
             private const string RELATIONSHIPS_CREATED = "Relationships created";
             private const string QUERY_INTERNAL_EXECUTION_TIME = "Query internal execution time";
+            private const string GRAPH_REMOVED_INTERNAL_EXECUTION_TIME = "Graph removed, internal execution time";
 
             public string Value { get; }
 
@@ -33,6 +34,7 @@ namespace NRedisGraph
             public static readonly Label PropertiesSet = new Label(PROPERTIES_SET);
             public static readonly Label RelationshipsCreated = new Label(RELATIONSHIPS_CREATED);
             public static readonly Label QueryInternalExecutionTime = new Label(QUERY_INTERNAL_EXECUTION_TIME);
+            public static readonly Label GraphRemovedInternalExecutionTime = new Label(GRAPH_REMOVED_INTERNAL_EXECUTION_TIME);
 
             public static Label FromString(string labelValue)
             {
@@ -56,6 +58,8 @@ namespace NRedisGraph
                         return RelationshipsCreated;
                     case QUERY_INTERNAL_EXECUTION_TIME:
                         return QueryInternalExecutionTime;
+                    case GRAPH_REMOVED_INTERNAL_EXECUTION_TIME:
+                        return GraphRemovedInternalExecutionTime;
                     default:
                         throw new ArgumentException("Unknown label kind.", nameof(labelValue));
                 }
@@ -64,8 +68,18 @@ namespace NRedisGraph
 
         private readonly RedisResult[] _statistics;
 
-        internal Statistics(RedisResult statistics) =>
-            _statistics = (RedisResult[])statistics;
+        internal Statistics(RedisResult statistics)
+        {
+            if (statistics.Type == ResultType.MultiBulk)
+            {
+                _statistics = (RedisResult[])statistics;
+            }
+            else
+            {
+                _statistics = new[] { statistics };
+            }
+        }
+
 
         private IDictionary<Label, string> _statisticsValues;
 
@@ -81,7 +95,7 @@ namespace NRedisGraph
                         return new
                         {
                             Label = Label.FromString(s[0].Trim()),
-                                Value = s[1].Trim()
+                            Value = s[1].Trim()
                         };
                     }).ToDictionary(k => k.Label, v => v.Value);
             }
@@ -106,5 +120,7 @@ namespace NRedisGraph
         public int PropertiesSet => int.TryParse(GetStringValue(Label.PropertiesSet), out var result) ? result : 0;
 
         public string QueryInternalExecutionTime => GetStringValue(Label.QueryInternalExecutionTime);
+
+        public string GraphRemovedInternalExecutionTime => GetStringValue(Label.GraphRemovedInternalExecutionTime);
     }
 }

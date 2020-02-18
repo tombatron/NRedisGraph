@@ -26,22 +26,30 @@ namespace NRedisGraph
 
         public ResultSet(RedisResult result, GraphCache graphCache)
         {
-
-            var resultArray = (RedisResult[])result;
-            _graphCache = graphCache;
-
-            if (resultArray.Length == 3)
+            if (result.Type == ResultType.MultiBulk)
             {
-                Header = new Header(resultArray[0]);
-                Statistics = new Statistics(resultArray[2]);
 
-                _rawResults = (RedisResult[])resultArray[1];
+                var resultArray = (RedisResult[])result;
+                _graphCache = graphCache;
 
-                Count = _rawResults.Length;
+                if (resultArray.Length == 3)
+                {
+                    Header = new Header(resultArray[0]);
+                    Statistics = new Statistics(resultArray[2]);
+
+                    _rawResults = (RedisResult[])resultArray[1];
+
+                    Count = _rawResults.Length;
+                }
+                else
+                {
+                    Statistics = new Statistics(resultArray[resultArray.Length - 1]);
+                    Count = 0;
+                }
             }
             else
             {
-                Statistics = new Statistics(resultArray[resultArray.Length - 1]);
+                Statistics = new Statistics(result);
                 Count = 0;
             }
         }
