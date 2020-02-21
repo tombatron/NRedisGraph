@@ -544,5 +544,19 @@ namespace NRedisGraph.Tests
             Assert.Equal(new List<string> { "label" }, record.Keys);
             Assert.Equal("Person", record.GetValue<string>("label"));
         }
+
+        /*
+
+        Since by default all commands executed by StackExchange.Redis travel through the same connection
+        we're going to skip the following "contexted" tests:
+
+        - testContextedAPI
+        - testWriteTransactionWatch
+        - testReadTransactionWatch
+
+        */
+
+        
+
     }
 }
