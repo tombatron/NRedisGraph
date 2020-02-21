@@ -219,7 +219,7 @@ namespace NRedisGraph.Tests
             Assert.Equal("Edge{relationshipType='knows', source=0, destination=1, id=0, propertyMap={place=Property{name='place', value=TLV}, since=Property{name='since', value=2000}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=False}, nullValue=Property{name='nullValue', value=null}}}", expectedEdge.ToString());
 
             var parms = new Dictionary<string, object>
-            { 
+            {
                 { "name", name },
                 { "age", age },
                 { "boolValue", boolValue },
@@ -261,7 +261,7 @@ namespace NRedisGraph.Tests
             edge = record.GetValue<Edge>("r");
             Assert.Equal(expectedEdge, edge);
 
-            Assert.Equal(new [] { "a", "r", "a.name", "a.age", "a.doubleValue", "a.boolValue", "a.nullValue", "r.place", "r.since", "r.doubleValue", "r.boolValue", "r.nullValue" }, record.Keys);
+            Assert.Equal(new[] { "a", "r", "a.name", "a.age", "a.doubleValue", "a.boolValue", "a.nullValue", "r.place", "r.since", "r.doubleValue", "r.boolValue", "r.nullValue" }, record.Keys);
 
             Assert.Equal(new object[] { expectedNode, expectedEdge, name, age, doubleValue, true, null, place, since, doubleValue, false, null }, record.Values);
 
@@ -328,7 +328,7 @@ namespace NRedisGraph.Tests
                 Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[2]);
                 Assert.Equal(1, resultSet.Count);
                 Record record = resultSet.First();
-                Assert.Equal(new [] { "a", "r", "a.age" }, record.Keys);
+                Assert.Equal(new[] { "a", "r", "a.age" }, record.Keys);
                 Assert.Equal(new object[] { expectedNode, expectedEdge, 32 }, record.Values);
             }
 
@@ -367,7 +367,7 @@ namespace NRedisGraph.Tests
                 Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
                 Assert.Equal(1, resultSet.Count);
                 Record record = resultSet.First();
-                Assert.Equal(new [] { "a", "r" }, record.Keys);
+                Assert.Equal(new[] { "a", "r" }, record.Keys);
                 Assert.Equal(new object[] { expectedNode, expectedEdge }, record.Values);
             }
         }
@@ -413,7 +413,7 @@ namespace NRedisGraph.Tests
             Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
             Assert.Equal(1, resultSet.Count);
             Record record = resultSet.First();
-            Assert.Equal(new [] { "a", "r" }, record.Keys);
+            Assert.Equal(new[] { "a", "r" }, record.Keys);
             Assert.Equal(new object[] { expectedNode, expectedEdge }, record.Values);
 
             //test for local cache updates
@@ -446,7 +446,7 @@ namespace NRedisGraph.Tests
             Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
             Assert.Equal(1, resultSet.Count);
             record = resultSet.First();
-            Assert.Equal(new [] { "a", "r" }, record.Keys);
+            Assert.Equal(new[] { "a", "r" }, record.Keys);
             Assert.Equal(new object[] { expectedNode, expectedEdge }, record.Values);
         }
 
@@ -471,6 +471,78 @@ namespace NRedisGraph.Tests
             transaction.CallProcedureAsync("social", "db.labels");
 
             var results = transaction.Exec();
+
+            // Skipping Redis SET command assetions...
+
+            // Redis Graph command
+            var resultSet = results[0];
+            Assert.Equal(1, resultSet.Statistics.NodesCreated);
+            Assert.Equal(1, resultSet.Statistics.PropertiesSet);
+
+            resultSet = results[1];
+            Assert.Equal(1, resultSet.Statistics.NodesCreated);
+            Assert.Equal(1, resultSet.Statistics.PropertiesSet);
+
+            // Skipping Redis INCR command assertions...
+
+            // Skipping Redis GET command assertions...
+
+            // Graph Query Result
+            resultSet = results[2];
+            Assert.NotNull(resultSet.Header);
+
+            var header = resultSet.Header;
+
+            var schemaNames = header.SchemaNames;
+            var schemaTypes = header.SchemaTypes;
+
+            Assert.NotNull(schemaNames);
+            Assert.NotNull(schemaTypes);
+
+            Assert.Equal(1, schemaNames.Count);
+            Assert.Equal(1, schemaTypes.Count);
+
+            Assert.Equal("n", schemaNames[0]);
+            Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
+
+            var nameProperty = new Property("name", "a");
+
+            var expectedNode = new Node();
+            expectedNode.Id = 0;
+            expectedNode.AddLabel("Person");
+            expectedNode.AddProperty(nameProperty);
+
+            // See that the result were pulled from the right graph.
+
+            Assert.Equal(1, resultSet.Count);
+
+            var record = resultSet.First();
+            Assert.Equal(new List<string> { "n" }, record.Keys);
+            Assert.Equal(expectedNode, record.GetValue<Node>("n"));
+
+            resultSet = results[4];
+
+            Assert.NotNull(resultSet.Header);
+
+            schemaNames = header.SchemaNames;
+            schemaTypes = header.SchemaTypes;
+
+            Assert.NotNull(schemaNames);
+            Assert.NotNull(schemaTypes);
+
+            Assert.Equal(1, schemaNames.Count);
+            Assert.Equal(1, schemaTypes.Count);
+
+            Assert.Equal("n", schemaNames[0]);
+
+            Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
+
+            Assert.Equal(1, resultSet.Count);
+
+            record = resultSet.First();
+
+            Assert.Equal(new List<string> { "label" }, record.Keys);
+            Assert.Equal("Person", record.GetValue<string>("label"));
         }
     }
 }
