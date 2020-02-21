@@ -556,7 +556,23 @@ namespace NRedisGraph.Tests
 
         */
 
-        
+        [Fact]
+        public void TestArraySupport()
+        {
+
+        }
+
+        [Fact]
+        public void TestPath()
+        {
+
+        }
+
+        [Fact]
+        public void TestParameters()
+        {
+            
+        }
 
     }
 }
