@@ -607,8 +607,8 @@ namespace NRedisGraph.Tests
             var record = resultSet.First();
             Assert.Equal(new[] { "x" }, record.Keys);
 
-            var x = record.GetValue<int[]>("x");
-            Assert.Equal(new[] { 0, 1, 2 }, x);
+            var x = record.GetValue<List<object>>("x");
+            Assert.Equal(new List<object> { 0, 1, 2 }, x);
 
             // test collect
             resultSet = _api.Query("social", "MATCH(n) return collect(n) as x");
@@ -628,24 +628,112 @@ namespace NRedisGraph.Tests
             Assert.Equal("x", schemaNames[0]);
             Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[0]);
 
-            //check record
+            // check record
             Assert.Equal(1, resultSet.Count);
             record = resultSet.First();
             Assert.Equal(new[] { "x" }, record.Keys);
-            x = record.GetValue<int[]>("x");
-            Assert.Equal(new[]{expectedANode, expectedBNode}, x);
+            x = record.GetValue<List<object>>("x");
+            Assert.Equal(new object[] { expectedANode, expectedBNode }, x);
+
+            // test unwind
+            resultSet = _api.Query("social", "unwind([0,1,2]) as x return x");
+
+            Assert.NotNull(resultSet.Header);
+            header = resultSet.Header;
+
+            schemaNames = header.SchemaNames;
+            schemaTypes = header.SchemaTypes;
+
+            Assert.NotNull(schemaNames);
+            Assert.NotNull(schemaTypes);
+
+            Assert.Equal(1, schemaNames.Count);
+            Assert.Equal(1, schemaTypes.Count);
+
+            Assert.Equal("x", schemaNames[0]);
+            Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[0]);
+
+            // check record
+            Assert.Equal(3, resultSet.Count);
+
+            for (var i = 0; i < 3; i++)
+            {
+                record = resultSet.ElementAt(i);
+
+                Assert.Equal(new[] { "x" }, record.Keys);
+                Assert.Equal(i, record.GetValue<int>("x"));
+            }
         }
 
         [Fact]
         public void TestPath()
         {
+            List<Node> nodes = new List<Node>(3);
 
+            for (int i = 0; i < 3; i++)
+            {
+                var node = new Node();
+                node.Id = i;
+                node.AddLabel("L1");
+                nodes.Add(node);
+            }
+
+            List<Edge> edges = new List<Edge>(2);
+
+            for (int i = 0; i < 2; i++)
+            {
+                var edge = new Edge();
+                edge.Id = i;
+                edge.RelationshipType = "R1";
+                edge.Source = i;
+                edge.Destination = i + 1;
+
+                edges.Add(edge);
+            }
+
+            var expectedPaths = new HashSet<Path>();
+
+            var path01 = new PathBuilder(2).Append(nodes[0]).Append(edges[0]).Append(nodes[1]).Build();
+            var path12 = new PathBuilder(2).Append(nodes[1]).Append(edges[1]).Append(nodes[2]).Build();
+            var path02 = new PathBuilder(3).Append(nodes[0]).Append(edges[0]).Append(nodes[1]).Append(edges[1]).Append(nodes[2]).Build();
+
+            expectedPaths.Add(path01);
+            expectedPaths.Add(path12);
+            expectedPaths.Add(path02);
+
+            _api.Query("social", "CREATE (:L1)-[:R1]->(:L1)-[:R1]->(:L1)");
+
+            var resultSet = _api.Query("social", "MATCH p = (:L1)-[:R1*]->(:L1) RETURN p");
+
+            Assert.Equal(expectedPaths.Count, resultSet.Count);
+
+            for (int i = 0; i < resultSet.Count; i++)
+            {
+                Path p = resultSet.ElementAt(i).GetValue<Path>("p");
+                Assert.True(expectedPaths.Contains(p));
+                expectedPaths.Remove(p);
+            }
         }
 
         [Fact]
         public void TestParameters()
         {
-
+            Object[] parameters = { 1, 2.3, true, false, null, "str", Arrays.asList(1, 2, 3), new Integer[] { 1, 2, 3 } };
+            Map<String, Object> param = new HashMap<>();
+            for (int i = 0; i < parameters.length; i++)
+            {
+                Object expected = parameters[i];
+                param.put("param", expected);
+                ResultSet resultSet = api.query("social", "RETURN $param", param);
+                Assert.assertEquals(1, resultSet.size());
+                Record r = resultSet.next();
+                Object o = r.getValue(0);
+                if (i == parameters.length - 1)
+                {
+                    expected = Arrays.asList((Object[])expected);
+                }
+                Assert.assertEquals(expected, o);
+            }
         }
 
     }
