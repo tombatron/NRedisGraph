@@ -718,21 +718,23 @@ namespace NRedisGraph.Tests
         [Fact]
         public void TestParameters()
         {
-            Object[] parameters = { 1, 2.3, true, false, null, "str", Arrays.asList(1, 2, 3), new Integer[] { 1, 2, 3 } };
-            Map<String, Object> param = new HashMap<>();
-            for (int i = 0; i < parameters.length; i++)
+            Object[] parameters = { 1, 2.3, true, false, null, "str", new[] { 1, 2, 3 }, new[] { 1, 2, 3 } };
+
+            var param = new Dictionary<string, object>();
+
+            for (int i = 0; i < parameters.Length; i++)
             {
                 Object expected = parameters[i];
-                param.put("param", expected);
-                ResultSet resultSet = api.query("social", "RETURN $param", param);
-                Assert.assertEquals(1, resultSet.size());
-                Record r = resultSet.next();
-                Object o = r.getValue(0);
-                if (i == parameters.length - 1)
+                param.Add("param", expected);
+                ResultSet resultSet = _api.Query("social", "RETURN $param", param);
+                Assert.Equal(1, resultSet.Count);
+                Record r = resultSet.First();
+                Object o = r.GetValue<object>(0);
+                if (i == parameters.Length - 1)
                 {
-                    expected = Arrays.asList((Object[])expected);
+                    expected = (Object[])((Object[])expected);
                 }
-                Assert.assertEquals(expected, o);
+                Assert.Equal(expected, o);
             }
         }
 
