@@ -559,7 +559,81 @@ namespace NRedisGraph.Tests
         [Fact]
         public void TestArraySupport()
         {
+            var expectedANode = new Node();
+            expectedANode.Id = 0;
+            expectedANode.AddLabel("person");
+            var aNameProperty = new Property("name", "a");
+            var aAgeProperty = new Property("age", 32);
+            var aListProperty = new Property("array", new[] { 0, 1, 2 });
+            expectedANode.AddProperty(aNameProperty);
+            expectedANode.AddProperty(aAgeProperty);
+            expectedANode.AddProperty(aListProperty);
 
+            var expectedBNode = new Node();
+            expectedBNode.Id = 1;
+            expectedBNode.AddLabel("person");
+            var bNameProperty = new Property("name", "b");
+            var bAgeProperty = new Property("age", 30);
+            var bListProperty = new Property("array", new[] { 3, 4, 5 });
+            expectedBNode.AddProperty(bNameProperty);
+            expectedBNode.AddProperty(bAgeProperty);
+            expectedBNode.AddProperty(bListProperty);
+
+            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'a',age:32,array:[0,1,2]})"));
+            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'b',age:30,array:[3,4,5]})"));
+
+            // test array
+
+            var resultSet = _api.Query("social", "WITH [0,1,2] as x return x");
+
+            // check header
+            Assert.NotNull(resultSet.Header);
+            var header = resultSet.Header;
+
+            var schemaNames = header.SchemaNames;
+            var schemaTypes = header.SchemaTypes;
+
+            Assert.NotNull(schemaNames);
+            Assert.NotNull(schemaTypes);
+
+            Assert.Equal(1, schemaNames.Count);
+            Assert.Equal(1, schemaTypes.Count);
+
+            Assert.Equal("x", schemaNames[0]);
+            Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[0]);
+
+            // check record
+            Assert.Equal(1, resultSet.Count);
+            var record = resultSet.First();
+            Assert.Equal(new[] { "x" }, record.Keys);
+
+            var x = record.GetValue<int[]>("x");
+            Assert.Equal(new[] { 0, 1, 2 }, x);
+
+            // test collect
+            resultSet = _api.Query("social", "MATCH(n) return collect(n) as x");
+
+            Assert.NotNull(resultSet.Header);
+            header = resultSet.Header;
+
+            schemaNames = header.SchemaNames;
+            schemaTypes = header.SchemaTypes;
+
+            Assert.NotNull(schemaNames);
+            Assert.NotNull(schemaTypes);
+
+            Assert.Equal(1, schemaNames.Count);
+            Assert.Equal(1, schemaTypes.Count);
+
+            Assert.Equal("x", schemaNames[0]);
+            Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[0]);
+
+            //check record
+            Assert.Equal(1, resultSet.Count);
+            record = resultSet.First();
+            Assert.Equal(new[] { "x" }, record.Keys);
+            x = record.GetValue<int[]>("x");
+            Assert.Equal(new[]{expectedANode, expectedBNode}, x);
         }
 
         [Fact]
@@ -571,7 +645,7 @@ namespace NRedisGraph.Tests
         [Fact]
         public void TestParameters()
         {
-            
+
         }
 
     }
