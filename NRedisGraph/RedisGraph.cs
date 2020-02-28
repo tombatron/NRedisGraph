@@ -1,5 +1,5 @@
 // .NET port of https://github.com/RedisGraph/JRedisGraph
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -110,7 +110,7 @@ namespace NRedisGraph
 
             preparedQuery.Append("CYPHER ");
 
-            foreach(var param in parms)
+            foreach (var param in parms)
             {
                 preparedQuery.Append($"{param.Key}={ValueToString(param.Value)} ");
             }
@@ -135,12 +135,29 @@ namespace NRedisGraph
 
             if (value.GetType().IsArray)
             {
-                return ArrayToString((object[])value);
+                if (value is IEnumerable arrayValue)
+                {
+                    var values = new List<object>();
+
+                    foreach (var v in arrayValue)
+                    {
+                        values.Add(v);
+                    }
+
+                    return ArrayToString(values.ToArray());
+                }
             }
 
             if ((value is System.Collections.IList valueList) && value.GetType().IsGenericType)
             {
-                return ArrayToString(((List<object>)valueList).ToArray());
+                var objectValueList = new List<object>();
+
+                foreach (var val in valueList)
+                {
+                    objectValueList.Add((object)val);
+                }
+
+                return ArrayToString(objectValueList.ToArray());
             }
 
             if (value is bool boolValue)
@@ -153,13 +170,13 @@ namespace NRedisGraph
 
         private static string ArrayToString(object[] array)
         {
-                var arrayToString = new StringBuilder();
+            var arrayToString = new StringBuilder();
 
-                arrayToString.Append('[');
-                arrayToString.Append(string.Join(", ", array.Select(x=>x.ToString())));
-                arrayToString.Append(']');
+            arrayToString.Append('[');
+            arrayToString.Append(string.Join(", ", array.Select(x => x.ToString())));
+            arrayToString.Append(']');
 
-                return arrayToString.ToString();
+            return arrayToString.ToString();
         }
 
         private static string EscapeQuotes(string unescapedString)

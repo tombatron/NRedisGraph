@@ -193,7 +193,7 @@ namespace NRedisGraph
 
             for (var i = 0; i < serializedArray.Length; i++)
             {
-                result[0] = DeserializeScalar((RedisResult[])serializedArray[i]);
+                result[i] = DeserializeScalar((RedisResult[])serializedArray[i]);
             }
 
             return result;

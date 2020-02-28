@@ -718,21 +718,21 @@ namespace NRedisGraph.Tests
         [Fact]
         public void TestParameters()
         {
-            Object[] parameters = { 1, 2.3, true, false, null, "str", new[] { 1, 2, 3 }, new[] { 1, 2, 3 } };
+            Object[] parameters = { 1, 2.3, true, false, null, "str", new List<int> { 1, 2, 3 }, new[] { 1, 2, 3 } };
 
             var param = new Dictionary<string, object>();
 
             for (int i = 0; i < parameters.Length; i++)
             {
                 Object expected = parameters[i];
-                param.Add("param", expected);
+                param.Put("param", expected);
                 ResultSet resultSet = _api.Query("social", "RETURN $param", param);
                 Assert.Equal(1, resultSet.Count);
                 Record r = resultSet.First();
                 Object o = r.GetValue<object>(0);
                 if (i == parameters.Length - 1)
                 {
-                    expected = (Object[])((Object[])expected);
+                    expected = Array.ConvertAll((int[])expected, x=>(object)x);
                 }
                 Assert.Equal(expected, o);
             }
