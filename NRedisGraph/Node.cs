@@ -41,8 +41,12 @@ namespace NRedisGraph
             unchecked
             {
                 int hash = 17;
+                
+                foreach(var label in _labels)
+                {
+                    hash = hash * 31 + label.GetHashCode();
+                }
 
-                hash = hash * 31 + _labels.GetHashCode();
                 hash = hash * 31 + base.GetHashCode();
 
                 return hash;
