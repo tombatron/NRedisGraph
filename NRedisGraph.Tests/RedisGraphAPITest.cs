@@ -564,7 +564,7 @@ namespace NRedisGraph.Tests
             expectedANode.AddLabel("person");
             var aNameProperty = new Property("name", "a");
             var aAgeProperty = new Property("age", 32);
-            var aListProperty = new Property("array", new[] { 0, 1, 2 });
+            var aListProperty = new Property("array", new object[] { 0, 1, 2 });
             expectedANode.AddProperty(aNameProperty);
             expectedANode.AddProperty(aAgeProperty);
             expectedANode.AddProperty(aListProperty);
@@ -574,7 +574,7 @@ namespace NRedisGraph.Tests
             expectedBNode.AddLabel("person");
             var bNameProperty = new Property("name", "b");
             var bAgeProperty = new Property("age", 30);
-            var bListProperty = new Property("array", new[] { 3, 4, 5 });
+            var bListProperty = new Property("array", new object[] { 3, 4, 5 });
             expectedBNode.AddProperty(bNameProperty);
             expectedBNode.AddProperty(bAgeProperty);
             expectedBNode.AddProperty(bListProperty);
@@ -607,8 +607,8 @@ namespace NRedisGraph.Tests
             var record = resultSet.First();
             Assert.Equal(new[] { "x" }, record.Keys);
 
-            var x = record.GetValue<List<object>>("x");
-            Assert.Equal(new List<object> { 0, 1, 2 }, x);
+            var x = record.GetValue<object[]>("x");
+            Assert.Equal(new object[] { 0, 1, 2 }, x);
 
             // test collect
             resultSet = _api.Query("social", "MATCH(n) return collect(n) as x");
@@ -632,8 +632,10 @@ namespace NRedisGraph.Tests
             Assert.Equal(1, resultSet.Count);
             record = resultSet.First();
             Assert.Equal(new[] { "x" }, record.Keys);
-            x = record.GetValue<List<object>>("x");
-            Assert.Equal(new object[] { expectedANode, expectedBNode }, x);
+            x = record.GetValue<object[]>("x");
+
+            Assert.Contains(expectedANode, x);
+            Assert.Contains(expectedBNode, x);
 
             // test unwind
             resultSet = _api.Query("social", "unwind([0,1,2]) as x return x");
