@@ -1,6 +1,5 @@
 using System.Text;
 using System.Collections.Generic;
-using static NRedisGraph.ResultSet;
 
 namespace NRedisGraph
 {
@@ -41,7 +40,12 @@ namespace NRedisGraph
                 int hash = 17;
 
                 hash = hash * 31 + Id.GetHashCode();
-                hash = hash * 31 + PropertyMap.GetHashCode();
+
+                foreach(var prop in PropertyMap)
+                {
+                    hash = hash * 31 + prop.Key.GetHashCode();
+                    hash = hash * 31 + prop.Value.GetHashCode();
+                }
 
                 return hash;
             }

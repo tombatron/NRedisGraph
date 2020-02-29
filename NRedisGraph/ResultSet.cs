@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -201,8 +202,11 @@ namespace NRedisGraph
 
         private Path DeserializePath(RedisResult[] rawPath)
         {
-            var nodes = new List<Node>((Node[])DeserializeScalar((RedisResult[])rawPath[0]));
-            var edges = new List<Edge>((Edge[])DeserializeScalar((RedisResult[])rawPath[1]));
+            var deserializedNodes = (object[])DeserializeScalar((RedisResult[])rawPath[0]);
+            var nodes = Array.ConvertAll(deserializedNodes, n => (Node)n);
+
+            var deserializedEdges = (object[])DeserializeScalar((RedisResult[])rawPath[1]);
+            var edges = Array.ConvertAll(deserializedEdges, p => (Edge)p);
 
             return new Path(nodes, edges);
         }

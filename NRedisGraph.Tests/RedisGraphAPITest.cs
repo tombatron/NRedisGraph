@@ -732,7 +732,7 @@ namespace NRedisGraph.Tests
                 Object o = r.GetValue<object>(0);
                 if (i == parameters.Length - 1)
                 {
-                    expected = Array.ConvertAll((int[])expected, x=>(object)x);
+                    expected = Array.ConvertAll((int[])expected, x => (object)x);
                 }
                 Assert.Equal(expected, o);
             }
