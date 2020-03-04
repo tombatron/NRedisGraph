@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Text;
 
 namespace NRedisGraph
@@ -39,7 +40,18 @@ namespace NRedisGraph
                 int hash = 17;
 
                 hash = hash * 31 + Name.GetHashCode();
-                hash = hash * 31 + Value.GetHashCode();
+
+                if (Value is IEnumerable enumerableValue)
+                {
+                    foreach(var value in enumerableValue)
+                    {
+                        hash = hash * 31 + value.GetHashCode();
+                    }
+                }
+                else
+                {
+                    hash = hash * 31 + Value.GetHashCode();
+                }
 
                 return hash;
             }

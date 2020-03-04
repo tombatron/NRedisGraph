@@ -1,6 +1,8 @@
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
-[assembly : InternalsVisibleTo("NRedisGraph.Tests")]
+[assembly: InternalsVisibleTo("NRedisGraph.Tests")]
 
 namespace NRedisGraph
 {
@@ -21,6 +23,14 @@ namespace NRedisGraph
             if (obj1.GetType() != obj2.GetType())
             {
                 return false;
+            }
+
+            if (obj1 is IEnumerable<object> objArray1 && obj2 is IEnumerable<object> objArray2)
+            {
+                if (Enumerable.SequenceEqual(objArray1, objArray2))
+                {
+                    return true;
+                }
             }
 
             switch (obj1)

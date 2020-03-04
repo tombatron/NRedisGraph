@@ -1,6 +1,7 @@
 // .NET port of https://github.com/RedisGraph/JRedisGraph
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using StackExchange.Redis;
 using Xunit;
