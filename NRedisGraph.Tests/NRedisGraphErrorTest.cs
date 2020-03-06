@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using StackExchange.Redis;
 using Xunit;
 
@@ -23,5 +24,70 @@ namespace NRedisGraph.Tests
         {
             _api.DeleteGraph("social");
         }
+
+        [Fact]
+        public void TestSyntaxErrorReporting()
+        {
+            // Issue a query that causes a compile-time error
+            var exception = Assert.Throws<NRedisGraphCompileTimeException>(() =>
+            {
+                _api.Query("social", "RETURN toUpper(5)");
+            });
+
+            Assert.Contains("Type mismatch: expected String but was Integer", exception.Message);
+        }
+
+        [Fact]
+        public void TestRuntimeErrorReporting()
+        {
+            // Issue a query that causes a run-time error
+            var exception = Assert.Throws<NRedisGraphRunTimeException>(() =>
+            {
+                _api.Query("social", "MATCH (p:person) RETURN toUpper(p.mixed_prop)");
+            });
+
+            Assert.Contains("Type mismatch: expected String but was Integer", exception.Message);
+        }
+
+        [Fact]
+        public void TestExceptionFlow()
+        {
+            var compileTimeException = Assert.Throws<NRedisGraphCompileTimeException>(() =>
+            {
+                _api.Query("social", "RETURN toUpper(5)");
+            });
+
+            Assert.Contains("Type mismatch: expected String but was Integer", compileTimeException.Message);
+
+            var runTimeException = Assert.Throws<NRedisGraphRunTimeException>(() =>
+            {
+                _api.Query("social", "MATCH (p:person) RETURN toUpper(p.mixed_prop)");
+            });
+
+            Assert.Contains("Type mismatch: expected String but was Integer", runTimeException.Message);
+        }
+
+        [Fact]
+        public void TestMissingParametersSyntaxErrorReporting()
+        {
+            var exception = Assert.Throws<NRedisGraphCompileTimeException>(() =>
+            {
+                _api.Query("social", "RETURN $param");
+            });
+
+            Assert.Contains("Missing parameters", exception.Message);
+        }
+
+        [Fact]
+        public void TestMissingParametersSyntaxErrorReporting2()
+        {
+            var exception = Assert.Throws<NRedisGraphCompileTimeException>(() =>
+            {
+                _api.Query("social", "RETURN $param", new Dictionary<string, object>());
+            });
+
+            Assert.Contains("Missing parameters", exception.Message);
+        }
+
     }
 }
