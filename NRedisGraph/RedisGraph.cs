@@ -104,6 +104,24 @@ namespace NRedisGraph
         public RedisGraphTransaction Multi() =>
             new RedisGraphTransaction(_db.CreateTransaction(), this, _graphCaches);
 
+        public ResultSet DeleteGraph(string graphId)
+        {
+            var result = _db.Execute(Command.DELETE, graphId);
+
+            _graphCaches.Remove(graphId);
+
+            return new ResultSet(result, _graphCaches[graphId]);
+        }
+
+        public async Task<ResultSet> DeleteGraphAsync(string graphId)
+        {
+            var result = await _db.ExecuteAsync(Command.DELETE, graphId);
+
+            _graphCaches.Remove(graphId);
+
+            return new ResultSet(result, _graphCaches[graphId]);
+        }
+
         public static string PrepareQuery(string query, IDictionary<string, object> parms)
         {
             var preparedQuery = new StringBuilder();
