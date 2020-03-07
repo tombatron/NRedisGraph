@@ -108,18 +108,22 @@ namespace NRedisGraph
         {
             var result = _db.Execute(Command.DELETE, graphId);
 
+            var processedResult = new ResultSet(result, _graphCaches[graphId]);
+
             _graphCaches.Remove(graphId);
 
-            return new ResultSet(result, _graphCaches[graphId]);
+            return processedResult;
         }
 
         public async Task<ResultSet> DeleteGraphAsync(string graphId)
         {
             var result = await _db.ExecuteAsync(Command.DELETE, graphId);
 
+            var processedResult = new ResultSet(result, _graphCaches[graphId]);
+
             _graphCaches.Remove(graphId);
 
-            return new ResultSet(result, _graphCaches[graphId]);
+            return processedResult;
         }
 
         public static string PrepareQuery(string query, IDictionary<string, object> parms)
