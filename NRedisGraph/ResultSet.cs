@@ -29,8 +29,10 @@ namespace NRedisGraph
         {
             if (result.Type == ResultType.MultiBulk)
             {
-
                 var resultArray = (RedisResult[])result;
+
+                ScanForErrors(resultArray);
+
                 _graphCache = graphCache;
 
                 if (resultArray.Length == 3)
@@ -50,6 +52,11 @@ namespace NRedisGraph
             }
             else
             {
+                if (result.Type == ResultType.Error)
+                {
+                    throw new NRedisGraphRunTimeException(result.ToString());
+                }
+
                 Statistics = new Statistics(result);
                 Count = 0;
             }
@@ -213,5 +220,16 @@ namespace NRedisGraph
 
         private static ResultSetScalarType GetValueTypeFromObject(RedisResult rawScalarType) =>
         (ResultSetScalarType)(int)rawScalarType;
+
+        private static void ScanForErrors(RedisResult[] results)
+        {
+            foreach (var result in results)
+            {
+                if (result.Type == ResultType.Error)
+                {
+                    throw new NRedisGraphRunTimeException(result.ToString());
+                }
+            }
+        }
     }
 }

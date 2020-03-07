@@ -42,7 +42,6 @@ namespace NRedisGraph.Tests
         [Fact]
         public void TestRuntimeErrorReporting()
         {
-            var result = _api.Query("social", "MATCH (p:person) RETURN toUpper(p.mixed_prop)");
             // Issue a query that causes a run-time error
             var exception = Assert.Throws<NRedisGraphRunTimeException>(() =>
             {
