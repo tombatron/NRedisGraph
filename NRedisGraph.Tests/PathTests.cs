@@ -26,8 +26,15 @@ namespace NRedisGraph.Tests
         private List<Node> BuildNodeArray(int size) =>
             Enumerable.Range(0, size).Select(i => BuildNode(i)).ToList();
 
-        private List<Edge> BuildEdgeArray(int size) =>
-             Enumerable.Range(0, size).Select(i => BuildEdge(i, i, i + 1)).ToList();
+        private List<Edge> BuildEdgeArray(int size)
+        {
+            if (size < 0)
+            {
+                size = 0;
+            }
+
+            return Enumerable.Range(0, size).Select(i => BuildEdge(i, i, i + 1)).ToList();
+        }
 
         private Path BuildPath(int nodeCount) =>
             new Path(BuildNodeArray(nodeCount), BuildEdgeArray(nodeCount - 1));
