@@ -1,1 +1,1 @@
-docker run -d -p 6379:6379 -it --rm redislabs/redisgraph:edge
+docker run -d -p 6379:6379 -it --rm redislabs/redisgraph
