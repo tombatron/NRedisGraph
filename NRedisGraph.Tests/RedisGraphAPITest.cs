@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using StackExchange.Redis;
 using Xunit;
 using static NRedisGraph.Header;
@@ -111,10 +112,12 @@ namespace NRedisGraph.Tests
         [Fact]
         public void TestDeleteRelationship()
         {
-            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'roi',age:32})"));
-            Assert.NotNull(_api.Query("social", "CREATE (:person{name:'amit',age:30})"));
-            Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(a)"));
-            ResultSet deleteResult = _api.Query("social", "MATCH (a:person)-[e]->() WHERE (a.name = 'roi') DELETE e");
+            var graphName = $"social_{MethodBase.GetCurrentMethod()}";
+
+            Assert.NotNull(_api.Query(graphName, "CREATE (:person{name:'roi',age:32})"));
+            Assert.NotNull(_api.Query(graphName, "CREATE (:person{name:'amit',age:30})"));
+            Assert.NotNull(_api.Query(graphName, "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(a)"));
+            ResultSet deleteResult = _api.Query(graphName, "MATCH (a:person)-[e]->() WHERE (a.name = 'roi') DELETE e");
 
             Assert.Equal(0, deleteResult.Count());
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated));
