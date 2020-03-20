@@ -24,8 +24,19 @@ namespace NRedisGraph
             return _graphCaches[graphId];
         }
 
+        /// <summary>
+        /// Creates a RedisGraph client that leverages a specified instance of `IDatabase`.
+        /// </summary>
+        /// <param name="db"></param>
         public RedisGraph(IDatabase db) => _db = db;
 
+        /// <summary>
+        /// Execute a Cypher query with parameters.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="parameters">Parameters map.</param>
+        /// <returns>A result set.</returns>
         public ResultSet Query(string graphId, string query, IDictionary<string, object> parameters)
         {
             var preparedQuery = PrepareQuery(query, parameters);
@@ -33,6 +44,12 @@ namespace NRedisGraph
             return Query(graphId, preparedQuery);
         }
 
+        /// <summary>
+        /// Execute a Cypher query.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <returns>A result set.</returns>
         public ResultSet Query(string graphId, string query)
         {
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
@@ -40,6 +57,13 @@ namespace NRedisGraph
             return new ResultSet(_db.Execute(Command.QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
         }
 
+        /// <summary>
+        /// Execute a Cypher query with parameters.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="parameters">Parameters map.</param>
+        /// <returns>A result set.</returns>
         public Task<ResultSet> QueryAsync(string graphId, string query, IDictionary<string, object> parameters)
         {
             var preparedQuery = PrepareQuery(query, parameters);
@@ -47,6 +71,12 @@ namespace NRedisGraph
             return QueryAsync(graphId, preparedQuery);
         }
 
+        /// <summary>
+        /// Execute a Cypher query.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <returns>A result set.</returns>
         public async Task<ResultSet> QueryAsync(string graphId, string query)
         {
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
@@ -57,18 +87,52 @@ namespace NRedisGraph
         internal static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
             new Dictionary<string, List<string>>();
 
+        /// <summary>
+        /// Call a saved procedure.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <returns>A result set.</returns>
         public ResultSet CallProcedure(string graphId, string procedure) =>
             CallProcedure(graphId, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
 
+        /// <summary>
+        /// Call a saved procedure.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <returns>A result set.</returns>
         public Task<ResultSet> CallProcedureAsync(string graphId, string procedure) =>
             CallProcedureAsync(graphId, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
 
+        /// <summary>
+        /// Call a saved procedure with parameters.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <param name="args">A collection of positional arguments.</param>
+        /// <returns>A result set.</returns>
         public ResultSet CallProcedure(string graphId, string procedure, IEnumerable<string> args) =>
             CallProcedure(graphId, procedure, args, EmptyKwargsDictionary);
 
+        /// <summary>
+        /// Call a saved procedure with parameters.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <param name="args">A collection of positional arguments.</param>
+        /// <returns>A result set.</returns>
         public Task<ResultSet> CallProcedureAsync(string graphId, string procedure, IEnumerable<string> args) =>
             CallProcedureAsync(graphId, procedure, args, EmptyKwargsDictionary);
 
+        /// <summary>
+        /// Call a saved procedure with parameters.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <param name="args">A collection of positional arguments.</param>
+        /// <param name="kwargs">A collection of keyword arguments.</param>
+        /// <returns>A result set.</returns>
         public ResultSet CallProcedure(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
         {
             args = args.Select(a => QuoteString(a));
@@ -85,6 +149,14 @@ namespace NRedisGraph
             return Query(graphId, queryBody.ToString());
         }
 
+        /// <summary>
+        /// Call a saved procedure with parameters.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <param name="args">A collection of positional arguments.</param>
+        /// <param name="kwargs">A collection of keyword arguments.</param>
+        /// <returns>A result set.</returns>
         public Task<ResultSet> CallProcedureAsync(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
         {
             args = args.Select(a => QuoteString(a));
@@ -101,9 +173,20 @@ namespace NRedisGraph
             return QueryAsync(graphId, queryBody.ToString());
         }
 
+        /// <summary>
+        /// Create a RedisGraph transaction.
+        /// 
+        /// This leverages the "Transaction" support present in StackExchange.Redis.
+        /// </summary>
+        /// <returns></returns>
         public RedisGraphTransaction Multi() =>
             new RedisGraphTransaction(_db.CreateTransaction(), this, _graphCaches);
 
+        /// <summary>
+        /// Delete an existing graph.
+        /// </summary>
+        /// <param name="graphId">The graph to delete.</param>
+        /// <returns>A result set.</returns>
         public ResultSet DeleteGraph(string graphId)
         {
             var result = _db.Execute(Command.DELETE, graphId);
@@ -115,6 +198,11 @@ namespace NRedisGraph
             return processedResult;
         }
 
+        /// <summary>
+        /// Delete an existing graph.
+        /// </summary>
+        /// <param name="graphId">The graph to delete.</param>
+        /// <returns>A result set.</returns>
         public async Task<ResultSet> DeleteGraphAsync(string graphId)
         {
             var result = await _db.ExecuteAsync(Command.DELETE, graphId);
@@ -126,7 +214,7 @@ namespace NRedisGraph
             return processedResult;
         }
 
-        public static string PrepareQuery(string query, IDictionary<string, object> parms)
+        internal static string PrepareQuery(string query, IDictionary<string, object> parms)
         {
             var preparedQuery = new StringBuilder();
 
@@ -142,7 +230,7 @@ namespace NRedisGraph
             return preparedQuery.ToString();
         }
 
-        private static string ValueToString(object value)
+        internal static string ValueToString(object value)
         {
             if (value == null)
             {
