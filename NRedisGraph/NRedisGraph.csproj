@@ -2,11 +2,34 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Tom Hanks</Authors>
+    <Company />
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.0</Version>
+    <Description>A series of extension methods for use with StackExchange.Redis 2.x and the RedisGraph Redis module.</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <RepositoryUrl>https://github.com/tombatron/NRedisGraph</RepositoryUrl>
+    <ProjectRepository>https://github.com/tombatron/NRedisGraph</ProjectRepository>
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>  
 
   <ItemGroup>
     <PackageReference Include="StackExchange.Redis" Version="2.*" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <PackageLicenseFile>license.txt</PackageLicenseFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="license\license.txt" Pack="true" PackagePath="$(PackageLicenseFile)">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
