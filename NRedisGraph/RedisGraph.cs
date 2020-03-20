@@ -14,7 +14,7 @@ namespace NRedisGraph
         private readonly IDatabase _db;
         private readonly IDictionary<string, GraphCache> _graphCaches = new Dictionary<string, GraphCache>();
 
-        public GraphCache GetGraphCache(string graphId)
+        private GraphCache GetGraphCache(string graphId)
         {
             if (!_graphCaches.ContainsKey(graphId))
             {
