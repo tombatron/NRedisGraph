@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace NRedisGraph
 {
+    /// <summary>
+    /// Allows for executing a series of RedisGraph queries as a single unit.
+    /// </summary>
     public class RedisGraphTransaction
     {
         private class TransactionResult
@@ -34,6 +37,13 @@ namespace NRedisGraph
             _transaction = transaction;
         }
 
+        /// <summary>
+        /// Execute a RedisGraph query with parameters.
+        /// </summary>
+        /// <param name="graphId">A graph to execute the query against.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="parameters">The parameters for the query.</param>
+        /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
         public ValueTask QueryAsync(string graphId, string query, IDictionary<string, object> parameters)
         {
             var preparedQuery = RedisGraph.PrepareQuery(query, parameters);
@@ -41,6 +51,13 @@ namespace NRedisGraph
             return QueryAsync(graphId, preparedQuery);
         }
 
+        /// <summary>
+        /// Execute a RedisGraph query with parameters.
+        /// </summary>
+        /// <param name="graphId">A graph to execute the query against.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="parameters">The parameters for the query.</param>
+        /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
         public ValueTask QueryAsync(string graphId, string query)
         {
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, _redisGraph));
@@ -50,9 +67,23 @@ namespace NRedisGraph
             return default(ValueTask);
         }
 
+        /// <summary>
+        /// Execute a saved procedure.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
         public ValueTask CallProcedureAsync(string graphId, string procedure) =>
             CallProcedureAsync(graphId, procedure, Enumerable.Empty<string>(), RedisGraph.EmptyKwargsDictionary);
 
+        /// <summary>
+        /// Execute a saved procedure with parameters.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <param name="args">A collection of positional arguments.</param>
+        /// <param name="kwargs">A collection of keyword arguments.</param>
+        /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
         public ValueTask CallProcedureAsync(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
         {
             args = args.Select(a => RedisGraph.QuoteString(a));
@@ -69,6 +100,11 @@ namespace NRedisGraph
             return QueryAsync(graphId, queryBody.ToString());
         }
 
+        /// <summary>
+        /// Delete a graph.
+        /// </summary>
+        /// <param name="graphId">The name of the graph to delete.</param>
+        /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
         public ValueTask DeleteGraphAsync(string graphId)
         {
             _pendingTasks.Add(new TransactionResult(graphId, _transaction.ExecuteAsync(Command.DELETE, graphId)));
@@ -78,6 +114,10 @@ namespace NRedisGraph
             return default(ValueTask);
         }
 
+        /// <summary>
+        /// Execute all of the commands that have been invoked on the transaction.
+        /// </summary>
+        /// <returns>A collection of results for all of the commands invoked before calling `Exec`.</returns>
         public ResultSet[] Exec()
         {
             var results = new ResultSet[_pendingTasks.Count];
@@ -97,6 +137,10 @@ namespace NRedisGraph
             return results;
         }
 
+        /// <summary>
+        /// Execute all of the commands that have been invoked on the transaction.
+        /// </summary>
+        /// <returns>A collection of results for all of the commands invoked before calling `ExecAsync`.</returns>
         public async Task<ResultSet[]> ExecAsync()
         {
             var results = new ResultSet[_pendingTasks.Count];
