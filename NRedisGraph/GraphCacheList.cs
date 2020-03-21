@@ -2,7 +2,7 @@ using System.Linq;
 
 namespace NRedisGraph
 {
-    public sealed class GraphCacheList
+    internal sealed class GraphCacheList
     {
         private readonly object _locker = new object();
         private readonly string _graphId;
@@ -10,7 +10,7 @@ namespace NRedisGraph
         private readonly RedisGraph _redisGraph;
         private string[] _data;
 
-        public GraphCacheList(string graphId, string procedure, RedisGraph redisGraph)
+        internal GraphCacheList(string graphId, string procedure, RedisGraph redisGraph)
         {
             _graphId = graphId;
             _procedure = procedure;
@@ -18,7 +18,7 @@ namespace NRedisGraph
         }
 
         // TODO: Change this to use Lazy<T>?
-        public string GetCachedData(int index)
+        internal string GetCachedData(int index)
         {
             if (_data == null || index >= _data.Length)
             {
