@@ -27,7 +27,7 @@ namespace NRedisGraph
         private readonly List<TransactionResult> _pendingTasks = new List<TransactionResult>();
         private readonly List<string> _graphCachesToRemove = new List<string>();
 
-        public RedisGraphTransaction(ITransaction transaction, RedisGraph redisGraph, IDictionary<string, GraphCache> graphCaches)
+        internal RedisGraphTransaction(ITransaction transaction, RedisGraph redisGraph, IDictionary<string, GraphCache> graphCaches)
         {
             _graphCaches = graphCaches;
             _redisGraph = redisGraph;
