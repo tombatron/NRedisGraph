@@ -1,4 +1,5 @@
 // .NET port of https://github.com/RedisGraph/JRedisGraph
+using NRedisGraph.Tests.Utils;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;

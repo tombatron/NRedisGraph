@@ -1,8 +1,8 @@
 namespace NRedisGraph
 {
-    public static class Command
+    internal static class Command
     {
-        public const string QUERY = "graph.QUERY";
-        public const string DELETE = "graph.DELETE";
+        internal const string QUERY = "graph.QUERY";
+        internal const string DELETE = "graph.DELETE";
     }
 }
