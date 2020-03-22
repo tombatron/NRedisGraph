@@ -8,6 +8,11 @@ using StackExchange.Redis;
 
 namespace NRedisGraph
 {
+    /// <summary>
+    /// RedisGraph client.
+    /// 
+    /// This class facilitates querying RedisGraph and parsing the results.
+    /// </summary>
     public sealed class RedisGraph
     {
         internal static readonly object CompactQueryFlag = "--COMPACT";
