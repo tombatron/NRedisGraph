@@ -5,6 +5,9 @@ using StackExchange.Redis;
 
 namespace NRedisGraph
 {
+    /// <summary>
+    /// Query result statistics are encapsulated by this class.
+    /// </summary>
     public sealed class Statistics
     {
         /// <summary>
