@@ -3,21 +3,42 @@ using System.Text;
 
 namespace NRedisGraph
 {
+    /// <summary>
+    /// A graph entity property.
+    /// </summary>
     public class Property
     {
+        /// <summary>
+        /// Name of the property.
+        /// </summary>
+        /// <value></value>
         public string Name { get; set; }
 
+        /// <summary>
+        /// Value of the property.
+        /// </summary>
+        /// <value></value>
         public object Value { get; set; }
 
         internal Property()
         { }
 
+        /// <summary>
+        /// Create a property by specifying a name and a value.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
         public Property(string name, object value)
         {
             Name = name;
             Value = value;
         }
 
+        /// <summary>
+        /// Overridden method that considers the equality of the name and the value of two property instances.
+        /// </summary>
+        /// <param name="obj">Another instance of the property class.</param>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             if (this == obj)
@@ -33,6 +54,10 @@ namespace NRedisGraph
             return Name == that.Name && Objects.AreEqual(Value, that.Value);
         }
 
+        /// <summary>
+        /// Overridden method that computes the hash code of the class using the name and value of the property.
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             unchecked
@@ -57,6 +82,10 @@ namespace NRedisGraph
             }
         }
 
+        /// <summary>
+        /// Overridden method that emits a string containing the name and value of the property.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             var stringResult = new StringBuilder();
