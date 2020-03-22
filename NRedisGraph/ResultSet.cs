@@ -6,9 +6,12 @@ using StackExchange.Redis;
 
 namespace NRedisGraph
 {
+    /// <summary>
+    /// Represents the result from a RedisGraph query.
+    /// </summary>
     public sealed class ResultSet : IReadOnlyCollection<Record>
     {
-        public enum ResultSetScalarType
+        internal enum ResultSetScalarType
         {
             VALUE_UNKNOWN,
             VALUE_NULL,
@@ -25,7 +28,7 @@ namespace NRedisGraph
         private readonly RedisResult[] _rawResults;
         private readonly GraphCache _graphCache;
 
-        public ResultSet(RedisResult result, GraphCache graphCache)
+        internal ResultSet(RedisResult result, GraphCache graphCache)
         {
             if (result.Type == ResultType.MultiBulk)
             {
@@ -62,14 +65,34 @@ namespace NRedisGraph
             }
         }
 
+        /// <summary>
+        /// RedisGraph statistics associated with this result set.
+        /// </summary>
+        /// <value></value>
         public Statistics Statistics { get; }
 
+        /// <summary>
+        /// RedisGraph header associated with this result set.
+        /// </summary>
+        /// <value></value>
         public Header Header { get; }
 
+        /// <summary>
+        /// Number of records in the result.
+        /// </summary>
+        /// <value></value>
         public int Count { get; }
 
+        /// <summary>
+        /// Get the enumerator for this result set.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator<Record> GetEnumerator() => RecordIterator().GetEnumerator();
 
+        /// <summary>
+        /// Get the enumerator for this result set.
+        /// </summary>
+        /// <returns></returns>
         IEnumerator IEnumerable.GetEnumerator() => RecordIterator().GetEnumerator();
 
         private IEnumerable<Record> RecordIterator()

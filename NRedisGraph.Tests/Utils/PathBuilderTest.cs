@@ -1,7 +1,7 @@
 using System;
 using Xunit;
 
-namespace NRedisGraph.Tests
+namespace NRedisGraph.Tests.Utils
 {
     public class PathBuilderTest
     {
