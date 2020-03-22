@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace NRedisGraph
+namespace NRedisGraph.Tests.Utils
 {
     public sealed class PathBuilder
     {
