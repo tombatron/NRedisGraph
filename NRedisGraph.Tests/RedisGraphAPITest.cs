@@ -47,7 +47,7 @@ namespace NRedisGraph.Tests
             Assert.Equal(2, resultSet.Statistics.PropertiesSet);
             Assert.NotNull(resultSet.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
 
-            Assert.Equal(0, resultSet.Count());
+            Assert.Empty(resultSet);
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace NRedisGraph.Tests
         {
             // Create a node with a label
             ResultSet resultSet = _api.Query("social", "CREATE (:human{name:'danny',age:12})");
-            Assert.Equal(0, resultSet.Count());
+            Assert.Empty(resultSet);
             Assert.Equal("1", resultSet.Statistics.GetStringValue(Label.NodesCreated));
             Assert.Equal("2", resultSet.Statistics.GetStringValue(Label.PropertiesSet));
             Assert.NotNull(resultSet.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
@@ -71,7 +71,7 @@ namespace NRedisGraph.Tests
             // Connect source and destination nodes.
             ResultSet resultSet = _api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(a)");
 
-            Assert.Equal(0, resultSet.Count());
+            Assert.Empty(resultSet);
             Assert.Null(resultSet.Statistics.GetStringValue(Label.NodesCreated));
             Assert.Null(resultSet.Statistics.GetStringValue(Label.PropertiesSet));
             Assert.Equal(1, resultSet.Statistics.RelationshipsCreated);
@@ -86,7 +86,7 @@ namespace NRedisGraph.Tests
             Assert.NotNull(_api.Query("social", "CREATE (:person{name:'amit',age:30})"));
             ResultSet deleteResult = _api.Query("social", "MATCH (a:person) WHERE (a.name = 'roi') DELETE a");
 
-            Assert.Equal(0, deleteResult.Count());
+            Assert.Empty(deleteResult);
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated));
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.PropertiesSet));
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.RelationshipsCreated));
@@ -98,7 +98,7 @@ namespace NRedisGraph.Tests
             Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(a)"));
             deleteResult = _api.Query("social", "MATCH (a:person) WHERE (a.name = 'roi') DELETE a");
 
-            Assert.Equal(0, deleteResult.Count());
+            Assert.Empty(deleteResult);
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated));
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.PropertiesSet));
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated));
@@ -119,7 +119,7 @@ namespace NRedisGraph.Tests
             Assert.NotNull(_api.Query(graphName, "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(a)"));
             ResultSet deleteResult = _api.Query(graphName, "MATCH (a:person)-[e]->() WHERE (a.name = 'roi') DELETE e");
 
-            Assert.Equal(0, deleteResult.Count());
+            Assert.Empty(deleteResult);
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated));
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.PropertiesSet));
             Assert.Null(deleteResult.Statistics.GetStringValue(Label.NodesCreated));
@@ -245,7 +245,7 @@ namespace NRedisGraph.Tests
             Assert.Equal(0, resultSet.Statistics.RelationshipsCreated);
             Assert.Equal(0, resultSet.Statistics.RelationshipsDeleted);
             Assert.NotNull(resultSet.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
-            Assert.Equal(1, resultSet.Count);
+            Assert.Single(resultSet);
 
             Record record = resultSet.First();
 
@@ -330,7 +330,7 @@ namespace NRedisGraph.Tests
                 Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
                 Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
                 Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[2]);
-                Assert.Equal(1, resultSet.Count);
+                Assert.Single(resultSet);
                 Record record = resultSet.First();
                 Assert.Equal(new[] { "a", "r", "a.age" }, record.Keys);
                 Assert.Equal(new object[] { expectedNode, expectedEdge, 32 }, record.Values);
@@ -369,7 +369,7 @@ namespace NRedisGraph.Tests
                 Assert.Equal("r", schemaNames[1]);
                 Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
                 Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
-                Assert.Equal(1, resultSet.Count);
+                Assert.Single(resultSet);
                 Record record = resultSet.First();
                 Assert.Equal(new[] { "a", "r" }, record.Keys);
                 Assert.Equal(new object[] { expectedNode, expectedEdge }, record.Values);
@@ -415,7 +415,7 @@ namespace NRedisGraph.Tests
             Assert.Equal("r", schemaNames[1]);
             Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
             Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
-            Assert.Equal(1, resultSet.Count);
+            Assert.Single(resultSet);
             Record record = resultSet.First();
             Assert.Equal(new[] { "a", "r" }, record.Keys);
             Assert.Equal(new object[] { expectedNode, expectedEdge }, record.Values);
@@ -448,7 +448,7 @@ namespace NRedisGraph.Tests
             Assert.Equal("r", schemaNames[1]);
             Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
             Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
-            Assert.Equal(1, resultSet.Count);
+            Assert.Single(resultSet);
             record = resultSet.First();
             Assert.Equal(new[] { "a", "r" }, record.Keys);
             Assert.Equal(new object[] { expectedNode, expectedEdge }, record.Values);
@@ -503,8 +503,8 @@ namespace NRedisGraph.Tests
             Assert.NotNull(schemaNames);
             Assert.NotNull(schemaTypes);
 
-            Assert.Equal(1, schemaNames.Count);
-            Assert.Equal(1, schemaTypes.Count);
+            Assert.Single(schemaNames);
+            Assert.Single(schemaTypes);
 
             Assert.Equal("n", schemaNames[0]);
             Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
@@ -518,7 +518,7 @@ namespace NRedisGraph.Tests
 
             // See that the result were pulled from the right graph.
 
-            Assert.Equal(1, resultSet.Count);
+            Assert.Single(resultSet);
 
             var record = resultSet.First();
             Assert.Equal(new List<string> { "n" }, record.Keys);
@@ -534,14 +534,14 @@ namespace NRedisGraph.Tests
             Assert.NotNull(schemaNames);
             Assert.NotNull(schemaTypes);
 
-            Assert.Equal(1, schemaNames.Count);
-            Assert.Equal(1, schemaTypes.Count);
+            Assert.Single(schemaNames);
+            Assert.Single(schemaTypes);
 
             Assert.Equal("n", schemaNames[0]);
 
             Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
 
-            Assert.Equal(1, resultSet.Count);
+            Assert.Single(resultSet);
 
             record = resultSet.First();
 
@@ -600,14 +600,14 @@ namespace NRedisGraph.Tests
             Assert.NotNull(schemaNames);
             Assert.NotNull(schemaTypes);
 
-            Assert.Equal(1, schemaNames.Count);
-            Assert.Equal(1, schemaTypes.Count);
+            Assert.Single(schemaNames);
+            Assert.Single(schemaTypes);
 
             Assert.Equal("x", schemaNames[0]);
             Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[0]);
 
             // check record
-            Assert.Equal(1, resultSet.Count);
+            Assert.Single(resultSet);
             var record = resultSet.First();
             Assert.Equal(new[] { "x" }, record.Keys);
 
@@ -626,14 +626,14 @@ namespace NRedisGraph.Tests
             Assert.NotNull(schemaNames);
             Assert.NotNull(schemaTypes);
 
-            Assert.Equal(1, schemaNames.Count);
-            Assert.Equal(1, schemaTypes.Count);
+            Assert.Single(schemaNames);
+            Assert.Single(schemaTypes);
 
             Assert.Equal("x", schemaNames[0]);
             Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[0]);
 
             // check record
-            Assert.Equal(1, resultSet.Count);
+            Assert.Single(resultSet);
             record = resultSet.First();
             Assert.Equal(new[] { "x" }, record.Keys);
             x = record.GetValue<object[]>("x");
@@ -653,8 +653,8 @@ namespace NRedisGraph.Tests
             Assert.NotNull(schemaNames);
             Assert.NotNull(schemaTypes);
 
-            Assert.Equal(1, schemaNames.Count);
-            Assert.Equal(1, schemaTypes.Count);
+            Assert.Single(schemaNames);
+            Assert.Single(schemaTypes);
 
             Assert.Equal("x", schemaNames[0]);
             Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[0]);
@@ -716,7 +716,7 @@ namespace NRedisGraph.Tests
             for (int i = 0; i < resultSet.Count; i++)
             {
                 Path p = resultSet.ElementAt(i).GetValue<Path>("p");
-                Assert.True(expectedPaths.Contains(p));
+                Assert.Contains(p, expectedPaths);
                 expectedPaths.Remove(p);
             }
         }
@@ -733,7 +733,7 @@ namespace NRedisGraph.Tests
                 Object expected = parameters[i];
                 param.Put("param", expected);
                 ResultSet resultSet = _api.Query("social", "RETURN $param", param);
-                Assert.Equal(1, resultSet.Count);
+                Assert.Single(resultSet);
                 Record r = resultSet.First();
                 Object o = r.GetValue<object>(0);
                 if (i == parameters.Length - 1)
