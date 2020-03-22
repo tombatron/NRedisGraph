@@ -56,7 +56,6 @@ namespace NRedisGraph
         /// </summary>
         /// <param name="graphId">A graph to execute the query against.</param>
         /// <param name="query">The Cypher query.</param>
-        /// <param name="parameters">The parameters for the query.</param>
         /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
         public ValueTask QueryAsync(string graphId, string query)
         {
