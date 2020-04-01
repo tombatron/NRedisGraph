@@ -5,4 +5,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="15.0.3" />
+    <PackageReference Include="NRedisGraph" Version="1.0.0" />
+  </ItemGroup>
+
 </Project>

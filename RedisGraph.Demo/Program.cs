@@ -1,4 +1,5 @@
 ﻿using System;
+using StackExchange.Redis;
 
 namespace RedisGraph.Demo
 {
