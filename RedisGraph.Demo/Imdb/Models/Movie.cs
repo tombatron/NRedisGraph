@@ -1,7 +1,6 @@
 using CsvHelper.Configuration.Attributes;
-using NRedisGraph;
 
-namespace RedisGraph.Demo.Imdb.Models
+namespace NRedisGraph.Demo.Imdb.Models
 {
     public class Movie
     {
