@@ -219,6 +219,92 @@ namespace NRedisGraph
             return processedResult;
         }
 
+        /// <summary>
+        /// Add a node to a graph.
+        /// </summary>
+        /// <param name="graphId">The graph to add a node to.</param>
+        /// <param name="node">The node to add to the specified graph.</param>
+        /// <returns></returns>
+        public ResultSet AddNode(string graphId, Node node)
+        {
+            var query = $"CREATE ({MakeNodeString(node)})";
+
+            return Query(graphId, query);
+        }
+
+        /// <summary>
+        /// Add a node to a graph.
+        /// </summary>
+        /// <param name="graphId">The graph to add a node to.</param>
+        /// <param name="node">The node to add to the specified graph.</param>
+        /// <returns></returns>
+        public Task<ResultSet> AddNodeAsync(string graphId, Node node)
+        {
+            var query = $"CREATE ({MakeNodeString(node)})";
+
+            return QueryAsync(graphId, query);
+        }
+
+        /// <summary>
+        /// Determine if a graph already exists.
+        /// 
+        /// RedisGraph will use the graph ID as a key name. In order to check if a graph exists
+        /// we're checking the `TYPE` of the key to ensure it's "graphdata". If the result is anything
+        /// other than "graphdata" the key either doesn't exist or is not graph data.
+        /// </summary>
+        /// <param name="graphId">The graph ID to check.</param>
+        /// <returns></returns>
+        public bool GraphExists(string graphId)
+        {
+            var keyType = _db.Execute("TYPE", graphId).ToString();
+
+            return keyType == "graphdata";
+        }
+
+        /// <summary>
+        /// Determine if a graph already exists.
+        /// 
+        /// RedisGraph will use the graph ID as a key name. In order to check if a graph exists
+        /// we're checking the `TYPE` of the key to ensure it's "graphdata". If the result is anything
+        /// other than "graphdata" the key either doesn't exist or is not graph data.
+        /// </summary>
+        /// <param name="graphId">The graph ID to check.</param>
+        /// <returns></returns>
+        public async Task<bool> GraphExistsAsync(string graphId)
+        {
+            var keyType = (await _db.ExecuteAsync("TYPE", graphId)).ToString();
+
+            return keyType == "graphdata";
+        }
+
+        private static string MakeNodeString(Node node)
+        {
+            var queryBody = new StringBuilder();
+
+            queryBody.Append(":");
+
+            if (node.GetNumberOfLabels() > 0)
+            {
+                queryBody.Append(node.GetLabel(0));
+            }
+
+            queryBody.Append("{");
+
+            if (node.NumberOfProperties > 0)
+            {
+                queryBody.Append(string.Join(",", node.PropertyMap.Select(x =>
+                {
+                    var prop = x.Value;
+
+                    return $"{prop.Name}:{ValueToString(prop.Value)}";
+                })));
+            }
+
+            queryBody.Append("}");
+
+            return queryBody.ToString();
+        }
+
         internal static string PrepareQuery(string query, IDictionary<string, object> parms)
         {
             var preparedQuery = new StringBuilder();

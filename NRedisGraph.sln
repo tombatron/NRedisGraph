@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisGraph.Tests", "NRedisGraph.Tests\NRedisGraph.Tests.csproj", "{FBF23117-D59F-4C28-AC14-F7F2EDA88512}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisGraph.Demo", "RedisGraph.Demo\RedisGraph.Demo.csproj", "{7F2D9637-780A-4B38-A777-846E7E7A2B74}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NRedisGraph.Demo", "NRedisGraph.Demo\NRedisGraph.Demo.csproj", "{7F2D9637-780A-4B38-A777-846E7E7A2B74}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
