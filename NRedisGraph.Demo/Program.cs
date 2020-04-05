@@ -17,6 +17,24 @@ namespace NRedisGraph.Demo
 
             await imdbUtil.PopulateGraphAsync();
 
+            foreach (var query in new ImdbQueries())
+            {
+                Console.WriteLine(query.Description + "\n");
+
+                Console.WriteLine("Query:");
+                Console.WriteLine("=============================================");
+                Console.WriteLine(query.Query);
+
+                Console.WriteLine("");
+
+                var result = await redisGraph.QueryAsync("imdb", query.Query);
+
+                Console.WriteLine("Result");
+                Console.WriteLine("=============================================");
+                Console.WriteLine(result.ToString());
+                Console.WriteLine("*********************************************\n");
+            }
+
 
             Console.WriteLine("Done!");
         }

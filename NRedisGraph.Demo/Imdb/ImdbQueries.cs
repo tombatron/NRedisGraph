@@ -54,7 +54,7 @@ namespace NRedisGraph.Demo.Imdb
 
             yield return new QueryInfo
             {
-                Query = "MATCH (a:actor)-[:act]->(m:movie) WHERE (m.genre = \"Drama\" OR m.genre = \"Comedy\") AND m.rating < 5.5 AND m.votes > 50000 RETURN a.name, m ORDER BY m.rating",
+                Query = "MATCH (a:actor)-[:act]->(m:movie) WHERE (m.genre = \"Drama\" OR m.genre = \"Comedy\") AND m.rating < 5.5 AND m.votes > 50000 RETURN a.name, m.title, m.genre ORDER BY m.rating",
                 Description = "Which actors played in bad drama or comedy?",
                 MaxRuntime = TimeSpan.FromMilliseconds(4),
                 ExpectedResult = null

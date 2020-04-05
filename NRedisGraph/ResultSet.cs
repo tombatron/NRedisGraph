@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using StackExchange.Redis;
 
 namespace NRedisGraph
@@ -94,6 +95,18 @@ namespace NRedisGraph
         /// </summary>
         /// <returns></returns>
         IEnumerator IEnumerable.GetEnumerator() => RecordIterator().GetEnumerator();
+
+        public override string ToString()
+        {
+            var result = new StringBuilder();
+
+            foreach(var record in this)
+            {
+                result.AppendLine(record.ToString());
+            }
+
+            return result.ToString();
+        }
 
         private IEnumerable<Record> RecordIterator()
         {
