@@ -6,5 +6,16 @@ namespace NRedisGraph.Demo.Social.Models
     {
         [Index(0)]
         public string Name { get; set; }
+
+        public Node ToNode()
+        {
+            var n = new Node();
+
+            n.AddLabel("country");
+
+            n.AddProperty("name", Name);
+
+            return n;
+        }
     }
 }

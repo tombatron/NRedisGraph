@@ -15,5 +15,19 @@ namespace NRedisGraph.Demo.Social.Models
 
         [Index(3)]
         public string Status { get; set; }
+
+        public Node ToNode()
+        {
+            var n = new Node();
+
+            n.AddLabel("person");
+
+            n.AddProperty("name", Name);
+            n.AddProperty("age", Age);
+            n.AddProperty("gender", Gender);
+            n.AddProperty("status", Status);
+
+            return n;
+        }
     }
 }
