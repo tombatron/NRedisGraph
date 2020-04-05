@@ -64,7 +64,6 @@ namespace NRedisGraph.Demo.Imdb
 
                     if (movies.ContainsKey(actor.Movie))
                     {
-                        // await _redisGraph.QueryAsync("imdb", $"MATCH (a:actor), (b:movie) WHERE a.name = \"{actor.Name}\" AND b.title = \"{actor.Movie}\" CREATE (a)-[:act]->(b)");
                         await _redisGraph.QueryAsync("imdb", $"MATCH (a:actor), (b:movie) WHERE a.name = $actorName AND b.title = $movieTitle CREATE (a)-[:act]->(b)",
                             new Dictionary<string, object>
                             {
@@ -74,7 +73,8 @@ namespace NRedisGraph.Demo.Imdb
                     }
                 }
             }
-        }
 
+            await _redisGraph.CallProcedureAsync("imdb", "db.idx.fulltext.createNodeIndex", new[] { "actor", "name" });
+        }
     }
 }
