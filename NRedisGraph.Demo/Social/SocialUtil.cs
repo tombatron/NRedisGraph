@@ -8,11 +8,11 @@ namespace NRedisGraph.Demo.Social
     using System.IO; // There is a `Path` class in the NRedisGraph library. 
     using NRedisGraph.Demo.Social.Models;
 
-    public class SocialUtils
+    public class SocialUtil
     {
         private readonly RedisGraph _redisGraph;
 
-        public SocialUtils(RedisGraph redisGraph)
+        public SocialUtil(RedisGraph redisGraph)
         {
             _redisGraph = redisGraph;
         }
@@ -85,11 +85,11 @@ namespace NRedisGraph.Demo.Social
 
                 foreach (var friend in friends)
                 {
-                    await _redisGraph.QueryAsync("social", "MATCH (p:person{name:$person}), (f:person{name:$friend} CREATE (p)-[:friend]->(f)",
+                    await _redisGraph.QueryAsync("social", "MATCH (p:person{name:$person}), (f:person{name:$friend}) CREATE (p)-[:friend]->(f)",
                         new Dictionary<string, object>
                         {
                             { "person", friend.Person },
-                            { "friend", friend.Friend }
+                            { "friend", friend.FriendName }
                         }
                     );
                 }
