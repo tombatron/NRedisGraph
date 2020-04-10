@@ -32,6 +32,8 @@ namespace NRedisGraph.Demo.Imdb
             using (var reader = new StreamReader(moviesFile))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
+                csv.Configuration.HasHeaderRecord = false;
+
                 var movieRecords = csv.GetRecords<Movie>();
 
                 foreach (var movie in movieRecords)
@@ -51,6 +53,8 @@ namespace NRedisGraph.Demo.Imdb
             using (var reader = new StreamReader(actorFile))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
+                csv.Configuration.HasHeaderRecord = false;
+                
                 var actorRecords = csv.GetRecords<Actor>();
 
                 foreach (var actor in actorRecords)

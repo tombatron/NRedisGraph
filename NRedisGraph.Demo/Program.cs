@@ -14,9 +14,32 @@ namespace NRedisGraph.Demo
             var db = muxr.GetDatabase(0);
             var redisGraph = new RedisGraph(db);
 
-            await DoSocialAsync(redisGraph);
+            DisplayMenu();
 
-            Console.WriteLine("Done!");
+            do
+            {
+                var enteredKey = Console.ReadKey();
+
+                if (enteredKey.Key == ConsoleKey.D1)
+                {
+                    await DoImdbAsync(redisGraph);
+                }
+
+                if (enteredKey.Key == ConsoleKey.D2)
+                {
+                    await DoSocialAsync(redisGraph);
+                }
+
+                DisplayMenu();
+            }
+            while (Console.ReadKey().Key != ConsoleKey.Q);
+        }
+
+        private static void DisplayMenu()
+        {
+            Console.WriteLine("Press `1` for 'IMDB'.");
+            Console.WriteLine("Press `2` for 'Social'.");
+            Console.WriteLine("Press `q` to quit.");
         }
 
         private static async Task DoSocialAsync(RedisGraph redisGraph)
@@ -24,6 +47,24 @@ namespace NRedisGraph.Demo
             var socialUtil = new SocialUtil(redisGraph);
 
             await socialUtil.PopulateGraphAsync();
+
+            foreach (var query in new SocialQueries())
+            {
+                Console.WriteLine(query.Description + "\n");
+
+                Console.WriteLine("Query:");
+                Console.WriteLine("=============================================");
+                Console.WriteLine(query.Query);
+
+                Console.WriteLine("");
+
+                var result = await redisGraph.QueryAsync("social", query.Query);
+
+                Console.WriteLine("Result");
+                Console.WriteLine("=============================================");
+                Console.WriteLine(result.ToString());
+                Console.WriteLine("*********************************************\n");
+            }
         }
 
         private static async Task DoImdbAsync(RedisGraph redisGraph)

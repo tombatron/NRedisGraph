@@ -1,3 +1,4 @@
+using System;
 using CsvHelper;
 using System.Collections.Generic;
 using System.Globalization;
@@ -32,6 +33,8 @@ namespace NRedisGraph.Demo.Social
             using (var reader = new StreamReader(countriesFile))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
+                csv.Configuration.HasHeaderRecord = false;
+
                 countries = csv.GetRecords<Country>();
 
                 foreach (var country in countries)
@@ -46,6 +49,8 @@ namespace NRedisGraph.Demo.Social
             using (var reader = new StreamReader(personFile))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
+                csv.Configuration.HasHeaderRecord = false;
+
                 people = csv.GetRecords<Person>();
 
                 foreach (var person in people)
@@ -60,6 +65,8 @@ namespace NRedisGraph.Demo.Social
             using (var reader = new StreamReader(visitsFile))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
+                csv.Configuration.HasHeaderRecord = false;
+
                 visits = csv.GetRecords<Visit>();
 
                 foreach (var visit in visits)
@@ -78,9 +85,11 @@ namespace NRedisGraph.Demo.Social
             var friendsFile = Path.Combine(directory, "Resources", "friends.csv");
             IEnumerable<Friend> friends;
 
-            using (var reader = new StreamReader(visitsFile))
+            using (var reader = new StreamReader(friendsFile))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
             {
+                csv.Configuration.HasHeaderRecord = false;
+
                 friends = csv.GetRecords<Friend>();
 
                 foreach (var friend in friends)
