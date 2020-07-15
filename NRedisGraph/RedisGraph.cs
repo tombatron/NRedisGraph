@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 
 namespace NRedisGraph
@@ -242,98 +243,7 @@ namespace NRedisGraph
                 return "null";
             }
 
-            if (value is string stringValue)
-            {
-                // return EscapeQuotes(stringValue);
-                return QuoteString(stringValue);
-            }
-
-            if (value.GetType().IsArray)
-            {
-                if (value is IEnumerable arrayValue)
-                {
-                    var values = new List<object>();
-
-                    foreach (var v in arrayValue)
-                    {
-                        values.Add(v);
-                    }
-
-                    return ArrayToString(values.ToArray());
-                }
-            }
-
-            if ((value is System.Collections.IList valueList) && value.GetType().IsGenericType)
-            {
-                var objectValueList = new List<object>();
-
-                foreach (var val in valueList)
-                {
-                    objectValueList.Add((object)val);
-                }
-
-                return ArrayToString(objectValueList.ToArray());
-            }
-
-            if (value is bool boolValue)
-            {
-                return boolValue.ToString().ToLowerInvariant();
-            }
-
-            return value.ToString();
-        }
-
-        private static string ArrayToString(object[] array)
-        {
-            var arrayToString = new StringBuilder();
-
-            arrayToString.Append('[');
-            arrayToString.Append(string.Join(", ", array.Select(x => x.ToString())));
-            arrayToString.Append(']');
-
-            return arrayToString.ToString();
-        }
-
-        private static string EscapeQuotes(string unescapedString)
-        {
-            int replacementCount = 0;
-
-            for (var i = 0; i < unescapedString.Length; i++)
-            {
-                var currentCharacter = unescapedString[i];
-
-                if (currentCharacter == '\'' || currentCharacter == '"')
-                {
-                    if (i == 0 || unescapedString[i - 1] != '\\')
-                    {
-                        replacementCount++;
-                    }
-                }
-            }
-
-            if (replacementCount == 0)
-            {
-                return unescapedString;
-            }
-
-            var result = new StringBuilder(unescapedString + replacementCount);
-
-            for (var i = 0; i < unescapedString.Length; i++)
-            {
-                var currentCharacter = unescapedString[i];
-
-                if (currentCharacter == '\'' || currentCharacter == '"')
-                {
-                    if (i == 0 || unescapedString[i - 1] != '\\')
-                    {
-                        result.Append('\\');
-                    }
-                }
-
-                result.Append(currentCharacter);
-            }
-
-            return result.ToString();
+            return JsonConvert.SerializeObject(value);
         }
 
         internal static string QuoteString(string candidateString)

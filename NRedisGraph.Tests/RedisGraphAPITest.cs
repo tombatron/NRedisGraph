@@ -724,7 +724,7 @@ namespace NRedisGraph.Tests
         [Fact]
         public void TestParameters()
         {
-            Object[] parameters = { 1, 2.3, true, false, null, "str", new List<int> { 1, 2, 3 }, new[] { 1, 2, 3 } };
+            Object[] parameters = { 1, 2.3, true, false, null, "str", new List<int> { 1, 2, 3 }, new[] { 1, 2, 3 }, new List<int> { 1, 2, 3 }.Select(n => new object[] { n, n.ToString() }).ToArray() };
 
             var param = new Dictionary<string, object>();
 
@@ -736,9 +736,13 @@ namespace NRedisGraph.Tests
                 Assert.Single(resultSet);
                 Record r = resultSet.First();
                 Object o = r.GetValue<object>(0);
-                if (i == parameters.Length - 1)
+                if (i == parameters.Length - 2)
                 {
                     expected = Array.ConvertAll((int[])expected, x => (object)x);
+                }
+                if (i == parameters.Length - 1)
+                {
+                    expected = Array.ConvertAll((object[][])expected, x => (object)x);
                 }
                 Assert.Equal(expected, o);
             }
