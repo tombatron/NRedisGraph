@@ -3,6 +3,7 @@ using NRedisGraph.Tests.Utils;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using Xunit;
@@ -721,28 +722,34 @@ namespace NRedisGraph.Tests
             }
         }
 
-        [Fact]
-        public void TestParameters()
+        [Theory]
+        [MemberData(nameof(TestParameterValues))]
+        public void TestParameters(object parameters)
         {
-            Object[] parameters = { 1, 2.3, true, false, null, "str", new List<int> { 1, 2, 3 }, new[] { 1, 2, 3 } };
-
             var param = new Dictionary<string, object>();
 
-            for (int i = 0; i < parameters.Length; i++)
-            {
-                Object expected = parameters[i];
-                param.Put("param", expected);
-                ResultSet resultSet = _api.Query("social", "RETURN $param", param);
-                Assert.Single(resultSet);
-                Record r = resultSet.First();
-                Object o = r.GetValue<object>(0);
-                if (i == parameters.Length - 1)
-                {
-                    expected = Array.ConvertAll((int[])expected, x => (object)x);
-                }
-                Assert.Equal(expected, o);
-            }
+            object expected = parameters;
+            param.Put("param", expected);
+            ResultSet resultSet = _api.Query("social", "RETURN $param", param);
+            Assert.Single(resultSet);
+            Record r = resultSet.First();
+            object o = r.GetValue<object>(0);
+
+            Assert.Equal(expected, o);
         }
 
+        public static object[][] TestParameterValues = new object[][]
+        {
+            new object[] { 1 },
+            new object[] { 2.3 },
+            new object[] { true },
+            new object[] { false },
+            new object[] { null },
+            new object[] { "str" },
+            new object[] { new List<int> { 1, 2, 3 } },
+            new object[] { new[] { 1, 2, 3 } },
+            new object[] { new List<int> { 1, 2, 3 }.Select(n => new object[] { n, n.ToString() }).ToArray() },
+            new object[] { new List<int> { 1, 2, 3 }.Select(n => new List<object> { n, n.ToString() }).ToList() }
+        };
     }
 }
