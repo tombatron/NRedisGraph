@@ -39,17 +39,17 @@ namespace NRedisGraph.Tests
         //     Assert.Contains("Type mismatch: expected String but was Integer", exception.Message);
         // }
 
-        [Fact]
-        public void TestRuntimeErrorReporting()
-        {
-            // Issue a query that causes a run-time error
-            var exception = Assert.Throws<NRedisGraphRunTimeException>(() =>
-            {
-                _api.Query("social", "MATCH (p:person) RETURN toUpper(p.mixed_prop)");
-            });
+        // [Fact]
+        // public void TestRuntimeErrorReporting()
+        // {
+        //     // Issue a query that causes a run-time error
+        //     var exception = Assert.Throws<NRedisGraphRunTimeException>(() =>
+        //     {
+        //         _api.Query("social", "MATCH (p:person) RETURN toUpper(p.mixed_prop)");
+        //     });
 
-            Assert.Contains("Type mismatch: expected String but was Integer", exception.Message);
-        }
+        //     Assert.Contains("Type mismatch: expected String but was Integer", exception.Message);
+        // }
 
         // [Fact]
         // public void TestExceptionFlow()

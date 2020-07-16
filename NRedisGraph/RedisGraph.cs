@@ -285,10 +285,22 @@ namespace NRedisGraph
 
         private static string ArrayToString(object[] array)
         {
+            var arrayElements = array.Select(x =>
+            {
+                if (x.GetType().IsArray)
+                {
+                    return ArrayToString((object[])x);
+                }
+                else
+                {
+                    return ValueToString(x);
+                }
+            });
+
             var arrayToString = new StringBuilder();
 
             arrayToString.Append('[');
-            arrayToString.Append(string.Join(", ", array.Select(x => x.ToString())));
+            arrayToString.Append(string.Join(", ", arrayElements));
             arrayToString.Append(']');
 
             return arrayToString.ToString();
