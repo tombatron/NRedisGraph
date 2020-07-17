@@ -1,10 +1,10 @@
 // .NET port of https://github.com/RedisGraph/JRedisGraph
+using StackExchange.Redis;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using StackExchange.Redis;
 
 namespace NRedisGraph
 {
@@ -244,7 +244,6 @@ namespace NRedisGraph
 
             if (value is string stringValue)
             {
-                // return EscapeQuotes(stringValue);
                 return QuoteString(stringValue);
             }
 
@@ -306,48 +305,6 @@ namespace NRedisGraph
             return arrayToString.ToString();
         }
 
-        private static string EscapeQuotes(string unescapedString)
-        {
-            int replacementCount = 0;
-
-            for (var i = 0; i < unescapedString.Length; i++)
-            {
-                var currentCharacter = unescapedString[i];
-
-                if (currentCharacter == '\'' || currentCharacter == '"')
-                {
-                    if (i == 0 || unescapedString[i - 1] != '\\')
-                    {
-                        replacementCount++;
-                    }
-                }
-            }
-
-            if (replacementCount == 0)
-            {
-                return unescapedString;
-            }
-
-            var result = new StringBuilder(unescapedString + replacementCount);
-
-            for (var i = 0; i < unescapedString.Length; i++)
-            {
-                var currentCharacter = unescapedString[i];
-
-                if (currentCharacter == '\'' || currentCharacter == '"')
-                {
-                    if (i == 0 || unescapedString[i - 1] != '\\')
-                    {
-                        result.Append('\\');
-                    }
-                }
-
-                result.Append(currentCharacter);
-            }
-
-            return result.ToString();
-        }
-
         internal static string QuoteString(string candidateString)
         {
             if (candidateString.StartsWith("\"") && candidateString.EndsWith("\""))
@@ -362,7 +319,17 @@ namespace NRedisGraph
                 result.Append('"');
             }
 
-            result.Append(candidateString);
+            //result.Append(candidateString);
+            foreach(var c in candidateString)
+            {
+                if (c == '"')
+                {
+                    result.Append("\\");
+                    
+                }
+
+                result.Append(c);
+            }
 
             if (!candidateString.EndsWith("\""))
             {

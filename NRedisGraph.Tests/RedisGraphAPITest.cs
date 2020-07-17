@@ -3,7 +3,6 @@ using NRedisGraph.Tests.Utils;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using Xunit;
@@ -459,7 +458,21 @@ namespace NRedisGraph.Tests
         public void TestEscapedQuery()
         {
             Assert.NotNull(_api.Query("social", "MATCH (n) where n.s1='S\"\\'' RETURN n"));
+            Assert.NotNull(_api.Query("social", "MATCH (n) where n.s1='S\"\\'' RETURN n"));
         }
+
+        [Theory]
+        [MemberData(nameof(EscapedCypherParameters))]
+        public void TestEscapedCypherParameters(Dictionary<string, object> parameters)
+        {
+            Assert.NotNull(_api.Query("whatever", "CREATE (a:Test {SomeString: $SomeString})", parameters));
+        }
+
+        public static readonly object[][] EscapedCypherParameters = new object[][]
+        {
+            new object[]{new Dictionary<string, object> { { "SomeString", "dsf\"dsfdss" } }},
+            new object[]{new Dictionary<string, object> { { "SomeString", "dsfdsfdss\"#" } } },
+        };
 
         [Fact]
         public void TestMultiExec()
