@@ -5,9 +5,9 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Tom Hanks</Authors>
     <Company />
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
-    <Version>1.1.0</Version>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
+    <Version>1.2.0</Version>
     <Description>A series of extension methods for use with StackExchange.Redis 2.x and the RedisGraph Redis module.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/tombatron/NRedisGraph</RepositoryUrl>
@@ -25,9 +25,11 @@
 
   <PropertyGroup>
     <PackageLicenseFile>license.txt</PackageLicenseFile>
+    <PackageReleaseNotes>1.2.0 - Fixes issue where double quotes weren't being escaped inside of quoted string. 
+1.1.0 - Fixes issue where nested arrays weren't being properly rendered.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="license\license.txt" Pack="true" PackagePath="$(PackageLicenseFile)"/>
+    <None Include="license\license.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
   </ItemGroup>
 </Project>
