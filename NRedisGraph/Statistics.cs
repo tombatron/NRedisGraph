@@ -29,6 +29,7 @@ namespace NRedisGraph
             private const string RELATIONSHIPS_CREATED = "Relationships created";
             private const string QUERY_INTERNAL_EXECUTION_TIME = "Query internal execution time";
             private const string GRAPH_REMOVED_INTERNAL_EXECUTION_TIME = "Graph removed, internal execution time";
+            private const string CACHED_EXECUTION = "Cached execution";
 
             /// <summary>
             /// The string value of this label.
@@ -97,6 +98,11 @@ namespace NRedisGraph
             /// </summary>
             /// <returns></returns>
             public static readonly Label GraphRemovedInternalExecutionTime = new Label(GRAPH_REMOVED_INTERNAL_EXECUTION_TIME);
+            
+            /// <summary>
+            /// Get a "Cached execution" statistics label.
+            /// </summary>
+            public static readonly Label CachedExecution = new Label(CACHED_EXECUTION);
 
             /// <summary>
             /// Return an Label based on a string value provided.
@@ -127,8 +133,10 @@ namespace NRedisGraph
                         return QueryInternalExecutionTime;
                     case GRAPH_REMOVED_INTERNAL_EXECUTION_TIME:
                         return GraphRemovedInternalExecutionTime;
+                    case CACHED_EXECUTION:
+                        return CachedExecution;
                     default:
-                        throw new ArgumentException("Unknown label kind.", nameof(labelValue));
+                        return new Label(labelValue);
                 }
             }
         }
@@ -234,5 +242,10 @@ namespace NRedisGraph
         /// </summary>
         /// <returns></returns>
         public string GraphRemovedInternalExecutionTime => GetStringValue(Label.GraphRemovedInternalExecutionTime);
+        
+        /// <summary>
+        /// The execution plan was cached on RedisGraph.
+        /// </summary>
+        public bool CachedExecution => int.TryParse(GetStringValue(Label.CachedExecution), out var result) && result == 1;
     }
 }
