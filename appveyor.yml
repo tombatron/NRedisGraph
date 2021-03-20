@@ -5,7 +5,7 @@ services:
 - docker
 
 init:
-- docker run -d -p 6379:6379 redislabs/redisgraph:latest
+- docker run -d -p 6379:6379 --rm redislabs/redisgraph:latest
 
 build:
   project: NRedisGraph.sln
