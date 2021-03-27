@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using StackExchange.Redis;
 
@@ -38,6 +39,7 @@ namespace NRedisGraph
         /// Collection of the schema types present in the header.
         /// </summary>
         /// <value></value>
+        [Obsolete("SchemaType is no longer supported after RedisGraph 2.1 and will always return COLUMN_SCALAR")]
         public List<ResultSetColumnTypes> SchemaTypes { get; }
 
         /// <summary>

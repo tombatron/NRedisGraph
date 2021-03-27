@@ -152,7 +152,7 @@ namespace NRedisGraph.Tests
         {
             Assert.NotNull(_api.Query("social", "CREATE (:person{name:'roi',age:32})"));
             Assert.NotNull(_api.Query("social", "CREATE (:person{name:'amit',age:30})"));
-            Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(a)"));
+            Assert.NotNull(_api.Query("social", "MATCH (a:person), (b:person) WHERE (a.name = 'roi' AND b.name='amit')  CREATE (a)-[:knows]->(b)"));
 
             ResultSet queryResult = _api.Query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r, a.age");
 
@@ -172,21 +172,18 @@ namespace NRedisGraph.Tests
             Assert.Equal("r", schemaNames[1]);
             Assert.Equal("a.age", schemaNames[2]);
 
-            Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
-            Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
-            Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[2]);
         }
 
         [Fact]
         public void TestRecord()
         {
             string name = "roi";
-            int age = 32;
+            long age = 32;
             double doubleValue = 3.14;
             bool boolValue = true;
 
             string place = "TLV";
-            int since = 2000;
+            long since = 2000;
 
             Property nameProperty = new Property("name", name);
             Property ageProperty = new Property("age", age);
@@ -205,9 +202,8 @@ namespace NRedisGraph.Tests
             expectedNode.AddProperty(ageProperty);
             expectedNode.AddProperty(doubleProperty);
             expectedNode.AddProperty(trueBooleanProperty);
-            expectedNode.AddProperty(nullProperty);
 
-            Assert.Equal("Node{labels=[person], id=0, propertyMap={name=Property{name='name', value=roi}, age=Property{name='age', value=32}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=True}, nullValue=Property{name='nullValue', value=null}}}", expectedNode.ToString());
+            Assert.Equal("Node{labels=[person], id=0, propertyMap={name=Property{name='name', value=roi}, age=Property{name='age', value=32}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=True}}}", expectedNode.ToString());
 
             Edge expectedEdge = new Edge();
             expectedEdge.Id = 0;
@@ -218,9 +214,8 @@ namespace NRedisGraph.Tests
             expectedEdge.AddProperty(sinceProperty);
             expectedEdge.AddProperty(doubleProperty);
             expectedEdge.AddProperty(falseBooleanProperty);
-            expectedEdge.AddProperty(nullProperty);
 
-            Assert.Equal("Edge{relationshipType='knows', source=0, destination=1, id=0, propertyMap={place=Property{name='place', value=TLV}, since=Property{name='since', value=2000}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=False}, nullValue=Property{name='nullValue', value=null}}}", expectedEdge.ToString());
+            Assert.Equal("Edge{relationshipType='knows', source=0, destination=1, id=0, propertyMap={place=Property{name='place', value=TLV}, since=Property{name='since', value=2000}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=False}}}", expectedEdge.ToString());
 
             var parms = new Dictionary<string, object>
             {
@@ -267,12 +262,12 @@ namespace NRedisGraph.Tests
 
             Assert.Equal(new[] { "a", "r", "a.name", "a.age", "a.doubleValue", "a.boolValue", "a.nullValue", "r.place", "r.since", "r.doubleValue", "r.boolValue", "r.nullValue" }, record.Keys);
 
-            Assert.Equal(new object[] { expectedNode, expectedEdge, name, age, doubleValue, true, null, place, since, doubleValue, false, null }, record.Values);
+            Assert.Equal(new List<object> { expectedNode, expectedEdge, name, age, doubleValue, true, null, place, since, doubleValue, false, null }, record.Values);
 
             Assert.Equal("roi", record.GetString(2));
             Assert.Equal("32", record.GetString(3));
-            Assert.Equal(32, record.GetValue<int>(3));
-            Assert.Equal(32, record.GetValue<int>("a.age"));
+            Assert.Equal(32, record.GetValue<long>(3));
+            Assert.Equal(32, record.GetValue<long>("a.age"));
             Assert.Equal("roi", record.GetString("a.name"));
             Assert.Equal("32", record.GetString("a.age"));
         }
@@ -299,7 +294,7 @@ namespace NRedisGraph.Tests
             List<ResultSet> resultSets = Enumerable.Range(0, 16).AsParallel().Select(x => _api.Query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r, a.age")).ToList();
 
             Property nameProperty = new Property("name", "roi");
-            Property ageProperty = new Property("age", 32);
+            Property ageProperty = new Property("age", 32L);
             Property lastNameProperty = new Property("lastName", "a");
 
             Node expectedNode = new Node();
@@ -327,13 +322,10 @@ namespace NRedisGraph.Tests
                 Assert.Equal("a", schemaNames[0]);
                 Assert.Equal("r", schemaNames[1]);
                 Assert.Equal("a.age", schemaNames[2]);
-                Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
-                Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
-                Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[2]);
                 Assert.Single(resultSet);
                 Record record = resultSet.First();
                 Assert.Equal(new[] { "a", "r", "a.age" }, record.Keys);
-                Assert.Equal(new object[] { expectedNode, expectedEdge, 32 }, record.Values);
+                Assert.Equal(new List<object> { expectedNode, expectedEdge, 32L }, record.Values);
             }
 
             //test for update in local cache
@@ -367,12 +359,10 @@ namespace NRedisGraph.Tests
                 Assert.Equal(2, schemaTypes.Count);
                 Assert.Equal("a", schemaNames[0]);
                 Assert.Equal("r", schemaNames[1]);
-                Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
-                Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
                 Assert.Single(resultSet);
                 Record record = resultSet.First();
                 Assert.Equal(new[] { "a", "r" }, record.Keys);
-                Assert.Equal(new object[] { expectedNode, expectedEdge }, record.Values);
+                Assert.Equal(new List<object> { expectedNode, expectedEdge }, record.Values);
             }
         }
 
@@ -387,7 +377,7 @@ namespace NRedisGraph.Tests
 
             //expected objects init
             Property nameProperty = new Property("name", "roi");
-            Property ageProperty = new Property("age", 32);
+            Property ageProperty = new Property("age", 32L);
             Property lastNameProperty = new Property("lastName", "a");
 
             Node expectedNode = new Node();
@@ -413,12 +403,10 @@ namespace NRedisGraph.Tests
             Assert.Equal(2, schemaTypes.Count);
             Assert.Equal("a", schemaNames[0]);
             Assert.Equal("r", schemaNames[1]);
-            Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
-            Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
             Assert.Single(resultSet);
             Record record = resultSet.First();
             Assert.Equal(new[] { "a", "r" }, record.Keys);
-            Assert.Equal(new object[] { expectedNode, expectedEdge }, record.Values);
+            Assert.Equal(new List<object> { expectedNode, expectedEdge }, record.Values);
 
             //test for local cache updates
 
@@ -446,12 +434,10 @@ namespace NRedisGraph.Tests
             Assert.Equal(2, schemaTypes.Count);
             Assert.Equal("a", schemaNames[0]);
             Assert.Equal("r", schemaNames[1]);
-            Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
-            Assert.Equal(ResultSetColumnTypes.COLUMN_RELATION, schemaTypes[1]);
             Assert.Single(resultSet);
             record = resultSet.First();
             Assert.Equal(new[] { "a", "r" }, record.Keys);
-            Assert.Equal(new object[] { expectedNode, expectedEdge }, record.Values);
+            Assert.Equal(new List<object> { expectedNode, expectedEdge }, record.Values);
         }
 
         [Fact]
@@ -521,7 +507,6 @@ namespace NRedisGraph.Tests
             Assert.Single(schemaTypes);
 
             Assert.Equal("n", schemaNames[0]);
-            Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
 
             var nameProperty = new Property("name", "a");
 
@@ -553,8 +538,6 @@ namespace NRedisGraph.Tests
 
             Assert.Equal("n", schemaNames[0]);
 
-            Assert.Equal(ResultSetColumnTypes.COLUMN_NODE, schemaTypes[0]);
-
             Assert.Single(resultSet);
 
             record = resultSet.First();
@@ -581,8 +564,8 @@ namespace NRedisGraph.Tests
             expectedANode.Id = 0;
             expectedANode.AddLabel("person");
             var aNameProperty = new Property("name", "a");
-            var aAgeProperty = new Property("age", 32);
-            var aListProperty = new Property("array", new object[] { 0, 1, 2 });
+            var aAgeProperty = new Property("age", 32L);
+            var aListProperty = new Property("array", new object[] { 0L, 1L, 2L });
             expectedANode.AddProperty(aNameProperty);
             expectedANode.AddProperty(aAgeProperty);
             expectedANode.AddProperty(aListProperty);
@@ -591,8 +574,8 @@ namespace NRedisGraph.Tests
             expectedBNode.Id = 1;
             expectedBNode.AddLabel("person");
             var bNameProperty = new Property("name", "b");
-            var bAgeProperty = new Property("age", 30);
-            var bListProperty = new Property("array", new object[] { 3, 4, 5 });
+            var bAgeProperty = new Property("age", 30L);
+            var bListProperty = new Property("array", new object[] { 3L, 4L, 5L });
             expectedBNode.AddProperty(bNameProperty);
             expectedBNode.AddProperty(bAgeProperty);
             expectedBNode.AddProperty(bListProperty);
@@ -618,7 +601,6 @@ namespace NRedisGraph.Tests
             Assert.Single(schemaTypes);
 
             Assert.Equal("x", schemaNames[0]);
-            Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[0]);
 
             // check record
             Assert.Single(resultSet);
@@ -626,7 +608,7 @@ namespace NRedisGraph.Tests
             Assert.Equal(new[] { "x" }, record.Keys);
 
             var x = record.GetValue<object[]>("x");
-            Assert.Equal(new object[] { 0, 1, 2 }, x);
+            Assert.Equal(new object[] { 0L, 1L, 2L }, x);
 
             // test collect
             resultSet = _api.Query("social", "MATCH(n) return collect(n) as x");
@@ -644,7 +626,6 @@ namespace NRedisGraph.Tests
             Assert.Single(schemaTypes);
 
             Assert.Equal("x", schemaNames[0]);
-            Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[0]);
 
             // check record
             Assert.Single(resultSet);
@@ -671,7 +652,6 @@ namespace NRedisGraph.Tests
             Assert.Single(schemaTypes);
 
             Assert.Equal("x", schemaNames[0]);
-            Assert.Equal(ResultSetColumnTypes.COLUMN_SCALAR, schemaTypes[0]);
 
             // check record
             Assert.Equal(3, resultSet.Count);
@@ -681,7 +661,7 @@ namespace NRedisGraph.Tests
                 record = resultSet.ElementAt(i);
 
                 Assert.Equal(new[] { "x" }, record.Keys);
-                Assert.Equal(i, record.GetValue<int>("x"));
+                Assert.Equal(i, record.GetValue<long>("x"));
             }
         }
 
@@ -753,16 +733,16 @@ namespace NRedisGraph.Tests
 
         public static object[][] TestParameterValues = new object[][]
         {
-            new object[] { 1 },
+            new object[] { 1L },
             new object[] { 2.3 },
             new object[] { true },
             new object[] { false },
             new object[] { null },
             new object[] { "str" },
-            new object[] { new List<int> { 1, 2, 3 } },
-            new object[] { new[] { 1, 2, 3 } },
-            new object[] { new List<int> { 1, 2, 3 }.Select(n => new object[] { n, n.ToString() }).ToArray() },
-            new object[] { new List<int> { 1, 2, 3 }.Select(n => new List<object> { n, n.ToString() }).ToList() }
+            new object[] { new List<long> { 1, 2, 3 } },
+            new object[] { new[] { 1L, 2L, 3L } },
+            new object[] { new List<long> { 1, 2, 3 }.Select(n => new object[] { n, n.ToString() }).ToArray() },
+            new object[] { new List<long> { 1, 2, 3 }.Select(n => new List<object> { n, n.ToString() }).ToList() }
         };
     }
 }

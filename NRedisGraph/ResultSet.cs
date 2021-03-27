@@ -16,7 +16,7 @@ namespace NRedisGraph
             VALUE_UNKNOWN,
             VALUE_NULL,
             VALUE_STRING,
-            VALUE_INTEGER,
+            VALUE_INT64,
             VALUE_BOOLEAN,
             VALUE_DOUBLE,
             VALUE_ARRAY,
@@ -183,8 +183,8 @@ namespace NRedisGraph
                     return bool.Parse((string)rawScalarData[1]);
                 case ResultSetScalarType.VALUE_DOUBLE:
                     return (double)rawScalarData[1];
-                case ResultSetScalarType.VALUE_INTEGER:
-                    return (int)rawScalarData[1];
+                case ResultSetScalarType.VALUE_INT64:
+                    return (long)rawScalarData[1];
                 case ResultSetScalarType.VALUE_STRING:
                     return (string)rawScalarData[1];
                 case ResultSetScalarType.VALUE_ARRAY:
