@@ -10,7 +10,7 @@ The intent with this library is to duplicate the API (as much as possible) of th
 
 ## Installation
 
-`PM> Install-Package NRedisGraph -Version 1.1.0`
+`PM> Install-Package NRedisGraph -Version 1.4.0`
 
 ## Usage
 
