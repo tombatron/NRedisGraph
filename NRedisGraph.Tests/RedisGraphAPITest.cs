@@ -145,6 +145,14 @@ namespace NRedisGraph.Tests
             Assert.Empty(createNonExistingIndexResult);
             Assert.NotNull(createNonExistingIndexResult.Statistics.GetStringValue(Label.IndicesCreated));
             Assert.Equal(1, createNonExistingIndexResult.Statistics.IndicesCreated);
+            
+            ResultSet createExistingIndexResult = _api.GraphQuery("social", "CREATE INDEX ON :person(age)");
+            Assert.Empty(createExistingIndexResult);
+            Assert.Equal(0, createExistingIndexResult.Statistics.IndicesCreated);
+
+            ResultSet deleteExistingIndexResult = _api.GraphQuery("social", "DROP INDEX ON :person(age)");
+            Assert.Empty(deleteExistingIndexResult);
+            Assert.Equal(1, deleteExistingIndexResult.Statistics.IndicesDeleted);
         }
 
         [Fact]

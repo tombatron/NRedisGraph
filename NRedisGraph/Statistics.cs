@@ -22,6 +22,7 @@ namespace NRedisGraph
             private const string LABELS_ADDED = "Labels added";
             private const string INDICES_ADDED = "Indices added";
             private const string INDICES_CREATED = "Indices created";
+            private const string INDICES_DELETED = "Indices deleted";
             private const string NODES_CREATED = "Nodes created";
             private const string NODES_DELETED = "Nodes deleted";
             private const string RELATIONSHIPS_DELETED = "Relationships deleted";
@@ -56,6 +57,12 @@ namespace NRedisGraph
             /// </summary>
             /// <returns></returns>
             public static readonly Label IndicesCreated = new Label(INDICES_CREATED);
+
+            /// <summary>
+            /// Get an "Indices Deleted" statistics label.
+            /// </summary>
+            /// <returns></returns>
+            public static readonly Label IndicesDeleted = new Label(INDICES_DELETED);
 
             /// <summary>
             /// Get a "Nodes Created" statistics label.
@@ -119,6 +126,8 @@ namespace NRedisGraph
                         return IndicesAdded;
                     case INDICES_CREATED:
                         return IndicesCreated;
+                    case INDICES_DELETED:
+                        return IndicesDeleted;
                     case NODES_CREATED:
                         return NodesCreated;
                     case NODES_DELETED:
@@ -206,6 +215,11 @@ namespace NRedisGraph
         /// </summary>
         /// <returns></returns>
         public int IndicesCreated => int.TryParse(GetStringValue(Label.IndicesCreated), out var result) ? result : 0;
+
+        /// <summary>
+        /// Number of indices deleted.
+        /// </summary>
+        public int IndicesDeleted => int.TryParse(GetStringValue(Label.IndicesDeleted), out var result) ? result : 0;
 
         /// <summary>
         /// Number of labels added.

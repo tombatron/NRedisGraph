@@ -42,12 +42,31 @@ namespace NRedisGraph
         /// <param name="query">The Cypher query.</param>
         /// <param name="parameters">Parameters map.</param>
         /// <returns>A result set.</returns>
+        public ResultSet GraphQuery(string graphId, string query, IDictionary<string, object> parameters) =>
+            Query(graphId, query, parameters);
+            
+        /// <summary>
+        /// Execute a Cypher query with parameters.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="parameters">Parameters map.</param>
+        /// <returns>A result set.</returns>
         public ResultSet Query(string graphId, string query, IDictionary<string, object> parameters)
         {
             var preparedQuery = PrepareQuery(query, parameters);
 
             return Query(graphId, preparedQuery);
         }
+
+        /// <summary>
+        /// Execute a Cypher query.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <returns>A result set.</returns>
+        public ResultSet GraphQuery(string graphId, string query) =>
+            Query(graphId, query);
 
         /// <summary>
         /// Execute a Cypher query.
@@ -69,12 +88,31 @@ namespace NRedisGraph
         /// <param name="query">The Cypher query.</param>
         /// <param name="parameters">Parameters map.</param>
         /// <returns>A result set.</returns>
+        public Task<ResultSet> GraphQueryAsync(string graphId, string query, IDictionary<string, object> parameters) =>
+            QueryAsync(graphId, query, parameters);
+
+        /// <summary>
+        /// Execute a Cypher query with parameters.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="parameters">Parameters map.</param>
+        /// <returns>A result set.</returns>
         public Task<ResultSet> QueryAsync(string graphId, string query, IDictionary<string, object> parameters)
         {
             var preparedQuery = PrepareQuery(query, parameters);
 
             return QueryAsync(graphId, preparedQuery);
         }
+
+        /// <summary>
+        /// Execute a Cypher query.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <returns>A result set.</returns>
+        public Task<ResultSet> GraphQueryAsync(string graphId, string query) =>
+            QueryAsync(graphId, query);
 
         /// <summary>
         /// Execute a Cypher query.
