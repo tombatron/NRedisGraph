@@ -166,6 +166,10 @@ namespace NRedisGraph.Tests
 
             Assert.NotNull(queryResult.Header);
             Header header = queryResult.Header;
+            
+            Assert.Equal("Header{"
+                         + "schemaTypes=[COLUMN_SCALAR, COLUMN_SCALAR, COLUMN_SCALAR], "
+                         + "schemaNames=[a, r, a.age]}", header.ToString());
 
             List<string> schemaNames = header.SchemaNames;
             List<Header.ResultSetColumnTypes> schemaTypes = header.SchemaTypes;
