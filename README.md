@@ -1,6 +1,6 @@
 # NRedisGraph
 
-[![Build status](https://ci.appveyor.com/api/projects/status/ouat19g1rol9rq8x/branch/master?svg=true)](https://ci.appveyor.com/project/tombatron/nredisgraph/branch/master)
+[![Build Status](https://github.com/tombatron/NRedisGraph/actions/workflows/dotnet.yml/badge.svg)](https://github.com/tombatron/NRedisGraph/actions/workflows/dotnet.yml)
 
 ## Overview
 
@@ -10,7 +10,7 @@ The intent with this library is to duplicate the API (as much as possible) of th
 
 ## Installation
 
-`PM> Install-Package NRedisGraph -Version 1.4.0`
+`PM> Install-Package NRedisGraph -Version 1.5.0`
 
 ## Usage
 
