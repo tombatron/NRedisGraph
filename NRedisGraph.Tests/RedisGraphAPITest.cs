@@ -251,7 +251,7 @@ namespace NRedisGraph.Tests
             Assert.Equal(0, resultSet.Statistics.PropertiesSet);
             Assert.Equal(0, resultSet.Statistics.RelationshipsCreated);
             Assert.Equal(0, resultSet.Statistics.RelationshipsDeleted);
-            Assert.NotNull(resultSet.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
+            Assert.NotNull(resultSet.Statistics.QueryInternalExecutionTime);
             Assert.Single(resultSet);
 
             Record record = resultSet.First();
