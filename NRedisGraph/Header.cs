@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using StackExchange.Redis;
 
 namespace NRedisGraph
@@ -59,5 +60,26 @@ namespace NRedisGraph
                 SchemaNames.Add((string)tuple[1]);
             }
         }
+
+        public override bool Equals(object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+
+            var header = obj as Header;
+
+            if (header is null)
+            {
+                return false;
+            }
+
+            return Objects.AreEqual(SchemaTypes, header.SchemaTypes)
+                   && Objects.AreEqual(SchemaNames, header.SchemaNames);
+        }
+
+        public override string ToString() =>
+            $"Header{{schemaTypes=[{string.Join(", ", SchemaTypes)}], schemaNames=[{string.Join(", ", SchemaNames)}]}}";
     }
 }

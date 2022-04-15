@@ -145,6 +145,14 @@ namespace NRedisGraph.Tests
             Assert.Empty(createNonExistingIndexResult);
             Assert.NotNull(createNonExistingIndexResult.Statistics.GetStringValue(Label.IndicesCreated));
             Assert.Equal(1, createNonExistingIndexResult.Statistics.IndicesCreated);
+            
+            ResultSet createExistingIndexResult = _api.GraphQuery("social", "CREATE INDEX ON :person(age)");
+            Assert.Empty(createExistingIndexResult);
+            Assert.Equal(0, createExistingIndexResult.Statistics.IndicesCreated);
+
+            ResultSet deleteExistingIndexResult = _api.GraphQuery("social", "DROP INDEX ON :person(age)");
+            Assert.Empty(deleteExistingIndexResult);
+            Assert.Equal(1, deleteExistingIndexResult.Statistics.IndicesDeleted);
         }
 
         [Fact]
@@ -158,6 +166,10 @@ namespace NRedisGraph.Tests
 
             Assert.NotNull(queryResult.Header);
             Header header = queryResult.Header;
+            
+            Assert.Equal("Header{"
+                         + "schemaTypes=[COLUMN_SCALAR, COLUMN_SCALAR, COLUMN_SCALAR], "
+                         + "schemaNames=[a, r, a.age]}", header.ToString());
 
             List<string> schemaNames = header.SchemaNames;
             List<Header.ResultSetColumnTypes> schemaTypes = header.SchemaTypes;
@@ -239,7 +251,7 @@ namespace NRedisGraph.Tests
             Assert.Equal(0, resultSet.Statistics.PropertiesSet);
             Assert.Equal(0, resultSet.Statistics.RelationshipsCreated);
             Assert.Equal(0, resultSet.Statistics.RelationshipsDeleted);
-            Assert.NotNull(resultSet.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
+            Assert.NotNull(resultSet.Statistics.QueryInternalExecutionTime);
             Assert.Single(resultSet);
 
             Record record = resultSet.First();
@@ -729,6 +741,48 @@ namespace NRedisGraph.Tests
             object o = r.GetValue<object>(0);
 
             Assert.Equal(expected, o);
+        }
+        
+        [Fact]
+        public void TestNullGraphEntities() {
+            // Create two nodes connected by a single outgoing edge.
+            Assert.NotNull(_api.GraphQuery("social", "CREATE (:L)-[:E]->(:L2)"));
+            
+            // Test a query that produces 1 record with 3 null values.
+            ResultSet resultSet = _api.GraphQuery("social", "OPTIONAL MATCH (a:NONEXISTENT)-[e]->(b) RETURN a, e, b");
+            Assert.Single(resultSet);
+            Assert.Equal(new object[] {null, null, null}, resultSet.First().Values);
+            
+            // Test a query that produces 2 records, with 2 null values in the second.
+            resultSet = _api.GraphQuery("social", "MATCH (a) OPTIONAL MATCH (a)-[e]->(b) RETURN a, e, b ORDER BY ID(a)");
+            Assert.Equal(2, resultSet.Count);
+
+            var record = resultSet.First();
+            Assert.Equal(3, record.Values.Count);
+            
+            Assert.NotNull(record.Values[0]);
+            Assert.NotNull(record.Values[1]);
+            Assert.NotNull(record.Values[2]);
+
+            record = resultSet.Skip(1).Take(1).First();
+            Assert.Equal(3, record.Size);
+
+            Assert.NotNull(record.Values[0]);
+            Assert.Null(record.Values[1]);
+            Assert.Null(record.Values[2]);
+            
+            // Test a query that produces 2 records, the first containing a path and the
+            // second containing a null value.
+            resultSet = _api.GraphQuery("social", "MATCH (a) OPTIONAL MATCH p = (a)-[e]->(b) RETURN p");
+            Assert.Equal(2, resultSet.Count);
+
+            record = resultSet.First();
+            Assert.Equal(1, record.Size);
+            Assert.NotNull(record.Values[0]);
+
+            record = resultSet.Skip(1).First();
+            Assert.Equal(1, record.Size);
+            Assert.Null(record.Values[0]);
         }
 
         public static object[][] TestParameterValues = new object[][]

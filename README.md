@@ -1,6 +1,6 @@
 # NRedisGraph
 
-[![Build status](https://ci.appveyor.com/api/projects/status/ouat19g1rol9rq8x/branch/master?svg=true)](https://ci.appveyor.com/project/tombatron/nredisgraph/branch/master)
+[![Build Status](https://github.com/tombatron/NRedisGraph/actions/workflows/dotnet.yml/badge.svg)](https://github.com/tombatron/NRedisGraph/actions/workflows/dotnet.yml)
 
 ## Overview
 
@@ -10,7 +10,7 @@ The intent with this library is to duplicate the API (as much as possible) of th
 
 ## Installation
 
-`PM> Install-Package NRedisGraph -Version 1.4.0`
+`PM> Install-Package NRedisGraph -Version 1.5.0`
 
 ## Usage
 
@@ -31,8 +31,12 @@ If RedisGraph is installed you should see output similar to the following:
 
 (The version of the module installed on your server obviously may vary.)
 
+## Extras
+
+* Adds support for the [`LOLWUT`](https://redis.io/commands/lolwut/) Redis command by introducing extension methods to the `IDatabase`.
+
 ## Examples
 
-In this repository there are a suite of integration tests that should be sufficent to serve as examples on how to use all supported RedisGraph commands.
+In this repository there are a suite of integration tests that should be sufficient to serve as examples on how to use all supported RedisGraph commands.
 
 [Integration Tests](https://github.com/tombatron/NRedisGraph/blob/master/NRedisGraph.Tests/RedisGraphAPITest.cs)
