@@ -362,6 +362,11 @@ namespace NRedisGraph
                 return QuoteString(stringValue);
             }
 
+            if (value is char charValue)
+            {
+                return QuoteCharacter(charValue);q
+            }
+
             if (value.GetType().IsArray)
             {
                 if (value is IEnumerable arrayValue)
@@ -419,6 +424,9 @@ namespace NRedisGraph
 
             return arrayToString.ToString();
         }
+
+        internal static string QuoteCharacter(char character) =>
+            $"\"{character}\"";
 
         internal static string QuoteString(string candidateString)
         {
