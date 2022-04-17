@@ -828,11 +828,38 @@ namespace NRedisGraph.Tests
             long value = 1L << 40;
             var parameters = new Dictionary<string, object>();
             parameters.Put("val", value);
-            ResultSet resultSet = _api.GraphQuery("social", "CREATE (n {val:$val}) RETURN n.val",  parameters);
-            
+            ResultSet resultSet = _api.GraphQuery("social", "CREATE (n {val:$val}) RETURN n.val", parameters);
+
             Assert.Single(resultSet);
 
             Assert.Equal(value, resultSet.First().GetValue<long>(0));
+        }
+
+        [Fact]
+        public void TestCachedExecution()
+        {
+            _api.GraphQuery("social", "CREATE (:N {val:1}), (:N {val:2})");
+
+            // First time should not be loaded from execution cache
+            var parameters = new Dictionary<string, object>();
+            parameters.Put("val", 1L);
+
+            var resultSet = _api.GraphQuery("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
+            
+            Assert.Single(resultSet);
+            Assert.Equal(parameters["val"], resultSet.First().Values[0]);
+            Assert.False(resultSet.Statistics.CachedExecution);
+
+            // Run in loop many times to make sure the query will be loaded
+            // from cache at least once
+            for (int i = 0; i < 64; i++)
+            {
+                resultSet = _api.GraphQuery("social", "MATCH (n:N {val:$val}) RETURN n.val",  parameters);
+            }
+
+            Assert.Single(resultSet);
+            Assert.Equal(parameters["val"], resultSet.First().Values[0]);
+            Assert.True(resultSet.Statistics.CachedExecution);
         }
 
         public static object[][] TestParameterValues = new object[][]
