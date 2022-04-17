@@ -845,7 +845,7 @@ namespace NRedisGraph.Tests
             parameters.Put("val", 1L);
 
             var resultSet = _api.GraphQuery("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
-            
+
             Assert.Single(resultSet);
             Assert.Equal(parameters["val"], resultSet.First().Values[0]);
             Assert.False(resultSet.Statistics.CachedExecution);
@@ -854,12 +854,74 @@ namespace NRedisGraph.Tests
             // from cache at least once
             for (int i = 0; i < 64; i++)
             {
-                resultSet = _api.GraphQuery("social", "MATCH (n:N {val:$val}) RETURN n.val",  parameters);
+                resultSet = _api.GraphQuery("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
             }
 
             Assert.Single(resultSet);
             Assert.Equal(parameters["val"], resultSet.First().Values[0]);
             Assert.True(resultSet.Statistics.CachedExecution);
+        }
+
+        // TODO: https://github.com/tombatron/NRedisGraph/issues/20
+        // [Fact]
+        // public void TestMapDataType()
+        // {
+        //     var expected = new Dictionary<string, object>();
+        //     expected.Put("a", (long) 1);
+        //     expected.Put("b", "str");
+        //     expected.Put("c", null);
+        //     var d = new List<long>();
+        //     d.Add(1);
+        //     d.Add(2);
+        //     d.Add(3);
+        //     expected.Put("d", d);
+        //     expected.Put("e", true);
+        //     var f = new Dictionary<string, object>();
+        //     f.Put("x", (long) 1);
+        //     f.Put("y", (long) 2);
+        //     expected.Put("f", f);
+        //     ResultSet res = _api.GraphQuery("social", "RETURN {a:1, b:'str', c:NULL, d:[1,2,3], e:True, f:{x:1, y:2}}");
+        //     Assert.Single(res);
+        //     // Record r = res.iterator().next();
+        //     var something = res.First().Values[0];
+        //     var actual = res.First().GetValue<Dictionary<string, object>>(0);
+        //     Assert.Equal(expected, actual);
+        // }        
+
+        [Fact]
+        public void TestCachedExecutionReadOnly()
+        {
+            _api.GraphQuery("social", "CREATE (:N {val:1}), (:N {val:2})");
+
+            // First time should not be loaded from execution cache
+            var parameters = new Dictionary<string, object>();
+            parameters.Put("val", 1L);
+            var resultSet = _api.GraphReadOnlyQuery("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
+
+            Assert.Single(resultSet);
+            Assert.Equal(parameters["val"], resultSet.First().Values[0]);
+            Assert.False(resultSet.Statistics.CachedExecution);
+
+            // Run in loop many times to make sure the query will be loaded
+            // from cache at least once
+            for (int i = 0; i < 64; i++)
+            {
+                resultSet = _api.GraphReadOnlyQuery("social", "MATCH (n:N {val:$val}) RETURN n.val", parameters);
+            }
+
+            Assert.Single(resultSet);
+
+            Assert.Equal(parameters["val"], resultSet.First().Values[0]);
+            Assert.True(resultSet.Statistics.CachedExecution);
+        }
+
+        [Fact]
+        public void TestSimpleReadOnly()
+        {
+            _api.GraphQuery("social", "CREATE (:person{name:'filipe',age:30})");
+            var rsRo = _api.GraphReadOnlyQuery("social", "MATCH (a:person) WHERE (a.name = 'filipe') RETURN a.age");
+            Assert.Single(rsRo);
+            Assert.Equal(30L, rsRo.First().GetValue<long>(0));
         }
 
         public static object[][] TestParameterValues = new object[][]
