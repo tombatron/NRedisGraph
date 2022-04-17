@@ -771,12 +771,10 @@ namespace NRedisGraph.Tests
                 paramDict.Put("param", param);
                 ResultSet resultSetRo = _api.GraphReadOnlyQuery("social", "RETURN $param", paramDict);
                 Assert.Single(resultSetRo);
-                //Record rRo = resultSetRo.iterator().next();
+
                 var oRo = resultSetRo.First().GetValue<object>(0);
                 var expected = expected_anwsers[i];
-                // if (i == parameters.Length - 1) {
-                //     expected = Arrays.asList((Object[]) expected);
-                // }
+
                 Assert.Equal(expected, oRo);
             }
         }
