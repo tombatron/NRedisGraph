@@ -1,8 +1,10 @@
 name: Publish Dotnet Package
 
 on:
-  workflow_dispatch:
-    branches: [ main ]
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
