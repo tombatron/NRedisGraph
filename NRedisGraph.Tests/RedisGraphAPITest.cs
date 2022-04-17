@@ -822,6 +822,19 @@ namespace NRedisGraph.Tests
             Assert.Null(record.Values[0]);
         }
 
+        [Fact]
+        public void Test64BitNumber()
+        {
+            long value = 1L << 40;
+            var parameters = new Dictionary<string, object>();
+            parameters.Put("val", value);
+            ResultSet resultSet = _api.GraphQuery("social", "CREATE (n {val:$val}) RETURN n.val",  parameters);
+            
+            Assert.Single(resultSet);
+
+            Assert.Equal(value, resultSet.First().GetValue<long>(0));
+        }
+
         public static object[][] TestParameterValues = new object[][]
         {
             new object[] {1L},
