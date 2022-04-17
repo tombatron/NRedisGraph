@@ -2,6 +2,7 @@
 using StackExchange.Redis;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -125,6 +126,82 @@ namespace NRedisGraph
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
 
             return new ResultSet(await _db.ExecuteAsync(Command.QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
+        }
+
+        /// <summary>
+        /// Execute a Cypher query, preferring a read-only node.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="parameters">Parameters map.</param>
+        /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
+        /// <returns>A result set.</returns>
+        public ResultSet GraphReadOnlyQuery(string graphId, string query, IDictionary<string, object> parameters, CommandFlags flags = CommandFlags.None)
+        {
+            var preparedQuery = PrepareQuery(query, parameters);
+
+            return GraphReadOnlyQuery(graphId, preparedQuery, flags);
+        }
+        
+        /// <summary>
+        /// Execute a Cypher query, preferring a read-only node.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
+        /// <returns>A result set.</returns>
+        public ResultSet GraphReadOnlyQuery(string graphId, string query, CommandFlags flags = CommandFlags.None)
+        {
+            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
+
+            var parameters = new Collection<object>
+            {
+                graphId,
+                query,
+                CompactQueryFlag
+            };
+
+            var result = _db.Execute(Command.RO_QUERY, parameters, (flags | CommandFlags.PreferReplica));
+
+            return new ResultSet(result, _graphCaches[graphId]);
+        }        
+        
+        /// <summary>
+        /// Execute a Cypher query, preferring a read-only node.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="parameters">Parameters map.</param>
+        /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
+        /// <returns>A result set.</returns>
+        public Task<ResultSet> GraphReadOnlyQueryAsync(string graphId, string query, IDictionary<string, object> parameters, CommandFlags flags = CommandFlags.None)
+        {
+            var preparedQuery = PrepareQuery(query, parameters);
+
+            return GraphReadOnlyQueryAsync(graphId, preparedQuery, flags);
+        }        
+
+        /// <summary>
+        /// Execute a Cypher query, preferring a read-only node.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
+        /// <returns>A result set.</returns>
+        public async Task<ResultSet> GraphReadOnlyQueryAsync(string graphId, string query, CommandFlags flags = CommandFlags.None)
+        {
+            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
+
+            var parameters = new Collection<object>
+            {
+                graphId,
+                query,
+                CompactQueryFlag
+            };
+
+            var result = await _db.ExecuteAsync(Command.RO_QUERY, parameters, (flags | CommandFlags.PreferReplica));
+
+            return new ResultSet(result, _graphCaches[graphId]);
         }
 
         internal static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =

@@ -742,6 +742,31 @@ namespace NRedisGraph.Tests
 
             Assert.Equal(expected, o);
         }
+
+        [Fact]
+        public void TestParametersReadOnly()
+        {
+            var parameters = new object[] { 1, 2.3, true, false, null, "str", 'a', "b", new List<int>{1, 2, 3},
+                new[] { 1, 2, 3 } };
+            
+            var expected_anwsers = new object[] { 1L, 2.3, true, false, null, "str", "a", "b", new List<long>{1L, 2L, 3L},
+                new[] { 1L, 2L, 3L } };
+            
+            var paramDict = new Dictionary<string, object>();
+            
+            for (int i = 0; i < parameters.Length; i++) {
+                var param = parameters[i];
+                    paramDict.Put("param", param);
+                ResultSet resultSetRo =   _api.GraphReadOnlyQuery("social", "RETURN $param", paramDict);
+                Assert.Single(resultSetRo);
+                //Record rRo = resultSetRo.iterator().next();
+                var oRo = resultSetRo.First().GetValue<object>(0);
+                var expected = expected_anwsers[i];
+                // if (i == parameters.Length - 1) {
+                //     expected = Arrays.asList((Object[]) expected);
+                // }
+                Assert.Equal(expected, oRo);
+        }
         
         [Fact]
         public void TestNullGraphEntities() {
