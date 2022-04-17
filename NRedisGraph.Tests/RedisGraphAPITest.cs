@@ -1,4 +1,5 @@
 // .NET port of https://github.com/RedisGraph/JRedisGraph
+
 using NRedisGraph.Tests.Utils;
 using StackExchange.Redis;
 using System;
@@ -16,7 +17,9 @@ namespace NRedisGraph.Tests
         private ConnectionMultiplexer _muxr;
         private RedisGraph _api;
 
-        public RedisGraphAPITest() : base() { }
+        public RedisGraphAPITest() : base()
+        {
+        }
 
         protected override void BeforeTest()
         {
@@ -145,7 +148,7 @@ namespace NRedisGraph.Tests
             Assert.Empty(createNonExistingIndexResult);
             Assert.NotNull(createNonExistingIndexResult.Statistics.GetStringValue(Label.IndicesCreated));
             Assert.Equal(1, createNonExistingIndexResult.Statistics.IndicesCreated);
-            
+
             ResultSet createExistingIndexResult = _api.GraphQuery("social", "CREATE INDEX ON :person(age)");
             Assert.Empty(createExistingIndexResult);
             Assert.Equal(0, createExistingIndexResult.Statistics.IndicesCreated);
@@ -166,7 +169,7 @@ namespace NRedisGraph.Tests
 
             Assert.NotNull(queryResult.Header);
             Header header = queryResult.Header;
-            
+
             Assert.Equal("Header{"
                          + "schemaTypes=[COLUMN_SCALAR, COLUMN_SCALAR, COLUMN_SCALAR], "
                          + "schemaNames=[a, r, a.age]}", header.ToString());
@@ -183,7 +186,6 @@ namespace NRedisGraph.Tests
             Assert.Equal("a", schemaNames[0]);
             Assert.Equal("r", schemaNames[1]);
             Assert.Equal("a.age", schemaNames[2]);
-
         }
 
         [Fact]
@@ -215,7 +217,9 @@ namespace NRedisGraph.Tests
             expectedNode.AddProperty(doubleProperty);
             expectedNode.AddProperty(trueBooleanProperty);
 
-            Assert.Equal("Node{labels=[person], id=0, propertyMap={name=Property{name='name', value=roi}, age=Property{name='age', value=32}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=True}}}", expectedNode.ToString());
+            Assert.Equal(
+                "Node{labels=[person], id=0, propertyMap={name=Property{name='name', value=roi}, age=Property{name='age', value=32}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=True}}}",
+                expectedNode.ToString());
 
             Edge expectedEdge = new Edge();
             expectedEdge.Id = 0;
@@ -227,14 +231,16 @@ namespace NRedisGraph.Tests
             expectedEdge.AddProperty(doubleProperty);
             expectedEdge.AddProperty(falseBooleanProperty);
 
-            Assert.Equal("Edge{relationshipType='knows', source=0, destination=1, id=0, propertyMap={place=Property{name='place', value=TLV}, since=Property{name='since', value=2000}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=False}}}", expectedEdge.ToString());
+            Assert.Equal(
+                "Edge{relationshipType='knows', source=0, destination=1, id=0, propertyMap={place=Property{name='place', value=TLV}, since=Property{name='since', value=2000}, doubleValue=Property{name='doubleValue', value=3.14}, boolValue=Property{name='boolValue', value=False}}}",
+                expectedEdge.ToString());
 
             var parms = new Dictionary<string, object>
             {
-                { "name", name },
-                { "age", age },
-                { "boolValue", boolValue },
-                { "doubleValue", doubleValue }
+                {"name", name},
+                {"age", age},
+                {"boolValue", boolValue},
+                {"doubleValue", doubleValue}
             };
 
             Assert.NotNull(_api.Query("social", "CREATE (:person{name:$name,age:$age, doubleValue:$doubleValue, boolValue:$boolValue, nullValue:null})", parms));
@@ -272,9 +278,9 @@ namespace NRedisGraph.Tests
             edge = record.GetValue<Edge>("r");
             Assert.Equal(expectedEdge, edge);
 
-            Assert.Equal(new[] { "a", "r", "a.name", "a.age", "a.doubleValue", "a.boolValue", "a.nullValue", "r.place", "r.since", "r.doubleValue", "r.boolValue", "r.nullValue" }, record.Keys);
+            Assert.Equal(new[] {"a", "r", "a.name", "a.age", "a.doubleValue", "a.boolValue", "a.nullValue", "r.place", "r.since", "r.doubleValue", "r.boolValue", "r.nullValue"}, record.Keys);
 
-            Assert.Equal(new List<object> { expectedNode, expectedEdge, name, age, doubleValue, true, null, place, since, doubleValue, false, null }, record.Values);
+            Assert.Equal(new List<object> {expectedNode, expectedEdge, name, age, doubleValue, true, null, place, since, doubleValue, false, null}, record.Values);
 
             Assert.Equal("roi", record.GetString(2));
             Assert.Equal("32", record.GetString(3));
@@ -300,7 +306,6 @@ namespace NRedisGraph.Tests
         [Fact]
         public void TestMultiThread()
         {
-
             Assert.NotNull(_api.Query("social", "CREATE (:person {name:'roi', age:32})-[:knows]->(:person {name:'amit',age:30}) "));
 
             List<ResultSet> resultSets = Enumerable.Range(0, 16).AsParallel().Select(x => _api.Query("social", "MATCH (a:person)-[r:knows]->(b:person) RETURN a,r, a.age")).ToList();
@@ -336,8 +341,8 @@ namespace NRedisGraph.Tests
                 Assert.Equal("a.age", schemaNames[2]);
                 Assert.Single(resultSet);
                 Record record = resultSet.First();
-                Assert.Equal(new[] { "a", "r", "a.age" }, record.Keys);
-                Assert.Equal(new List<object> { expectedNode, expectedEdge, 32L }, record.Values);
+                Assert.Equal(new[] {"a", "r", "a.age"}, record.Keys);
+                Assert.Equal(new List<object> {expectedNode, expectedEdge, 32L}, record.Values);
             }
 
             //test for update in local cache
@@ -373,8 +378,8 @@ namespace NRedisGraph.Tests
                 Assert.Equal("r", schemaNames[1]);
                 Assert.Single(resultSet);
                 Record record = resultSet.First();
-                Assert.Equal(new[] { "a", "r" }, record.Keys);
-                Assert.Equal(new List<object> { expectedNode, expectedEdge }, record.Values);
+                Assert.Equal(new[] {"a", "r"}, record.Keys);
+                Assert.Equal(new List<object> {expectedNode, expectedEdge}, record.Values);
             }
         }
 
@@ -417,8 +422,8 @@ namespace NRedisGraph.Tests
             Assert.Equal("r", schemaNames[1]);
             Assert.Single(resultSet);
             Record record = resultSet.First();
-            Assert.Equal(new[] { "a", "r" }, record.Keys);
-            Assert.Equal(new List<object> { expectedNode, expectedEdge }, record.Values);
+            Assert.Equal(new[] {"a", "r"}, record.Keys);
+            Assert.Equal(new List<object> {expectedNode, expectedEdge}, record.Values);
 
             //test for local cache updates
 
@@ -448,8 +453,8 @@ namespace NRedisGraph.Tests
             Assert.Equal("r", schemaNames[1]);
             Assert.Single(resultSet);
             record = resultSet.First();
-            Assert.Equal(new[] { "a", "r" }, record.Keys);
-            Assert.Equal(new List<object> { expectedNode, expectedEdge }, record.Values);
+            Assert.Equal(new[] {"a", "r"}, record.Keys);
+            Assert.Equal(new List<object> {expectedNode, expectedEdge}, record.Values);
         }
 
         [Fact]
@@ -466,10 +471,10 @@ namespace NRedisGraph.Tests
             Assert.NotNull(_api.Query("whatever", "CREATE (a:Test {SomeString: $SomeString})", parameters));
         }
 
-        public static readonly object[][] EscapedCypherParameters = new object[][]
+        public static readonly object[][] EscapedCypherParameters = new[]
         {
-            new object[]{new Dictionary<string, object> { { "SomeString", "dsf\"dsfdss" } }},
-            new object[]{new Dictionary<string, object> { { "SomeString", "dsfdsfdss\"#" } } },
+            new object[] {new Dictionary<string, object> {{"SomeString", "dsf\"dsfdss"}}},
+            new object[] {new Dictionary<string, object> {{"SomeString", "dsfdsfdss\"#"}}},
         };
 
         [Fact]
@@ -532,7 +537,7 @@ namespace NRedisGraph.Tests
             Assert.Single(resultSet);
 
             var record = resultSet.First();
-            Assert.Equal(new List<string> { "n" }, record.Keys);
+            Assert.Equal(new List<string> {"n"}, record.Keys);
             Assert.Equal(expectedNode, record.GetValue<Node>("n"));
 
             resultSet = results[4];
@@ -554,7 +559,7 @@ namespace NRedisGraph.Tests
 
             record = resultSet.First();
 
-            Assert.Equal(new List<string> { "label" }, record.Keys);
+            Assert.Equal(new List<string> {"label"}, record.Keys);
             Assert.Equal("Person", record.GetValue<string>("label"));
         }
 
@@ -577,7 +582,7 @@ namespace NRedisGraph.Tests
             expectedANode.AddLabel("person");
             var aNameProperty = new Property("name", "a");
             var aAgeProperty = new Property("age", 32L);
-            var aListProperty = new Property("array", new object[] { 0L, 1L, 2L });
+            var aListProperty = new Property("array", new object[] {0L, 1L, 2L});
             expectedANode.AddProperty(aNameProperty);
             expectedANode.AddProperty(aAgeProperty);
             expectedANode.AddProperty(aListProperty);
@@ -587,7 +592,7 @@ namespace NRedisGraph.Tests
             expectedBNode.AddLabel("person");
             var bNameProperty = new Property("name", "b");
             var bAgeProperty = new Property("age", 30L);
-            var bListProperty = new Property("array", new object[] { 3L, 4L, 5L });
+            var bListProperty = new Property("array", new object[] {3L, 4L, 5L});
             expectedBNode.AddProperty(bNameProperty);
             expectedBNode.AddProperty(bAgeProperty);
             expectedBNode.AddProperty(bListProperty);
@@ -617,10 +622,10 @@ namespace NRedisGraph.Tests
             // check record
             Assert.Single(resultSet);
             var record = resultSet.First();
-            Assert.Equal(new[] { "x" }, record.Keys);
+            Assert.Equal(new[] {"x"}, record.Keys);
 
             var x = record.GetValue<object[]>("x");
-            Assert.Equal(new object[] { 0L, 1L, 2L }, x);
+            Assert.Equal(new object[] {0L, 1L, 2L}, x);
 
             // test collect
             resultSet = _api.Query("social", "MATCH(n) return collect(n) as x");
@@ -642,7 +647,7 @@ namespace NRedisGraph.Tests
             // check record
             Assert.Single(resultSet);
             record = resultSet.First();
-            Assert.Equal(new[] { "x" }, record.Keys);
+            Assert.Equal(new[] {"x"}, record.Keys);
             x = record.GetValue<object[]>("x");
 
             Assert.Contains(expectedANode, x);
@@ -672,7 +677,7 @@ namespace NRedisGraph.Tests
             {
                 record = resultSet.ElementAt(i);
 
-                Assert.Equal(new[] { "x" }, record.Keys);
+                Assert.Equal(new[] {"x"}, record.Keys);
                 Assert.Equal(i, record.GetValue<long>("x"));
             }
         }
@@ -746,18 +751,25 @@ namespace NRedisGraph.Tests
         [Fact]
         public void TestParametersReadOnly()
         {
-            var parameters = new object[] { 1, 2.3, true, false, null, "str", 'a', "b", new List<int>{1, 2, 3},
-                new[] { 1, 2, 3 } };
-            
-            var expected_anwsers = new object[] { 1L, 2.3, true, false, null, "str", "a", "b", new List<long>{1L, 2L, 3L},
-                new[] { 1L, 2L, 3L } };
-            
+            var parameters = new object[]
+            {
+                1, 2.3, true, false, null, "str", 'a', "b", new List<int> {1, 2, 3},
+                new[] {1, 2, 3}
+            };
+
+            var expected_anwsers = new object[]
+            {
+                1L, 2.3, true, false, null, "str", "a", "b", new List<long> {1L, 2L, 3L},
+                new[] {1L, 2L, 3L}
+            };
+
             var paramDict = new Dictionary<string, object>();
-            
-            for (int i = 0; i < parameters.Length; i++) {
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
                 var param = parameters[i];
-                    paramDict.Put("param", param);
-                ResultSet resultSetRo =   _api.GraphReadOnlyQuery("social", "RETURN $param", paramDict);
+                paramDict.Put("param", param);
+                ResultSet resultSetRo = _api.GraphReadOnlyQuery("social", "RETURN $param", paramDict);
                 Assert.Single(resultSetRo);
                 //Record rRo = resultSetRo.iterator().next();
                 var oRo = resultSetRo.First().GetValue<object>(0);
@@ -766,25 +778,27 @@ namespace NRedisGraph.Tests
                 //     expected = Arrays.asList((Object[]) expected);
                 // }
                 Assert.Equal(expected, oRo);
+            }
         }
-        
+
         [Fact]
-        public void TestNullGraphEntities() {
+        public void TestNullGraphEntities()
+        {
             // Create two nodes connected by a single outgoing edge.
             Assert.NotNull(_api.GraphQuery("social", "CREATE (:L)-[:E]->(:L2)"));
-            
+
             // Test a query that produces 1 record with 3 null values.
             ResultSet resultSet = _api.GraphQuery("social", "OPTIONAL MATCH (a:NONEXISTENT)-[e]->(b) RETURN a, e, b");
             Assert.Single(resultSet);
             Assert.Equal(new object[] {null, null, null}, resultSet.First().Values);
-            
+
             // Test a query that produces 2 records, with 2 null values in the second.
             resultSet = _api.GraphQuery("social", "MATCH (a) OPTIONAL MATCH (a)-[e]->(b) RETURN a, e, b ORDER BY ID(a)");
             Assert.Equal(2, resultSet.Count);
 
             var record = resultSet.First();
             Assert.Equal(3, record.Values.Count);
-            
+
             Assert.NotNull(record.Values[0]);
             Assert.NotNull(record.Values[1]);
             Assert.NotNull(record.Values[2]);
@@ -795,7 +809,7 @@ namespace NRedisGraph.Tests
             Assert.NotNull(record.Values[0]);
             Assert.Null(record.Values[1]);
             Assert.Null(record.Values[2]);
-            
+
             // Test a query that produces 2 records, the first containing a path and the
             // second containing a null value.
             resultSet = _api.GraphQuery("social", "MATCH (a) OPTIONAL MATCH p = (a)-[e]->(b) RETURN p");
@@ -812,16 +826,16 @@ namespace NRedisGraph.Tests
 
         public static object[][] TestParameterValues = new object[][]
         {
-            new object[] { 1L },
-            new object[] { 2.3 },
-            new object[] { true },
-            new object[] { false },
-            new object[] { null },
-            new object[] { "str" },
-            new object[] { new List<long> { 1, 2, 3 } },
-            new object[] { new[] { 1L, 2L, 3L } },
-            new object[] { new List<long> { 1, 2, 3 }.Select(n => new object[] { n, n.ToString() }).ToArray() },
-            new object[] { new List<long> { 1, 2, 3 }.Select(n => new List<object> { n, n.ToString() }).ToList() }
+            new object[] {1L},
+            new object[] {2.3},
+            new object[] {true},
+            new object[] {false},
+            new object[] {null},
+            new object[] {"str"},
+            new object[] {new List<long> {1, 2, 3}},
+            new object[] {new[] {1L, 2L, 3L}},
+            new object[] {new List<long> {1, 2, 3}.Select(n => new object[] {n, n.ToString()}).ToArray()},
+            new object[] {new List<long> {1, 2, 3}.Select(n => new List<object> {n, n.ToString()}).ToList()}
         };
     }
 }

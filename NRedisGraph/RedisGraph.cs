@@ -364,7 +364,7 @@ namespace NRedisGraph
 
             if (value is char charValue)
             {
-                return QuoteCharacter(charValue);q
+                return QuoteCharacter(charValue);
             }
 
             if (value.GetType().IsArray)
