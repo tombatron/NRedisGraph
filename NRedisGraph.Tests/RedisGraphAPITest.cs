@@ -464,6 +464,22 @@ namespace NRedisGraph.Tests
             Assert.NotNull(_api.Query("social", "MATCH (n) where n.s1='S\"\\'' RETURN n"));
         }
 
+        [Fact]
+        public void TestEscapedQueryAgain()
+        {
+            var params1 = new Dictionary<string, object>();
+            params1.Put("s1", "S\"'");
+            params1.Put("s2", "S'\"");
+            
+            Assert.NotNull(_api.GraphQuery("social", "CREATE (:escaped{s1:$s1,s2:$s2})", params1));
+
+            var params2 = new Dictionary<string, object>();
+            params2.Put("s1", "S\"'");
+            params2.Put("s2", "S'\"");
+
+            Assert.NotNull(_api.GraphQuery("social", "MATCH (n) where n.s1=$s1 and n.s2=$s2 RETURN n", params2));
+        }
+
         [Theory]
         [MemberData(nameof(EscapedCypherParameters))]
         public void TestEscapedCypherParameters(Dictionary<string, object> parameters)
