@@ -1,8 +1,9 @@
-using StackExchange.Redis;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StackExchange.Redis;
+using static NRedisGraph.RedisGraphUtilities;
 
 namespace NRedisGraph
 {
@@ -46,7 +47,7 @@ namespace NRedisGraph
         /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
         public ValueTask QueryAsync(string graphId, string query, IDictionary<string, object> parameters)
         {
-            var preparedQuery = RedisGraph.PrepareQuery(query, parameters);
+            var preparedQuery = PrepareQuery(query, parameters);
 
             return QueryAsync(graphId, preparedQuery);
         }
@@ -85,7 +86,7 @@ namespace NRedisGraph
         /// <returns>A ValueTask, the actual result isn't known until `Exec` or `ExecAsync` is invoked.</returns>
         public ValueTask CallProcedureAsync(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
         {
-            args = args.Select(a => RedisGraph.QuoteString(a));
+            args = args.Select(QuoteString);
 
             var queryBody = new StringBuilder();
 
