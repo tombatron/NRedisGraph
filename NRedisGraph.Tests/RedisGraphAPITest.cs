@@ -940,6 +940,18 @@ namespace NRedisGraph.Tests
         //     
         //     Assert.Equal(new Point(30.27822306, -97.75134723), property.Value);
         // }
+        
+        // TODO: https://github.com/tombatron/NRedisGraph/issues/23
+        // [Fact]
+        // public void TimeoutArgument() {
+        //     var rs = _api.GraphQuery("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
+        //     
+        //     Assert.Single(rs);
+        //
+        //     var r = rs.First();
+        //     
+        //     Assert.Equal(100L, r.GetValue<long>(0));
+        // }
 
         [Fact]
         public void TestCachedExecutionReadOnly()
