@@ -903,6 +903,43 @@ namespace NRedisGraph.Tests
         //     var actual = res.First().GetValue<Dictionary<string, object>>(0);
         //     Assert.Equal(expected, actual);
         // }        
+        
+        // TODO: https://github.com/tombatron/NRedisGraph/issues/22
+        // [Fact]
+        // public void TestGeoPointLatLon() {
+        //     var rs = _api.GraphQuery("social", "CREATE (:restaurant"
+        //                                                + " {location: point({latitude:30.27822306, longitude:-97.75134723})})");
+        //     Assert.Equal(1, rs.Statistics.NodesCreated);
+        //     Assert.Equal(1, rs.Statistics.PropertiesSet);
+        //
+        //     AssertTestGeoPoint();
+        // }
+        //
+        // [Fact]
+        // public void TestGeoPointLonLat() {
+        //     var rs = _api.GraphQuery("social", "CREATE (:restaurant"
+        //                                                + " {location: point({longitude:-97.75134723, latitude:30.27822306})})");
+        //     Assert.Equal(1, rs.Statistics.NodesCreated);
+        //     Assert.Equal(1, rs.Statistics.PropertiesSet);
+        //
+        //     AssertTestGeoPoint();
+        // }
+        //
+        // private void AssertTestGeoPoint()
+        // {
+        //     var results = _api.GraphQuery("social", "MATCH (restaurant) RETURN restaurant");
+        //     
+        //     Assert.Single(results);
+        //
+        //     var record = results.First();
+        //     Assert.Equal(1, record.Size);
+        //     Assert.Equal(new[]{"restaurant"}, record.Keys);
+        //
+        //     var node = record.Values[0] as Node;
+        //     var property = node?.PropertyMap["location"] ?? null;
+        //     
+        //     Assert.Equal(new Point(30.27822306, -97.75134723), property.Value);
+        // }
 
         [Fact]
         public void TestCachedExecutionReadOnly()
