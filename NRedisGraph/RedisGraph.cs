@@ -1,7 +1,9 @@
 // .NET port of https://github.com/RedisGraph/JRedisGraph
+
 using StackExchange.Redis;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,7 +46,7 @@ namespace NRedisGraph
         /// <returns>A result set.</returns>
         public ResultSet GraphQuery(string graphId, string query, IDictionary<string, object> parameters) =>
             Query(graphId, query, parameters);
-            
+
         /// <summary>
         /// Execute a Cypher query with parameters.
         /// </summary>
@@ -125,6 +127,82 @@ namespace NRedisGraph
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
 
             return new ResultSet(await _db.ExecuteAsync(Command.QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
+        }
+
+        /// <summary>
+        /// Execute a Cypher query, preferring a read-only node.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="parameters">Parameters map.</param>
+        /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
+        /// <returns>A result set.</returns>
+        public ResultSet GraphReadOnlyQuery(string graphId, string query, IDictionary<string, object> parameters, CommandFlags flags = CommandFlags.None)
+        {
+            var preparedQuery = PrepareQuery(query, parameters);
+
+            return GraphReadOnlyQuery(graphId, preparedQuery, flags);
+        }
+
+        /// <summary>
+        /// Execute a Cypher query, preferring a read-only node.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
+        /// <returns>A result set.</returns>
+        public ResultSet GraphReadOnlyQuery(string graphId, string query, CommandFlags flags = CommandFlags.None)
+        {
+            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
+
+            var parameters = new Collection<object>
+            {
+                graphId,
+                query,
+                CompactQueryFlag
+            };
+
+            var result = _db.Execute(Command.RO_QUERY, parameters, (flags | CommandFlags.PreferReplica));
+
+            return new ResultSet(result, _graphCaches[graphId]);
+        }
+
+        /// <summary>
+        /// Execute a Cypher query, preferring a read-only node.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="parameters">Parameters map.</param>
+        /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
+        /// <returns>A result set.</returns>
+        public Task<ResultSet> GraphReadOnlyQueryAsync(string graphId, string query, IDictionary<string, object> parameters, CommandFlags flags = CommandFlags.None)
+        {
+            var preparedQuery = PrepareQuery(query, parameters);
+
+            return GraphReadOnlyQueryAsync(graphId, preparedQuery, flags);
+        }
+
+        /// <summary>
+        /// Execute a Cypher query, preferring a read-only node.
+        /// </summary>
+        /// <param name="graphId">A graph to perform the query on.</param>
+        /// <param name="query">The Cypher query.</param>
+        /// <param name="flags">Optional command flags. `PreferReplica` is set for you here.</param>
+        /// <returns>A result set.</returns>
+        public async Task<ResultSet> GraphReadOnlyQueryAsync(string graphId, string query, CommandFlags flags = CommandFlags.None)
+        {
+            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
+
+            var parameters = new Collection<object>
+            {
+                graphId,
+                query,
+                CompactQueryFlag
+            };
+
+            var result = await _db.ExecuteAsync(Command.RO_QUERY, parameters, (flags | CommandFlags.PreferReplica));
+
+            return new ResultSet(result, _graphCaches[graphId]);
         }
 
         internal static readonly Dictionary<string, List<string>> EmptyKwargsDictionary =
@@ -285,6 +363,11 @@ namespace NRedisGraph
                 return QuoteString(stringValue);
             }
 
+            if (value is char charValue)
+            {
+                return QuoteCharacter(charValue);
+            }
+
             if (value.GetType().IsArray)
             {
                 if (value is IEnumerable arrayValue)
@@ -306,7 +389,7 @@ namespace NRedisGraph
 
                 foreach (var val in valueList)
                 {
-                    objectValueList.Add((object)val);
+                    objectValueList.Add((object) val);
                 }
 
                 return ArrayToString(objectValueList.ToArray());
@@ -326,7 +409,7 @@ namespace NRedisGraph
             {
                 if (x.GetType().IsArray)
                 {
-                    return ArrayToString((object[])x);
+                    return ArrayToString((object[]) x);
                 }
                 else
                 {
@@ -343,38 +426,18 @@ namespace NRedisGraph
             return arrayToString.ToString();
         }
 
-        internal static string QuoteString(string candidateString)
+        internal static string QuoteCharacter(char character) =>
+            $"\"{character}\"";
+
+        internal static string QuoteString(string unquotedString)
         {
-            if (candidateString.StartsWith("\"") && candidateString.EndsWith("\""))
-            {
-                return candidateString;
-            }
+            var quotedString = new StringBuilder(unquotedString.Length + 12);
 
-            var result = new StringBuilder(candidateString.Length + 2);
+            quotedString.Append('"');
+            quotedString.Append(unquotedString.Replace("\"", "\\\""));
+            quotedString.Append('"');
 
-            if (!candidateString.StartsWith("\""))
-            {
-                result.Append('"');
-            }
-
-            //result.Append(candidateString);
-            foreach(var c in candidateString)
-            {
-                if (c == '"')
-                {
-                    result.Append("\\");
-                    
-                }
-
-                result.Append(c);
-            }
-
-            if (!candidateString.EndsWith("\""))
-            {
-                result.Append('"');
-            }
-
-            return result.ToString();
+            return quotedString.ToString();
         }
     }
 }

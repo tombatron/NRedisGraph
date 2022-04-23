@@ -10,7 +10,7 @@ The intent with this library is to duplicate the API (as much as possible) of th
 
 ## Installation
 
-`PM> Install-Package NRedisGraph -Version 1.5.0`
+`PM> Install-Package NRedisGraph -Version 1.6.0`
 
 ## Usage
 
@@ -26,7 +26,7 @@ If RedisGraph is installed you should see output similar to the following:
 1) 1) "name"
    2) "graph"
    3) "ver"
-   4) (integer) 20005
+   4) (integer) 20811
 ```
 
 (The version of the module installed on your server obviously may vary.)

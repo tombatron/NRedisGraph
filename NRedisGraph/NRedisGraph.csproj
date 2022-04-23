@@ -5,15 +5,15 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Tom Hanks, John Weber (jweber), Jason Geyen (jgeyen)</Authors>
     <Company />
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
-    <FileVersion>1.5.0.0</FileVersion>
-    <Version>1.5.0</Version>
+    <AssemblyVersion>1.6.0.0</AssemblyVersion>
+    <FileVersion>1.6.0.0</FileVersion>
+    <Version>1.6.0</Version>
     <Description>A series of extension methods for use with StackExchange.Redis 2.x and the RedisGraph Redis module.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/tombatron/NRedisGraph</RepositoryUrl>
     <ProjectRepository>https://github.com/tombatron/NRedisGraph</ProjectRepository>
     <LangVersion>7.3</LangVersion>
-    <PackageVersion>1.5.0</PackageVersion>
+    <PackageVersion>1.6.0</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -26,7 +26,8 @@
 
   <PropertyGroup>
     <PackageLicenseFile>license.txt</PackageLicenseFile>
-    <PackageReleaseNotes>    1.5.0 - Sprinkled in a little bit of whimsy. 
+    <PackageReleaseNotes>    1.6.0 - Added support for `GRAPH.RO_QUERY` command.
+    1.5.0 - Sprinkled in a little bit of whimsy. 
     1.4.0 - Integers are now handled as `int64`.
     1.3.0 - Added "Cached execution to the statistics output."
     1.2.0 - Fixes issue where double quotes weren't being escaped inside of quoted string. 
