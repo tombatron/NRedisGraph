@@ -34,6 +34,7 @@ namespace NRedisGraph
         /// <typeparam name="T">The type of the value at the index that you want to get.</typeparam>
         /// <returns>The value at the index that you specified.</returns>
         public T GetValue<T>(int index) => (T)Values[index];
+        
 
         /// <summary>
         /// Get a value by key name.
@@ -42,6 +43,7 @@ namespace NRedisGraph
         /// <typeparam name="T">The type of the value that corresponds to the key that you specified.</typeparam>
         /// <returns>The value that corresponds to the key that you specified.</returns>
         public T GetValue<T>(string key) => (T)Values[Keys.IndexOf(key)];
+        
 
         /// <summary>
         /// Gets the string representation of a value at the given index.
@@ -56,6 +58,22 @@ namespace NRedisGraph
         /// <param name="key">The key of the value that you want to get.</param>
         /// <returns>The string value at the key that you specified.</returns>
         public string GetString(string key) => Values[Keys.IndexOf(key)].ToString();
+
+        /// <summary>
+        /// Gets the map/dictionary representation of a value by index.
+        /// </summary>
+        /// <param name="index">The index of the value that you want to get.</param>
+        /// <returns>The dictionary value at the index that you specified.</returns>
+        public IDictionary<string, object> GetMap(int index) =>
+            ConvertObjectToDictionary(GetValue<object>(index));
+
+        /// <summary>
+        /// Gets the map/dictionary representation of a value by key.
+        /// </summary>
+        /// <param name="key">The key of the value that you want to get.</param>
+        /// <returns>The dictionary value at the key that you specified.</returns>
+        public IDictionary<string, object> GetMap(string key) =>
+            ConvertObjectToDictionary(GetValue<object>(key));
 
         /// <summary>
         /// Does the key exist in the record?
@@ -119,6 +137,11 @@ namespace NRedisGraph
             sb.Append('}');
 
             return sb.ToString();
+        }
+
+        private static IDictionary<string, object> ConvertObjectToDictionary(object value)
+        {
+            return default;
         }
     }
 }

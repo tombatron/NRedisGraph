@@ -470,7 +470,7 @@ namespace NRedisGraph.Tests
             var params1 = new Dictionary<string, object>();
             params1.Put("s1", "S\"'");
             params1.Put("s2", "S'\"");
-            
+
             Assert.NotNull(_api.GraphQuery("social", "CREATE (:escaped{s1:$s1,s2:$s2})", params1));
 
             var params2 = new Dictionary<string, object>();
@@ -877,33 +877,35 @@ namespace NRedisGraph.Tests
             Assert.Equal(parameters["val"], resultSet.First().Values[0]);
             Assert.True(resultSet.Statistics.CachedExecution);
         }
-
-        // TODO: https://github.com/tombatron/NRedisGraph/issues/20
-        // [Fact]
-        // public void TestMapDataType()
-        // {
-        //     var expected = new Dictionary<string, object>();
-        //     expected.Put("a", (long) 1);
-        //     expected.Put("b", "str");
-        //     expected.Put("c", null);
-        //     var d = new List<long>();
-        //     d.Add(1);
-        //     d.Add(2);
-        //     d.Add(3);
-        //     expected.Put("d", d);
-        //     expected.Put("e", true);
-        //     var f = new Dictionary<string, object>();
-        //     f.Put("x", (long) 1);
-        //     f.Put("y", (long) 2);
-        //     expected.Put("f", f);
-        //     ResultSet res = _api.GraphQuery("social", "RETURN {a:1, b:'str', c:NULL, d:[1,2,3], e:True, f:{x:1, y:2}}");
-        //     Assert.Single(res);
-        //     // Record r = res.iterator().next();
-        //     var something = res.First().Values[0];
-        //     var actual = res.First().GetValue<Dictionary<string, object>>(0);
-        //     Assert.Equal(expected, actual);
-        // }        
         
+        [Fact]
+        public void TestMapDataType()
+        {
+            var expected = new Dictionary<string, object>();
+            
+            expected.Put("a", 1L);
+            expected.Put("b", "str");
+            expected.Put("c", null);
+
+            var d = new List<long> {1, 2, 3};
+            
+            expected.Put("d", d);
+            expected.Put("e", true);
+            
+            var f = new Dictionary<string, object>();
+            f.Put("x", (long) 1);
+            f.Put("y", (long) 2);
+            expected.Put("f", f);
+            
+            var res = _api.GraphQuery("social", "RETURN {a:1, b:'str', c:NULL, d:[1,2,3], e:True, f:{x:1, y:2}}");
+            
+            Assert.Single(res);
+            
+            var actual = res.First().GetMap(0);
+            
+            Assert.Equal(expected, actual);
+        }
+
         // TODO: https://github.com/tombatron/NRedisGraph/issues/22
         // [Fact]
         // public void TestGeoPointLatLon() {
@@ -940,7 +942,7 @@ namespace NRedisGraph.Tests
         //     
         //     Assert.Equal(new Point(30.27822306, -97.75134723), property.Value);
         // }
-        
+
         // TODO: https://github.com/tombatron/NRedisGraph/issues/23
         // [Fact]
         // public void TimeoutArgument() {
