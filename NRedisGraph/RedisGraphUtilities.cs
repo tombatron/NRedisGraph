@@ -55,13 +55,13 @@ namespace NRedisGraph
                 }
             }
 
-            if ((value is System.Collections.IList valueList) && value.GetType().IsGenericType)
+            if ((value is IList valueList) && value.GetType().IsGenericType)
             {
                 var objectValueList = new List<object>();
 
                 foreach (var val in valueList)
                 {
-                    objectValueList.Add((object) val);
+                    objectValueList.Add(val);
                 }
 
                 return ArrayToString(objectValueList.ToArray());
