@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using StackExchange.Redis;
 
 namespace NRedisGraph
 {
@@ -139,8 +141,25 @@ namespace NRedisGraph
             return sb.ToString();
         }
 
-        private static IDictionary<string, object> ConvertObjectToDictionary(object value)
+        private static IDictionary<string, object> ConvertObjectToDictionary(object resultObject)
         {
+            var arrayResult = resultObject as RedisResult[];
+            
+            if (!(arrayResult is null)) 
+            {
+                var result = new Dictionary<string, object>();
+
+                for (var i = 0; i < arra.Length; i++)
+                {
+                    var name = arrayValue[i].ToString();
+                    var value = arrayValue[i + 2].ToString();
+
+                    result.Add(name, value);
+                }
+
+                return result;
+            }
+
             return default;
         }
     }
