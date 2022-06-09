@@ -129,20 +129,6 @@ namespace NRedisGraph
             return new ResultSet(await _db.ExecuteAsync(Command.QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
         }
 
-
-        /// <summary>
-        /// Execute a Cypher read-only query.
-        /// </summary>
-        /// <param name="graphId">A graph to perform the query on.</param>
-        /// <param name="query">The Cypher query.</param>
-        /// <returns>A result set.</returns>
-        public ResultSet ReadOnlyQuery(string graphId, string query)
-        {
-            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
-
-            return new ResultSet(_db.Execute(Command.RO_QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
-        }
-
         /// <summary>
         /// Execute a Cypher query, preferring a read-only node.
         /// </summary>
@@ -281,7 +267,7 @@ namespace NRedisGraph
                 queryBody.Append(string.Join(",", kwargsList));
             }
 
-            return ReadOnlyQuery(graphId, queryBody.ToString());
+            return GraphReadOnlyQuery(graphId, queryBody.ToString());
         }
 
         /// <summary>
@@ -305,7 +291,7 @@ namespace NRedisGraph
                 queryBody.Append(string.Join(",", kwargsList));
             }
 
-            return QueryAsync(graphId, queryBody.ToString());
+            return GraphReadOnlyQueryAsync(graphId, queryBody.ToString());
         }
 
         /// <summary>
