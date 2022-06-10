@@ -26,12 +26,12 @@ namespace NRedisGraph
         }
 
         private readonly ITransaction _transaction;
-        private readonly IDictionary<string, GraphCache> _graphCaches;
+        private readonly IDictionary<string, IGraphCache> _graphCaches;
         private readonly RedisGraph _redisGraph;
         private readonly List<TransactionResult> _pendingTasks = new List<TransactionResult>();
         private readonly List<string> _graphCachesToRemove = new List<string>();
 
-        internal RedisGraphTransaction(ITransaction transaction, RedisGraph redisGraph, IDictionary<string, GraphCache> graphCaches)
+        internal RedisGraphTransaction(ITransaction transaction, RedisGraph redisGraph, IDictionary<string, IGraphCache> graphCaches)
         {
             _graphCaches = graphCaches;
             _redisGraph = redisGraph;
