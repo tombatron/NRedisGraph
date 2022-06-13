@@ -19,9 +19,9 @@ namespace NRedisGraph
     {
         internal static readonly object CompactQueryFlag = "--COMPACT";
         private readonly IDatabase _db;
-        private readonly IDictionary<string, GraphCache> _graphCaches = new Dictionary<string, GraphCache>();
+        private readonly IDictionary<string, IGraphCache> _graphCaches = new Dictionary<string, IGraphCache>();
 
-        private GraphCache GetGraphCache(string graphId)
+        private IGraphCache GetGraphCache(string graphId)
         {
             if (!_graphCaches.ContainsKey(graphId))
             {
@@ -153,7 +153,7 @@ namespace NRedisGraph
         /// <returns>A result set.</returns>
         public ResultSet GraphReadOnlyQuery(string graphId, string query, CommandFlags flags = CommandFlags.None)
         {
-            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
+            _graphCaches.PutIfAbsent(graphId, new ReadOnlyGraphCache(graphId, this));
 
             var parameters = new Collection<object>
             {
@@ -191,7 +191,7 @@ namespace NRedisGraph
         /// <returns>A result set.</returns>
         public async Task<ResultSet> GraphReadOnlyQueryAsync(string graphId, string query, CommandFlags flags = CommandFlags.None)
         {
-            _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
+            _graphCaches.PutIfAbsent(graphId, new ReadOnlyGraphCache(graphId, this));
 
             var parameters = new Collection<object>
             {
@@ -334,5 +334,91 @@ namespace NRedisGraph
 
             return processedResult;
         }
+        
+        /// <summary>
+        /// Call a saved procedure against a read-only node.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <returns>A result set.</returns>
+        public ResultSet CallProcedureReadOnly(string graphId, string procedure) =>
+            CallProcedureReadOnly(graphId, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
+
+        /// <summary>
+        /// Call a saved procedure against a read-only node.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <returns>A result set.</returns>
+        public Task<ResultSet> CallProcedureReadOnlyAsync(string graphId, string procedure) =>
+            CallProcedureReadOnlyAsync(graphId, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
+
+        /// <summary>
+        /// Call a saved procedure with parameters against a read-only node.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <param name="args">A collection of positional arguments.</param>
+        /// <returns>A result set.</returns>
+        public ResultSet CallProcedureReadOnly(string graphId, string procedure, IEnumerable<string> args) =>
+            CallProcedureReadOnly(graphId, procedure, args, EmptyKwargsDictionary);
+
+        /// <summary>
+        /// Call a saved procedure with parameters against a read-only node.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <param name="args">A collection of positional arguments.</param>
+        /// <returns>A result set.</returns>
+        public Task<ResultSet> CallProcedureReadOnlyAsync(string graphId, string procedure, IEnumerable<string> args) =>
+            CallProcedureReadOnlyAsync(graphId, procedure, args, EmptyKwargsDictionary);
+
+        /// <summary>
+        /// Call a saved procedure with parameters against a read-only node.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <param name="args">A collection of positional arguments.</param>
+        /// <param name="kwargs">A collection of keyword arguments.</param>
+        /// <returns>A result set.</returns>
+        public ResultSet CallProcedureReadOnly(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
+        {
+            args = args.Select(a => QuoteString(a));
+
+            var queryBody = new StringBuilder();
+
+            queryBody.Append($"CALL {procedure}({string.Join(",", args)})");
+
+            if (kwargs.TryGetValue("y", out var kwargsList))
+            {
+                queryBody.Append(string.Join(",", kwargsList));
+            }
+
+            return GraphReadOnlyQuery(graphId, queryBody.ToString());
+        }
+
+        /// <summary>
+        /// Call a saved procedure with parameters against a read-only node.
+        /// </summary>
+        /// <param name="graphId">The graph containing the saved procedure.</param>
+        /// <param name="procedure">The procedure name.</param>
+        /// <param name="args">A collection of positional arguments.</param>
+        /// <param name="kwargs">A collection of keyword arguments.</param>
+        /// <returns>A result set.</returns>
+        public Task<ResultSet> CallProcedureReadOnlyAsync(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
+        {
+            args = args.Select(a => QuoteString(a));
+
+            var queryBody = new StringBuilder();
+
+            queryBody.Append($"CALL {procedure}({string.Join(",", args)})");
+
+            if (kwargs.TryGetValue("y", out var kwargsList))
+            {
+                queryBody.Append(string.Join(",", kwargsList));
+            }
+
+            return GraphReadOnlyQueryAsync(graphId, queryBody.ToString());
+        }        
     }
 }

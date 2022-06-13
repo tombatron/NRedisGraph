@@ -26,9 +26,9 @@ namespace NRedisGraph
         }
 
         private readonly RedisResult[] _rawResults;
-        private readonly GraphCache _graphCache;
+        private readonly IGraphCache _graphCache;
 
-        internal ResultSet(RedisResult result, GraphCache graphCache)
+        internal ResultSet(RedisResult result, IGraphCache graphCache)
         {
             if (result.Type == ResultType.MultiBulk)
             {

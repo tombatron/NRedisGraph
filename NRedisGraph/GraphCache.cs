@@ -1,22 +1,42 @@
 namespace NRedisGraph
 {
-    internal sealed class GraphCache
+    internal interface IGraphCache
     {
-        private readonly GraphCacheList _labels;
-        private readonly GraphCacheList _propertyNames;
-        private readonly GraphCacheList _relationshipTypes;
+        string GetLabel(int index);
+        string GetRelationshipType(int index);
+        string GetPropertyName(int index);
+    }
+    
+    internal abstract class BaseGraphCache : IGraphCache
+    {
+        protected GraphCacheList Labels { get; set; }
+        protected GraphCacheList PropertyNames { get; set; }
+        protected GraphCacheList RelationshipTypes { get; set; }
 
-        internal GraphCache(string graphId, RedisGraph redisGraph)
+        public string GetLabel(int index) => Labels.GetCachedData(index);
+
+        public string GetRelationshipType(int index) => RelationshipTypes.GetCachedData(index);
+
+        public string GetPropertyName(int index) => PropertyNames.GetCachedData(index);
+    }
+
+    internal sealed class GraphCache : BaseGraphCache
+    {
+        public GraphCache(string graphId, RedisGraph redisGraph)
         {
-            _labels = new GraphCacheList(graphId, "db.labels", redisGraph);
-            _propertyNames = new GraphCacheList(graphId, "db.propertyKeys", redisGraph);
-            _relationshipTypes = new GraphCacheList(graphId, "db.relationshipTypes", redisGraph);
+            Labels = new GraphCacheList(graphId, "db.labels", redisGraph);
+            PropertyNames = new GraphCacheList(graphId, "db.propertyKeys", redisGraph);
+            RelationshipTypes = new GraphCacheList(graphId, "db.relationshipTypes", redisGraph);
         }
+    }
 
-        internal string GetLabel(int index) => _labels.GetCachedData(index);
-
-        internal string GetRelationshipType(int index) => _relationshipTypes.GetCachedData(index);
-
-        internal string GetPropertyName(int index) => _propertyNames.GetCachedData(index);
+    internal sealed class ReadOnlyGraphCache : BaseGraphCache
+    {
+        public ReadOnlyGraphCache(string graphId, RedisGraph redisGraph)
+        {
+            Labels = new ReadOnlyGraphCacheList(graphId, "db.labels", redisGraph);
+            PropertyNames = new ReadOnlyGraphCacheList(graphId, "db.propertyKeys", redisGraph);
+            RelationshipTypes = new ReadOnlyGraphCacheList(graphId, "db.relationshipTypes", redisGraph);
+        }
     }
 }
