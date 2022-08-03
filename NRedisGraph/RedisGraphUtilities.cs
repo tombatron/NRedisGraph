@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace NRedisGraph
 {
@@ -70,6 +71,21 @@ namespace NRedisGraph
             if (value is bool boolValue)
             {
                 return boolValue.ToString().ToLowerInvariant();
+            }
+
+            if (value is float floatValue)
+            {
+                return floatValue.ToString(CultureInfo.InvariantCulture);
+            } 
+
+            if (value is decimal decimalValue)
+            {
+                return decimalValue.ToString(CultureInfo.InvariantCulture);
+            }
+
+            if (value is double doubleValue)
+            {
+                return doubleValue.ToString(CultureInfo.InvariantCulture);
             }
 
             return value.ToString();
