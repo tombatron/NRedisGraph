@@ -12,7 +12,7 @@ namespace NRedisGraph.Tests
 
         protected override void BeforeTest()
         {
-            _muxr = ConnectionMultiplexer.Connect("localhost");
+            _muxr = ConnectionMultiplexer.Connect(RedisConnectionString);
 
             _api = new RedisGraph(_muxr.GetDatabase(0));
 

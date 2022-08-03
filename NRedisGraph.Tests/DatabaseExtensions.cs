@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System;
+using Xunit;
 using System.Threading.Tasks;
 using StackExchange.Redis;
 
@@ -10,9 +11,11 @@ namespace NRedisGraph.Tests
         private IDatabase _db;
         protected override void BeforeTest()
         {
-            _muxr = ConnectionMultiplexer.Connect("localhost");
+            _muxr = ConnectionMultiplexer.Connect(RedisConnectionString);
             _db = _muxr.GetDatabase(0);
         }
+
+        
 
         protected override void AfterTest()
         {
