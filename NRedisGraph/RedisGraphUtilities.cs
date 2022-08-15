@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace NRedisGraph
 {
@@ -22,8 +24,23 @@ namespace NRedisGraph
 
             return preparedQuery.ToString();
         }
-        
-        internal static string ValueToString(object value)
+
+        public static string ValueToStringNoQuotes(object value)
+        {
+            if (value == null)
+            {
+                return "null";
+            }
+
+            if (value is IConvertible floatValue)
+            {
+                return ConvertibleToString(floatValue);
+            }
+
+            return value.ToString();
+        }
+
+        public static string ValueToString(object value)
         {
             if (value == null)
             {
@@ -55,7 +72,7 @@ namespace NRedisGraph
                 }
             }
 
-            if ((value is System.Collections.IList valueList) && value.GetType().IsGenericType)
+            if ((value is IList valueList) && value.GetType().IsGenericType)
             {
                 var objectValueList = new List<object>();
 
@@ -66,15 +83,25 @@ namespace NRedisGraph
 
                 return ArrayToString(objectValueList.ToArray());
             }
-
+            
             if (value is bool boolValue)
             {
                 return boolValue.ToString().ToLowerInvariant();
             }
 
+            if (value is IConvertible floatValue)
+            {
+                return ConvertibleToString(floatValue);
+            } 
+            
             return value.ToString();
         }
-        
+
+        private static string ConvertibleToString(IConvertible floatValue)
+        {
+            return floatValue.ToString(CultureInfo.InvariantCulture);
+        }
+
         private static string ArrayToString(object[] array)
         {
             var arrayElements = array.Select(x =>
@@ -111,5 +138,7 @@ namespace NRedisGraph
 
             return quotedString.ToString();
         }
+
+       
     }
 }

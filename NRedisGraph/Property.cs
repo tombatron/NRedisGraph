@@ -95,15 +95,9 @@ namespace NRedisGraph
             stringResult.Append(Name);
             stringResult.Append('\'');
             stringResult.Append(", value=");
+            stringResult.Append(RedisGraphUtilities.ValueToStringNoQuotes(Value));
 
-            if (Value == null)
-            {
-                stringResult.Append("null");
-            }
-            else
-            {
-                stringResult.Append(Value);
-            }
+           
 
             stringResult.Append('}');
 

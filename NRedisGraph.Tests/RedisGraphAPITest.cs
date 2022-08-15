@@ -23,7 +23,7 @@ namespace NRedisGraph.Tests
 
         protected override void BeforeTest()
         {
-            _muxr = ConnectionMultiplexer.Connect("localhost");
+            _muxr = ConnectionMultiplexer.Connect(RedisConnectionString);
 
             _muxr.GetDatabase().Execute("FLUSHDB");
 

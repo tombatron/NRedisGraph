@@ -50,6 +50,19 @@ public class RedisGraphUtilitiesTests
 
             new object[]
             {
+                new Dictionary<string, object> {{"param", 2.42m}},
+                "CYPHER param=2.42 RETURN $param"
+            },
+
+
+            new object[]
+            {
+                new Dictionary<string, object> {{"param", 2.2f}},
+                "CYPHER param=2.2 RETURN $param"
+            },
+
+            new object[]
+            {
                 new Dictionary<string, object> {{"param", true}},
                 "CYPHER param=true RETURN $param"
             },
@@ -89,7 +102,13 @@ public class RedisGraphUtilitiesTests
                 new Dictionary<string, object> {{"param", new List<int> {1, 2, 3}}},
                 "CYPHER param=[1, 2, 3] RETURN $param"
             },
-            
+
+            new object[]
+            {
+                new Dictionary<string, object> {{"param", new List<decimal> {1, 2.2m, 3.3m}}},
+                "CYPHER param=[1, 2.2, 3.3] RETURN $param"
+            },
+
             new object[]
             {
                 new Dictionary<string, object> {{"param", new[] {"1", "2", "3"}}},
