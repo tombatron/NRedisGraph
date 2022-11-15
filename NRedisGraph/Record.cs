@@ -7,7 +7,7 @@ namespace NRedisGraph
     /// <summary>
     /// Container for RedisGraph result values.
     /// </summary>
-    public sealed class Record
+    public sealed class Record : RecordBase
     {
         /// <summary>
         /// Keys associated with a record.
@@ -33,7 +33,7 @@ namespace NRedisGraph
         /// <param name="index">The index of the value you want to get.</param>
         /// <typeparam name="T">The type of the value at the index that you want to get.</typeparam>
         /// <returns>The value at the index that you specified.</returns>
-        public T GetValue<T>(int index) => (T)Values[index];
+        public override T GetValue<T>(int index) => (T)Values[index];
 
         /// <summary>
         /// Get a value by key name.
@@ -41,28 +41,28 @@ namespace NRedisGraph
         /// <param name="key">The key of the value you want to get.</param>
         /// <typeparam name="T">The type of the value that corresponds to the key that you specified.</typeparam>
         /// <returns>The value that corresponds to the key that you specified.</returns>
-        public T GetValue<T>(string key) => (T)Values[Keys.IndexOf(key)];
+        public override T GetValue<T>(string key) => (T)Values[Keys.IndexOf(key)];
 
         /// <summary>
         /// Gets the string representation of a value at the given index.
         /// </summary>
         /// <param name="index">The index of the value that you want to get.</param>
         /// <returns>The string value at the index that you specified.</returns>
-        public string GetString(int index) => Values[index].ToString();
+        public override string GetString(int index) => Values[index].ToString();
 
         /// <summary>
         /// Gets the string representation of a value by key.
         /// </summary>
         /// <param name="key">The key of the value that you want to get.</param>
         /// <returns>The string value at the key that you specified.</returns>
-        public string GetString(string key) => Values[Keys.IndexOf(key)].ToString();
+        public override string GetString(string key) => Values[Keys.IndexOf(key)].ToString();
 
         /// <summary>
         /// Does the key exist in the record?
         /// </summary>
         /// <param name="key">The key to check.</param>
         /// <returns></returns>
-        public bool ContainsKey(string key) => Keys.Contains(key);
+        public override bool ContainsKey(string key) => Keys.Contains(key);
 
         /// <summary>
         /// How many keys are in the record?

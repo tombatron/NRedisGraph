@@ -1,15 +1,15 @@
+using StackExchange.Redis;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using StackExchange.Redis;
 
 namespace NRedisGraph
 {
     /// <summary>
     /// Represents the result from a RedisGraph query.
     /// </summary>
-    public sealed class ResultSet : IReadOnlyCollection<Record>
+    public sealed class ResultSet : IReadOnlyCollection<RecordBase>
     {
         internal enum ResultSetScalarType
         {
@@ -87,7 +87,7 @@ namespace NRedisGraph
         /// Get the enumerator for this result set.
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<Record> GetEnumerator() => RecordIterator().GetEnumerator();
+        public IEnumerator<RecordBase> GetEnumerator() => RecordIterator().GetEnumerator();
 
         /// <summary>
         /// Get the enumerator for this result set.
@@ -95,7 +95,7 @@ namespace NRedisGraph
         /// <returns></returns>
         IEnumerator IEnumerable.GetEnumerator() => RecordIterator().GetEnumerator();
 
-        private IEnumerable<Record> RecordIterator()
+        private IEnumerable<RecordBase> RecordIterator()
         {
             if (_rawResults == default)
             {
