@@ -902,6 +902,28 @@ namespace NRedisGraph.Tests
             Assert.Equal(expected, actual);
         }
 
+        //INFO: https://github.com/tombatron/NRedisGraph/issues/32
+        [Fact]
+        public void TestMapDataType_Issue32()
+        {
+            ResultSet res = _api.GraphQuery("social", "UNWIND [{ myNumber: 1234, myString: \"This is my string\", myDecimal: 12.34 },{ myNumber: 2345, myString: \"This is my other string\", myDecimal: 23.45 }] AS assignment RETURN assignment");
+            Assert.Equal(2, res.Count());
+
+            var results = res.ToArray();
+
+            var expected1 = new Dictionary<string, object>();
+            expected1.Put("myNumber", 1234);
+            expected1.Put("myString", "This is my string");
+            expected1.Put("myDecimal", 12.34);
+            var expected2 = new Dictionary<string, object>();
+            expected2.Put("myNumber", 2345);
+            expected2.Put("myString", "This is my other string");
+            expected2.Put("myDecimal", 23.45);
+
+            Assert.Equal(expected1, results[0].GetValue<Dictionary<string, object>>(0));
+            Assert.Equal(expected2, results[1].GetValue<Dictionary<string, object>>(0));
+        }
+
         // TODO: https://github.com/tombatron/NRedisGraph/issues/22
         // [Fact]
         // public void TestGeoPointLatLon() {

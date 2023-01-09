@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 
 namespace NRedisGraph
 {
@@ -95,7 +96,23 @@ namespace NRedisGraph
                 return ConvertibleToString(floatValue);
             }
 
-            return JsonSerializer.Serialize(value);
+            return SerializeJson(value);
+        }
+
+        private static string SerializeJson(object value)
+        {
+            var serializer = new JsonSerializer();
+            serializer.NullValueHandling = NullValueHandling.Ignore;
+
+            var stringWriter = new StringWriter();
+            using (var writer = new JsonTextWriter(stringWriter))
+            {
+                writer.QuoteName = false;
+                serializer.Serialize(writer, value);
+            }
+            var json = stringWriter.ToString();
+
+            return json;
         }
 
         private static string ConvertibleToString(IConvertible floatValue)
@@ -139,7 +156,5 @@ namespace NRedisGraph
 
             return quotedString.ToString();
         }
-
-
     }
 }

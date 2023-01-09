@@ -129,7 +129,9 @@ public class RedisGraphUtilitiesTests
                     new MapObject { IntProp = 2, StringProp = "my other value", DecimalProp = 2.2m },
                     new MapObject { IntProp = 3, StringProp = "another value", DecimalProp = 3.3m },
                 }}},
-                "CYPHER param=[{\"IntProp\":1,\"StringProp\":\"my value\",\"DecimalProp\":1,\"ListProp\":null,\"MapProp\":null}, {\"IntProp\":2,\"StringProp\":\"my other value\",\"DecimalProp\":2.2,\"ListProp\":null,\"MapProp\":null}, {\"IntProp\":3,\"StringProp\":\"another value\",\"DecimalProp\":3.3,\"ListProp\":null,\"MapProp\":null}] RETURN $param"
+                "CYPHER param=[{IntProp:1,StringProp:\"my value\",DecimalProp:1.0}, "
+                +"{IntProp:2,StringProp:\"my other value\",DecimalProp:2.2}, "
+                +"{IntProp:3,StringProp:\"another value\",DecimalProp:3.3}] RETURN $param"
             },
 
             new object[]
@@ -151,7 +153,22 @@ public class RedisGraphUtilitiesTests
                         }
                     },
                 }}},
-                "CYPHER param=[{\"IntProp\":1,\"StringProp\":\"my value\",\"DecimalProp\":1,\"ListProp\":[1,2,3],\"MapProp\":{\"IntProp\":2,\"StringProp\":\"my other value\",\"DecimalProp\":2.2,\"ListProp\":[4,5,6],\"MapProp\":null}}] RETURN $param"
+                "CYPHER param=[{IntProp:1,"
+                +"StringProp:\"my value\","
+                +"DecimalProp:1.0,"
+                +"ListProp:[1,2,3],"
+                +"MapProp:{IntProp:2,StringProp:\"my other value\",DecimalProp:2.2,ListProp:[4,5,6]}}] RETURN $param"
+            },
+
+            new object[]
+            {
+                new Dictionary<string, object> {{"param", new List<MapObject>
+                {
+                    new MapObject { IntProp = 1234, StringProp = "This is my string", DecimalProp = 12.34m },
+                    new MapObject { IntProp = 2345, StringProp = "This is my other string", DecimalProp = 23.45m },
+                }}},
+                "CYPHER param=[{IntProp:1234,StringProp:\"This is my string\",DecimalProp:12.34}, "
+                +"{IntProp:2345,StringProp:\"This is my other string\",DecimalProp:23.45}] RETURN $param"
             }
         };
 
