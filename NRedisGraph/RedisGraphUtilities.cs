@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Text;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Text;
 
 namespace NRedisGraph
 {
@@ -78,12 +78,12 @@ namespace NRedisGraph
 
                 foreach (var val in valueList)
                 {
-                    objectValueList.Add((object) val);
+                    objectValueList.Add((object)val);
                 }
 
                 return ArrayToString(objectValueList.ToArray());
             }
-            
+
             if (value is bool boolValue)
             {
                 return boolValue.ToString().ToLowerInvariant();
@@ -92,8 +92,8 @@ namespace NRedisGraph
             if (value is IConvertible floatValue)
             {
                 return ConvertibleToString(floatValue);
-            } 
-            
+            }
+
             return value.ToString();
         }
 
@@ -108,7 +108,7 @@ namespace NRedisGraph
             {
                 if (x.GetType().IsArray)
                 {
-                    return ArrayToString((object[]) x);
+                    return ArrayToString((object[])x);
                 }
                 else
                 {
@@ -124,21 +124,20 @@ namespace NRedisGraph
 
             return arrayToString.ToString();
         }
-        
+
         internal static string QuoteCharacter(char character) =>
             $"\"{character}\"";
 
         internal static string QuoteString(string unquotedString)
         {
             var quotedString = new StringBuilder(unquotedString.Length + 12);
+            var sanitizedString = unquotedString.Replace("\\", "\\\\").Replace("\"", "\\\"");
 
             quotedString.Append('"');
-            quotedString.Append(unquotedString.Replace("\"", "\\\""));
+            quotedString.Append(sanitizedString);
             quotedString.Append('"');
 
             return quotedString.ToString();
         }
-
-       
     }
 }

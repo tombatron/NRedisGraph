@@ -1,5 +1,5 @@
-﻿using Xunit;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Xunit;
 
 namespace NRedisGraph.Tests;
 
@@ -23,25 +23,43 @@ public class RedisGraphUtilitiesTests
                 new Dictionary<string, object> {{"param", string.Empty}},
                 "CYPHER param=\"\" RETURN $param"
             },
-            
+
             new object[]
             {
                 new Dictionary<string, object> {{"param", "\""}},
                 "CYPHER param=\"\\\"\" RETURN $param"
             },
-            
+
+            new object[]
+            {
+                new Dictionary<string, object> {{"param", "\\"}},
+                "CYPHER param=\"\\\\\" RETURN $param"
+            },
+
+            new object[]
+            {
+                new Dictionary<string, object> {{"param", "\\\""}},
+                "CYPHER param=\"\\\\\\\"\" RETURN $param"
+            },
+
             new object[]
             {
                 new Dictionary<string, object> {{"param", "\"st"}},
                 "CYPHER param=\"\\\"st\" RETURN $param"
             },
-            
+
+            new object[]
+            {
+                new Dictionary<string, object> {{"param", "\\st"}},
+                "CYPHER param=\"\\\\st\" RETURN $param"
+            },
+
             new object[]
             {
                 new Dictionary<string, object> {{"param", 1}},
                 "CYPHER param=1 RETURN $param"
             },
-            
+
             new object[]
             {
                 new Dictionary<string, object> {{"param", 2.3}},
@@ -78,25 +96,31 @@ public class RedisGraphUtilitiesTests
                 new Dictionary<string, object> {{"param", null}},
                 "CYPHER param=null RETURN $param"
             },
-            
+
             new object[]
             {
                 new Dictionary<string, object> {{"param", "str"}},
                 "CYPHER param=\"str\" RETURN $param"
             },
-            
+
             new object[]
             {
                 new Dictionary<string, object> {{"param", "s\"tr"}},
                 "CYPHER param=\"s\\\"tr\" RETURN $param"
             },
-            
+
+            new object[]
+            {
+                new Dictionary<string, object> {{"param", "s\\tr"}},
+                "CYPHER param=\"s\\\\tr\" RETURN $param"
+            },
+
             new object[]
             {
                 new Dictionary<string, object> {{"param", new[] {1, 2, 3}}},
                 "CYPHER param=[1, 2, 3] RETURN $param"
             },
-            
+
             new object[]
             {
                 new Dictionary<string, object> {{"param", new List<int> {1, 2, 3}}},
@@ -114,7 +138,7 @@ public class RedisGraphUtilitiesTests
                 new Dictionary<string, object> {{"param", new[] {"1", "2", "3"}}},
                 "CYPHER param=[\"1\", \"2\", \"3\"] RETURN $param"
             },
-            
+
             new object[]
             {
                 new Dictionary<string, object> {{"param", new List<string> {"1", "2", "3"}}},
