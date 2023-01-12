@@ -878,82 +878,82 @@ namespace NRedisGraph.Tests
             Assert.True(resultSet.Statistics.CachedExecution);
         }
 
-        // TODO: https://github.com/tombatron/NRedisGraph/issues/20
-        // [Fact]
-        // public void TestMapDataType()
-        // {
-        //     var expected = new Dictionary<string, object>();
-        //     expected.Put("a", (long) 1);
-        //     expected.Put("b", "str");
-        //     expected.Put("c", null);
-        //     var d = new List<long>();
-        //     d.Add(1);
-        //     d.Add(2);
-        //     d.Add(3);
-        //     expected.Put("d", d);
-        //     expected.Put("e", true);
-        //     var f = new Dictionary<string, object>();
-        //     f.Put("x", (long) 1);
-        //     f.Put("y", (long) 2);
-        //     expected.Put("f", f);
-        //     ResultSet res = _api.GraphQuery("social", "RETURN {a:1, b:'str', c:NULL, d:[1,2,3], e:True, f:{x:1, y:2}}");
-        //     Assert.Single(res);
-        //     // Record r = res.iterator().next();
-        //     var something = res.First().Values[0];
-        //     var actual = res.First().GetValue<Dictionary<string, object>>(0);
-        //     Assert.Equal(expected, actual);
-        // }        
-        
-        // TODO: https://github.com/tombatron/NRedisGraph/issues/22
-        // [Fact]
-        // public void TestGeoPointLatLon() {
-        //     var rs = _api.GraphQuery("social", "CREATE (:restaurant"
-        //                                                + " {location: point({latitude:30.27822306, longitude:-97.75134723})})");
-        //     Assert.Equal(1, rs.Statistics.NodesCreated);
-        //     Assert.Equal(1, rs.Statistics.PropertiesSet);
-        //
-        //     AssertTestGeoPoint();
-        // }
-        //
-        // [Fact]
-        // public void TestGeoPointLonLat() {
-        //     var rs = _api.GraphQuery("social", "CREATE (:restaurant"
-        //                                                + " {location: point({longitude:-97.75134723, latitude:30.27822306})})");
-        //     Assert.Equal(1, rs.Statistics.NodesCreated);
-        //     Assert.Equal(1, rs.Statistics.PropertiesSet);
-        //
-        //     AssertTestGeoPoint();
-        // }
-        //
-        // private void AssertTestGeoPoint()
-        // {
-        //     var results = _api.GraphQuery("social", "MATCH (restaurant) RETURN restaurant");
-        //     
-        //     Assert.Single(results);
-        //
-        //     var record = results.First();
-        //     Assert.Equal(1, record.Size);
-        //     Assert.Equal(new[]{"restaurant"}, record.Keys);
-        //
-        //     var node = record.Values[0] as Node;
-        //     var property = node?.PropertyMap["location"] ?? null;
-        //     
-        //     Assert.Equal(new Point(30.27822306, -97.75134723), property.Value);
-        // }
-        
-        // TODO: https://github.com/tombatron/NRedisGraph/issues/23
-        // [Fact]
-        // public void TimeoutArgument() {
-        //     var rs = _api.GraphQuery("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
-        //     
-        //     Assert.Single(rs);
-        //
-        //     var r = rs.First();
-        //     
-        //     Assert.Equal(100L, r.GetValue<long>(0));
-        // }
+    // TODO: https://github.com/tombatron/NRedisGraph/issues/20
+    [Fact]
+    public void TestMapDataType()
+    {
+      var expected = new Dictionary<string, object>();
+      expected.Put("a", (long)1);
+      expected.Put("b", "str");
+      expected.Put("c", null);
+      var d = new List<long>();
+      d.Add(1);
+      d.Add(2);
+      d.Add(3);
+      expected.Put("d", d);
+      expected.Put("e", true);
+      var f = new Dictionary<string, object>();
+      f.Put("x", (long)1);
+      f.Put("y", (long)2);
+      expected.Put("f", f);
+      ResultSet res = _api.GraphQuery("social", "RETURN {a:1, b:'str', c:NULL, d:[1,2,3], e:True, f:{x:1, y:2}}");
+      Assert.Single(res);
+      // Record r = res.iterator().next();
+      var something = res.First().Values[0];
+      var actual = res.First().GetValue<Dictionary<string, object>>(0);
+      Assert.Equal(expected, actual);
+    }
 
-        [Fact]
+    // TODO: https://github.com/tombatron/NRedisGraph/issues/22
+    // [Fact]
+    // public void TestGeoPointLatLon() {
+    //     var rs = _api.GraphQuery("social", "CREATE (:restaurant"
+    //                                                + " {location: point({latitude:30.27822306, longitude:-97.75134723})})");
+    //     Assert.Equal(1, rs.Statistics.NodesCreated);
+    //     Assert.Equal(1, rs.Statistics.PropertiesSet);
+    //
+    //     AssertTestGeoPoint();
+    // }
+    //
+    // [Fact]
+    // public void TestGeoPointLonLat() {
+    //     var rs = _api.GraphQuery("social", "CREATE (:restaurant"
+    //                                                + " {location: point({longitude:-97.75134723, latitude:30.27822306})})");
+    //     Assert.Equal(1, rs.Statistics.NodesCreated);
+    //     Assert.Equal(1, rs.Statistics.PropertiesSet);
+    //
+    //     AssertTestGeoPoint();
+    // }
+    //
+    // private void AssertTestGeoPoint()
+    // {
+    //     var results = _api.GraphQuery("social", "MATCH (restaurant) RETURN restaurant");
+    //     
+    //     Assert.Single(results);
+    //
+    //     var record = results.First();
+    //     Assert.Equal(1, record.Size);
+    //     Assert.Equal(new[]{"restaurant"}, record.Keys);
+    //
+    //     var node = record.Values[0] as Node;
+    //     var property = node?.PropertyMap["location"] ?? null;
+    //     
+    //     Assert.Equal(new Point(30.27822306, -97.75134723), property.Value);
+    // }
+
+    // TODO: https://github.com/tombatron/NRedisGraph/issues/23
+    // [Fact]
+    // public void TimeoutArgument() {
+    //     var rs = _api.GraphQuery("social", "UNWIND range(0,100) AS x WITH x AS x WHERE x = 100 RETURN x", 1L);
+    //     
+    //     Assert.Single(rs);
+    //
+    //     var r = rs.First();
+    //     
+    //     Assert.Equal(100L, r.GetValue<long>(0));
+    // }
+
+    [Fact]
         public void TestCachedExecutionReadOnly()
         {
             _api.GraphQuery("social", "CREATE (:N {val:1}), (:N {val:2})");
