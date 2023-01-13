@@ -44,6 +44,12 @@ namespace NRedisGraph
         public T GetValue<T>(string key) => (T)Values[Keys.IndexOf(key)];
 
         /// <summary>
+        /// Get all keys and values.
+        /// </summary>
+        /// <returns>All key-value pairs in the record.</returns>
+        public Dictionary<string, object> GetMap() => Keys.ToDictionary(k => k, k => GetValue<object>(k));
+
+        /// <summary>
         /// Gets the string representation of a value at the given index.
         /// </summary>
         /// <param name="index">The index of the value that you want to get.</param>

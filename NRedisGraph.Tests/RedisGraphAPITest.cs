@@ -896,9 +896,8 @@ namespace NRedisGraph.Tests
             expected.Put("f", f);
             ResultSet res = _api.GraphQuery("social", "RETURN {a:1, b:'str', c:NULL, d:[1,2,3], e:True, f:{x:1, y:2}}");
             Assert.Single(res);
-            // Record r = res.iterator().next();
-            var something = res.First().Values[0];
-            var actual = res.First().GetValue<Dictionary<string, object>>(0);
+
+            var actual = res.First().GetMap();
             Assert.Equal(expected, actual);
         }
 
@@ -920,8 +919,8 @@ namespace NRedisGraph.Tests
             expected2.Put("myString", "This is my other string");
             expected2.Put("myDecimal", 23.45);
 
-            Assert.Equal(expected1, results[0].GetValue<Dictionary<string, object>>(0));
-            Assert.Equal(expected2, results[1].GetValue<Dictionary<string, object>>(0));
+            Assert.Equal(expected1, results[0].GetMap());
+            Assert.Equal(expected2, results[1].GetMap());
         }
 
         // TODO: https://github.com/tombatron/NRedisGraph/issues/22
