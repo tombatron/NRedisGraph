@@ -21,7 +21,9 @@
   </PropertyGroup>  
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="StackExchange.Redis" Version="2.*" />
+    <PackageReference Include="System.Text.Json" Version="7.0.1" />
   </ItemGroup>
 
   <PropertyGroup>

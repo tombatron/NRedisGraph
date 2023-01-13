@@ -1,9 +1,11 @@
-﻿using System;
-using System.Text;
-using System.Linq;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace NRedisGraph
 {
@@ -78,12 +80,12 @@ namespace NRedisGraph
 
                 foreach (var val in valueList)
                 {
-                    objectValueList.Add((object) val);
+                    objectValueList.Add((object)val);
                 }
 
                 return ArrayToString(objectValueList.ToArray());
             }
-            
+
             if (value is bool boolValue)
             {
                 return boolValue.ToString().ToLowerInvariant();
@@ -92,9 +94,25 @@ namespace NRedisGraph
             if (value is IConvertible floatValue)
             {
                 return ConvertibleToString(floatValue);
-            } 
-            
-            return value.ToString();
+            }
+
+            return SerializeJson(value);
+        }
+
+        private static string SerializeJson(object value)
+        {
+            var serializer = new JsonSerializer();
+            serializer.NullValueHandling = NullValueHandling.Ignore;
+
+            var stringWriter = new StringWriter();
+            using (var writer = new JsonTextWriter(stringWriter))
+            {
+                writer.QuoteName = false;
+                serializer.Serialize(writer, value);
+            }
+            var json = stringWriter.ToString();
+
+            return json;
         }
 
         private static string ConvertibleToString(IConvertible floatValue)
@@ -108,7 +126,7 @@ namespace NRedisGraph
             {
                 if (x.GetType().IsArray)
                 {
-                    return ArrayToString((object[]) x);
+                    return ArrayToString((object[])x);
                 }
                 else
                 {
@@ -124,7 +142,7 @@ namespace NRedisGraph
 
             return arrayToString.ToString();
         }
-        
+
         internal static string QuoteCharacter(char character) =>
             $"\"{character}\"";
 
@@ -138,7 +156,5 @@ namespace NRedisGraph
 
             return quotedString.ToString();
         }
-
-       
     }
 }
