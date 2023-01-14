@@ -22,7 +22,8 @@ namespace NRedisGraph
             VALUE_ARRAY,
             VALUE_EDGE,
             VALUE_NODE,
-            VALUE_PATH
+            VALUE_PATH,
+            VALUE_MAP
         }
 
         private readonly RedisResult[] _rawResults;
@@ -194,7 +195,9 @@ namespace NRedisGraph
                 case ResultSetScalarType.VALUE_EDGE:
                     return DeserializeEdge((RedisResult[])rawScalarData[1]);
                 case ResultSetScalarType.VALUE_PATH:
-                    return DeserializePath((RedisResult[])rawScalarData[1]);
+                  return DeserializePath((RedisResult[])rawScalarData[1]);
+                case ResultSetScalarType.VALUE_MAP:
+                  return DeserializeMap((RedisResult[])rawScalarData[1]);
                 case ResultSetScalarType.VALUE_UNKNOWN:
                 default:
                     return (object)rawScalarData[1];
@@ -216,6 +219,17 @@ namespace NRedisGraph
 
                 graphEntity.AddProperty(property);
             }
+        }
+
+        private object DeserializeMap(RedisResult[] serializedMap)
+        {
+            var map = new Dictionary<string, object>(serializedMap.Length / 2);
+            for (var i = 0; i < serializedMap.Length; i+=2)
+            {
+                var key = (String)serializedMap[i];
+                map[key] = DeserializeScalar((RedisResult[])serializedMap[i+1]);
+            }
+            return map;
         }
 
         private object[] DeserializeArray(RedisResult[] serializedArray)
