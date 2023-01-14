@@ -6,11 +6,11 @@
 
 NRedisGraph is a series of extensions methods for the [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis) library that will enable you to interact with the [Redis](https://redis.io) module [RedisGraph](https://oss.redislabs.com/redisgraph/). This is made possible by the `Execute` and `ExecuteAsync` methods already present in the StackExchange.Redis library. 
 
-The intent with this library is to duplicate the API (as much as possible) of the [JRedisGraph](https://github.com/RedisGraph/JRedisGraph) library which extends [Jedis](https://github.com/xetorthio/jedis).
+The intent of this library is to duplicate the API (as much as possible) of the RedisGraph module support found embedded in the [Jedis](https://github.com/xetorthio/jedis) library.
 
 ## Installation
 
-`PM> Install-Package NRedisGraph -Version 1.8.0`
+`PM> Install-Package NRedisGraph -Version 1.9.0`
 
 ## Usage
 

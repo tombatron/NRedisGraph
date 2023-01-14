@@ -3,17 +3,17 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472;net461</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Tom Hanks, John Weber (jweber), Jason Geyen (jgeyen), Rolf Wessels (rolfwessels)</Authors>
+    <Authors>Tom Hanks (tombatron), John Weber (jweber), Jason Geyen (jgeyen), Rolf Wessels (rolfwessels), Rob Povey (polygonhell)</Authors>
     <Company />
-    <AssemblyVersion>1.8.0.0</AssemblyVersion>
-    <FileVersion>1.8.0.0</FileVersion>
-    <Version>1.8.0</Version>
+    <AssemblyVersion>1.9.0.0</AssemblyVersion>
+    <FileVersion>1.9.0.0</FileVersion>
+    <Version>1.9.0</Version>
     <Description>A series of extension methods for use with StackExchange.Redis 2.x and the RedisGraph Redis module.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/tombatron/NRedisGraph</RepositoryUrl>
     <ProjectRepository>https://github.com/tombatron/NRedisGraph</ProjectRepository>
     <LangVersion>7.3</LangVersion>
-    <PackageVersion>1.8.0</PackageVersion>
+    <PackageVersion>1.9.0</PackageVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -26,7 +26,8 @@
 
   <PropertyGroup>
     <PackageLicenseFile>license.txt</PackageLicenseFile>
-    <PackageReleaseNotes>    1.8.0 - Fixed issue with decimal formatting with "current culture" instead of invariant. 
+    <PackageReleaseNotes>    1.9.0 - Added support for "MAP" results [Issue #20, thanks to polygonhell].
+    1.8.0 - Fixed issue with decimal formatting with "current culture" instead of invariant. 
     1.7.0 - Fixed issue with parsing results from a "read only" query. Introduced read only versions of the "CallProcedure" method. 
     1.6.0 - Added support for `GRAPH.RO_QUERY` command.
     1.5.0 - Sprinkled in a little bit of whimsy. 
