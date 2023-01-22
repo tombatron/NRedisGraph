@@ -1,7 +1,6 @@
 // .NET port of https://github.com/RedisGraph/JRedisGraph
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,9 +42,10 @@ namespace NRedisGraph
         /// <param name="graphId">A graph to perform the query on.</param>
         /// <param name="query">The Cypher query.</param>
         /// <param name="parameters">Parameters map.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param> 
         /// <returns>A result set.</returns>
-        public ResultSet GraphQuery(string graphId, string query, IDictionary<string, object> parameters) =>
-            Query(graphId, query, parameters);
+        public ResultSet GraphQuery(string graphId, string query, IDictionary<string, object> parameters, CommandFlags flags = CommandFlags.None) =>
+            Query(graphId, query, parameters, flags);
 
         /// <summary>
         /// Execute a Cypher query with parameters.
@@ -53,12 +53,13 @@ namespace NRedisGraph
         /// <param name="graphId">A graph to perform the query on.</param>
         /// <param name="query">The Cypher query.</param>
         /// <param name="parameters">Parameters map.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>
         /// <returns>A result set.</returns>
-        public ResultSet Query(string graphId, string query, IDictionary<string, object> parameters)
+        public ResultSet Query(string graphId, string query, IDictionary<string, object> parameters, CommandFlags flags = CommandFlags.None)
         {
             var preparedQuery = PrepareQuery(query, parameters);
 
-            return Query(graphId, preparedQuery);
+            return Query(graphId, preparedQuery, flags);
         }
 
         /// <summary>
@@ -66,21 +67,30 @@ namespace NRedisGraph
         /// </summary>
         /// <param name="graphId">A graph to perform the query on.</param>
         /// <param name="query">The Cypher query.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>
         /// <returns>A result set.</returns>
-        public ResultSet GraphQuery(string graphId, string query) =>
-            Query(graphId, query);
+        public ResultSet GraphQuery(string graphId, string query, CommandFlags flags = CommandFlags.None) =>
+            Query(graphId, query, flags);
 
         /// <summary>
         /// Execute a Cypher query.
         /// </summary>
         /// <param name="graphId">A graph to perform the query on.</param>
         /// <param name="query">The Cypher query.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>
         /// <returns>A result set.</returns>
-        public ResultSet Query(string graphId, string query)
+        public ResultSet Query(string graphId, string query, CommandFlags flags = CommandFlags.None)
         {
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
 
-            return new ResultSet(_db.Execute(Command.QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
+            var commandArgs = new object[]
+            {
+                graphId,
+                query,
+                CompactQueryFlag
+            };
+
+            return new ResultSet(_db.Execute(Command.QUERY, commandArgs, flags), _graphCaches[graphId]);
         }
 
         /// <summary>
@@ -89,9 +99,10 @@ namespace NRedisGraph
         /// <param name="graphId">A graph to perform the query on.</param>
         /// <param name="query">The Cypher query.</param>
         /// <param name="parameters">Parameters map.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>
         /// <returns>A result set.</returns>
-        public Task<ResultSet> GraphQueryAsync(string graphId, string query, IDictionary<string, object> parameters) =>
-            QueryAsync(graphId, query, parameters);
+        public Task<ResultSet> GraphQueryAsync(string graphId, string query, IDictionary<string, object> parameters, CommandFlags flags = CommandFlags.None) =>
+            QueryAsync(graphId, query, parameters, flags);
 
         /// <summary>
         /// Execute a Cypher query with parameters.
@@ -99,12 +110,13 @@ namespace NRedisGraph
         /// <param name="graphId">A graph to perform the query on.</param>
         /// <param name="query">The Cypher query.</param>
         /// <param name="parameters">Parameters map.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>
         /// <returns>A result set.</returns>
-        public Task<ResultSet> QueryAsync(string graphId, string query, IDictionary<string, object> parameters)
+        public Task<ResultSet> QueryAsync(string graphId, string query, IDictionary<string, object> parameters, CommandFlags flags = CommandFlags.None)
         {
             var preparedQuery = PrepareQuery(query, parameters);
 
-            return QueryAsync(graphId, preparedQuery);
+            return QueryAsync(graphId, preparedQuery, flags);
         }
 
         /// <summary>
@@ -112,21 +124,30 @@ namespace NRedisGraph
         /// </summary>
         /// <param name="graphId">A graph to perform the query on.</param>
         /// <param name="query">The Cypher query.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>
         /// <returns>A result set.</returns>
-        public Task<ResultSet> GraphQueryAsync(string graphId, string query) =>
-            QueryAsync(graphId, query);
+        public Task<ResultSet> GraphQueryAsync(string graphId, string query, CommandFlags flags = CommandFlags.None) =>
+            QueryAsync(graphId, query, flags);
 
         /// <summary>
         /// Execute a Cypher query.
         /// </summary>
         /// <param name="graphId">A graph to perform the query on.</param>
         /// <param name="query">The Cypher query.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>
         /// <returns>A result set.</returns>
-        public async Task<ResultSet> QueryAsync(string graphId, string query)
+        public async Task<ResultSet> QueryAsync(string graphId, string query, CommandFlags flags = CommandFlags.None)
         {
             _graphCaches.PutIfAbsent(graphId, new GraphCache(graphId, this));
 
-            return new ResultSet(await _db.ExecuteAsync(Command.QUERY, graphId, query, CompactQueryFlag), _graphCaches[graphId]);
+            var commandArgs = new object[]
+            {
+                graphId,
+                query,
+                CompactQueryFlag
+            };
+
+            return new ResultSet(await _db.ExecuteAsync(Command.QUERY, commandArgs, flags), _graphCaches[graphId]);
         }
 
         /// <summary>
@@ -155,7 +176,7 @@ namespace NRedisGraph
         {
             _graphCaches.PutIfAbsent(graphId, new ReadOnlyGraphCache(graphId, this));
 
-            var parameters = new Collection<object>
+            var parameters = new object[]
             {
                 graphId,
                 query,
@@ -193,7 +214,7 @@ namespace NRedisGraph
         {
             _graphCaches.PutIfAbsent(graphId, new ReadOnlyGraphCache(graphId, this));
 
-            var parameters = new Collection<object>
+            var parameters = new object[]
             {
                 graphId,
                 query,
@@ -213,18 +234,20 @@ namespace NRedisGraph
         /// </summary>
         /// <param name="graphId">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public ResultSet CallProcedure(string graphId, string procedure) =>
-            CallProcedure(graphId, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
+        public ResultSet CallProcedure(string graphId, string procedure, CommandFlags flags = CommandFlags.None) =>
+            CallProcedure(graphId, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary, flags);
 
         /// <summary>
         /// Call a saved procedure.
         /// </summary>
         /// <param name="graphId">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public Task<ResultSet> CallProcedureAsync(string graphId, string procedure) =>
-            CallProcedureAsync(graphId, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
+        public Task<ResultSet> CallProcedureAsync(string graphId, string procedure, CommandFlags flags = CommandFlags.None) =>
+            CallProcedureAsync(graphId, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary, flags);
 
         /// <summary>
         /// Call a saved procedure with parameters.
@@ -232,9 +255,10 @@ namespace NRedisGraph
         /// <param name="graphId">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
         /// <param name="args">A collection of positional arguments.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public ResultSet CallProcedure(string graphId, string procedure, IEnumerable<string> args) =>
-            CallProcedure(graphId, procedure, args, EmptyKwargsDictionary);
+        public ResultSet CallProcedure(string graphId, string procedure, IEnumerable<string> args, CommandFlags flags = CommandFlags.None) =>
+            CallProcedure(graphId, procedure, args, EmptyKwargsDictionary, flags);
 
         /// <summary>
         /// Call a saved procedure with parameters.
@@ -242,8 +266,9 @@ namespace NRedisGraph
         /// <param name="graphId">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
         /// <param name="args">A collection of positional arguments.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public Task<ResultSet> CallProcedureAsync(string graphId, string procedure, IEnumerable<string> args) =>
+        public Task<ResultSet> CallProcedureAsync(string graphId, string procedure, IEnumerable<string> args, CommandFlags flags = CommandFlags.None) =>
             CallProcedureAsync(graphId, procedure, args, EmptyKwargsDictionary);
 
         /// <summary>
@@ -253,8 +278,9 @@ namespace NRedisGraph
         /// <param name="procedure">The procedure name.</param>
         /// <param name="args">A collection of positional arguments.</param>
         /// <param name="kwargs">A collection of keyword arguments.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public ResultSet CallProcedure(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
+        public ResultSet CallProcedure(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs, CommandFlags flags = CommandFlags.None)
         {
             args = args.Select(a => QuoteString(a));
 
@@ -267,7 +293,7 @@ namespace NRedisGraph
                 queryBody.Append(string.Join(",", kwargsList));
             }
 
-            return Query(graphId, queryBody.ToString());
+            return Query(graphId, queryBody.ToString(), flags);
         }
 
         /// <summary>
@@ -277,8 +303,9 @@ namespace NRedisGraph
         /// <param name="procedure">The procedure name.</param>
         /// <param name="args">A collection of positional arguments.</param>
         /// <param name="kwargs">A collection of keyword arguments.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public Task<ResultSet> CallProcedureAsync(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
+        public Task<ResultSet> CallProcedureAsync(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs, CommandFlags flags = CommandFlags.None)
         {
             args = args.Select(a => QuoteString(a));
 
@@ -291,7 +318,7 @@ namespace NRedisGraph
                 queryBody.Append(string.Join(",", kwargsList));
             }
 
-            return QueryAsync(graphId, queryBody.ToString());
+            return QueryAsync(graphId, queryBody.ToString(), flags);
         }
 
         /// <summary>
@@ -307,10 +334,16 @@ namespace NRedisGraph
         /// Delete an existing graph.
         /// </summary>
         /// <param name="graphId">The graph to delete.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public ResultSet DeleteGraph(string graphId)
+        public ResultSet DeleteGraph(string graphId, CommandFlags flags = CommandFlags.None)
         {
-            var result = _db.Execute(Command.DELETE, graphId);
+            var commandArgs = new object[]
+            {
+                graphId
+            };
+
+            var result = _db.Execute(Command.DELETE, commandArgs, flags);
 
             var processedResult = new ResultSet(result, _graphCaches[graphId]);
 
@@ -323,10 +356,16 @@ namespace NRedisGraph
         /// Delete an existing graph.
         /// </summary>
         /// <param name="graphId">The graph to delete.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public async Task<ResultSet> DeleteGraphAsync(string graphId)
+        public async Task<ResultSet> DeleteGraphAsync(string graphId, CommandFlags flags = CommandFlags.None)
         {
-            var result = await _db.ExecuteAsync(Command.DELETE, graphId);
+            var commandArgs = new object[]
+            {
+                graphId
+            };
+
+            var result = await _db.ExecuteAsync(Command.DELETE, commandArgs, flags);
 
             var processedResult = new ResultSet(result, _graphCaches[graphId]);
 
@@ -340,18 +379,20 @@ namespace NRedisGraph
         /// </summary>
         /// <param name="graphId">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public ResultSet CallProcedureReadOnly(string graphId, string procedure) =>
-            CallProcedureReadOnly(graphId, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
+        public ResultSet CallProcedureReadOnly(string graphId, string procedure, CommandFlags flags = CommandFlags.None) =>
+            CallProcedureReadOnly(graphId, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary, flags);
 
         /// <summary>
         /// Call a saved procedure against a read-only node.
         /// </summary>
         /// <param name="graphId">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public Task<ResultSet> CallProcedureReadOnlyAsync(string graphId, string procedure) =>
-            CallProcedureReadOnlyAsync(graphId, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary);
+        public Task<ResultSet> CallProcedureReadOnlyAsync(string graphId, string procedure, CommandFlags flags = CommandFlags.None) =>
+            CallProcedureReadOnlyAsync(graphId, procedure, Enumerable.Empty<string>(), EmptyKwargsDictionary, flags);
 
         /// <summary>
         /// Call a saved procedure with parameters against a read-only node.
@@ -359,9 +400,10 @@ namespace NRedisGraph
         /// <param name="graphId">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
         /// <param name="args">A collection of positional arguments.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public ResultSet CallProcedureReadOnly(string graphId, string procedure, IEnumerable<string> args) =>
-            CallProcedureReadOnly(graphId, procedure, args, EmptyKwargsDictionary);
+        public ResultSet CallProcedureReadOnly(string graphId, string procedure, IEnumerable<string> args, CommandFlags flags = CommandFlags.None) =>
+            CallProcedureReadOnly(graphId, procedure, args, EmptyKwargsDictionary, flags);
 
         /// <summary>
         /// Call a saved procedure with parameters against a read-only node.
@@ -369,9 +411,10 @@ namespace NRedisGraph
         /// <param name="graphId">The graph containing the saved procedure.</param>
         /// <param name="procedure">The procedure name.</param>
         /// <param name="args">A collection of positional arguments.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public Task<ResultSet> CallProcedureReadOnlyAsync(string graphId, string procedure, IEnumerable<string> args) =>
-            CallProcedureReadOnlyAsync(graphId, procedure, args, EmptyKwargsDictionary);
+        public Task<ResultSet> CallProcedureReadOnlyAsync(string graphId, string procedure, IEnumerable<string> args, CommandFlags flags = CommandFlags.None) =>
+            CallProcedureReadOnlyAsync(graphId, procedure, args, EmptyKwargsDictionary, flags);
 
         /// <summary>
         /// Call a saved procedure with parameters against a read-only node.
@@ -380,8 +423,9 @@ namespace NRedisGraph
         /// <param name="procedure">The procedure name.</param>
         /// <param name="args">A collection of positional arguments.</param>
         /// <param name="kwargs">A collection of keyword arguments.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public ResultSet CallProcedureReadOnly(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
+        public ResultSet CallProcedureReadOnly(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs, CommandFlags flags = CommandFlags.None)
         {
             args = args.Select(a => QuoteString(a));
 
@@ -394,7 +438,7 @@ namespace NRedisGraph
                 queryBody.Append(string.Join(",", kwargsList));
             }
 
-            return GraphReadOnlyQuery(graphId, queryBody.ToString());
+            return GraphReadOnlyQuery(graphId, queryBody.ToString(), flags);
         }
 
         /// <summary>
@@ -404,8 +448,9 @@ namespace NRedisGraph
         /// <param name="procedure">The procedure name.</param>
         /// <param name="args">A collection of positional arguments.</param>
         /// <param name="kwargs">A collection of keyword arguments.</param>
+        /// <param name="flags">[Optional] Command flags that are to be sent to the StackExchange.Redis connection multiplexer...</param>/// 
         /// <returns>A result set.</returns>
-        public Task<ResultSet> CallProcedureReadOnlyAsync(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs)
+        public Task<ResultSet> CallProcedureReadOnlyAsync(string graphId, string procedure, IEnumerable<string> args, Dictionary<string, List<string>> kwargs, CommandFlags flags = CommandFlags.None)
         {
             args = args.Select(a => QuoteString(a));
 
@@ -418,7 +463,7 @@ namespace NRedisGraph
                 queryBody.Append(string.Join(",", kwargsList));
             }
 
-            return GraphReadOnlyQueryAsync(graphId, queryBody.ToString());
+            return GraphReadOnlyQueryAsync(graphId, queryBody.ToString(), flags);
         }        
     }
 }
