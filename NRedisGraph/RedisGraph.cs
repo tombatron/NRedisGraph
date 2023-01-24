@@ -90,7 +90,16 @@ namespace NRedisGraph
                 CompactQueryFlag
             };
 
-            return new ResultSet(_db.Execute(Command.QUERY, commandArgs, flags), _graphCaches[graphId]);
+            var rawResult = _db.Execute(Command.QUERY, commandArgs, flags);
+
+            if (flags.HasFlag(CommandFlags.FireAndForget))
+            {
+                return default;
+            }
+            else
+            {
+                return new ResultSet(rawResult, _graphCaches[graphId]);
+            }
         }
 
         /// <summary>
@@ -147,7 +156,16 @@ namespace NRedisGraph
                 CompactQueryFlag
             };
 
-            return new ResultSet(await _db.ExecuteAsync(Command.QUERY, commandArgs, flags), _graphCaches[graphId]);
+            var rawResult = await _db.ExecuteAsync(Command.QUERY, commandArgs, flags);
+
+            if (flags.HasFlag(CommandFlags.FireAndForget))
+            {
+                return default;
+            }
+            else
+            {
+                return new ResultSet(rawResult, _graphCaches[graphId]);
+            }
         }
 
         /// <summary>
@@ -343,13 +361,18 @@ namespace NRedisGraph
                 graphId
             };
 
-            var result = _db.Execute(Command.DELETE, commandArgs, flags);
-
-            var processedResult = new ResultSet(result, _graphCaches[graphId]);
+            var rawResult = _db.Execute(Command.DELETE, commandArgs, flags);
 
             _graphCaches.Remove(graphId);
 
-            return processedResult;
+            if (flags.HasFlag(CommandFlags.FireAndForget))
+            {
+                return default;
+            }
+            else
+            {
+                return new ResultSet(rawResult, _graphCaches[graphId]);
+            }
         }
 
         /// <summary>
@@ -365,15 +388,20 @@ namespace NRedisGraph
                 graphId
             };
 
-            var result = await _db.ExecuteAsync(Command.DELETE, commandArgs, flags);
-
-            var processedResult = new ResultSet(result, _graphCaches[graphId]);
+            var rawResult = await _db.ExecuteAsync(Command.DELETE, commandArgs, flags);
 
             _graphCaches.Remove(graphId);
 
-            return processedResult;
+            if (flags.HasFlag(CommandFlags.FireAndForget))
+            {
+                return default;
+            }
+            else
+            {
+                return new ResultSet(rawResult, _graphCaches[graphId]);
+            }
         }
-        
+
         /// <summary>
         /// Call a saved procedure against a read-only node.
         /// </summary>
@@ -464,6 +492,6 @@ namespace NRedisGraph
             }
 
             return GraphReadOnlyQueryAsync(graphId, queryBody.ToString(), flags);
-        }        
+        }
     }
 }
