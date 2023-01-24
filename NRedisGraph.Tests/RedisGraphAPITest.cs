@@ -65,6 +65,17 @@ namespace NRedisGraph.Tests
         }
 
         [Fact]
+        public void TestCreateLabeledNodeFireAndForget()
+        {
+            // Create a node with a label
+            ResultSet resultSet = _api.Query("social", "CREATE (:human{name:'danny',age:12})");
+            Assert.Empty(resultSet);
+            Assert.Equal("1", resultSet.Statistics.GetStringValue(Label.NodesCreated));
+            Assert.Equal("2", resultSet.Statistics.GetStringValue(Label.PropertiesSet));
+            Assert.NotNull(resultSet.Statistics.GetStringValue(Label.QueryInternalExecutionTime));
+        }        
+
+        [Fact]
         public void TestConnectNodes()
         {
             // Create both source and destination nodes
